@@ -117,20 +117,69 @@ header h1 {
 /* Main Content */
 .main-content {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr; /* Default single column */
   gap: 2rem;
   flex-grow: 1;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 992px) { /* Adjust breakpoint for better layout */
   .main-content {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; /* Two columns */
+    /* Define grid areas for clarity */
+    grid-template-areas:
+      "upload preview"
+      "health-input results"
+      "health-info health-info"; 
   }
-  
-  .results-section {
-    grid-column: span 2;
-  }
+
+  .upload-section { grid-area: upload; }
+  .preview-section { grid-area: preview; }
+  .health-input-section { grid-area: health-input; }
+  .results-section { grid-area: results; }
+  .health-info-section { grid-area: health-info; }
 }
+
+@media (min-width: 768px) and (max-width: 991px) { /* Tablet view: stack health/results below */
+   .main-content {
+    grid-template-columns: 1fr 1fr; 
+    grid-template-areas:
+      "upload preview"
+      "health-input health-input"
+      "results results"
+      "health-info health-info"; 
+  }
+   .upload-section { grid-area: upload; }
+   .preview-section { grid-area: preview; }
+   .health-input-section { grid-area: health-input; }
+   .results-section { grid-area: results; }
+   .health-info-section { grid-area: health-info; }
+}
+
+
+/* Shared Section Styling */
+.upload-section, 
+.preview-section, 
+.results-section,
+.health-input-section, /* Added */
+.health-info-section { /* Added */
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  padding: 1.5rem;
+  /* Removed height: 100% to allow natural height */
+}
+
+/* Section Specific Titles */
+.upload-container h2,
+.image-preview-container h2,
+.results-container h2,
+.placeholder h2,
+.health-input-container h2, /* Added */
+.health-info-container h2 { /* Added */
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
 
 /* Upload Section */
 .upload-section, .preview-section, .results-section {
@@ -342,6 +391,83 @@ header h1 {
   font-size: 0.85rem;
   font-weight: 600;
 }
+
+
+/* Health Input Section */
+.health-input-section {
+  /* Inherits base section styles */
+}
+
+.health-input-container p {
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+}
+
+.input-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.input-group input[type="number"],
+.input-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.input-group textarea {
+  resize: vertical; /* Allow vertical resize */
+}
+
+.bmi-display {
+  display: inline-block;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  font-weight: 500;
+  min-width: 100px; /* Ensure some width */
+  text-align: center;
+}
+
+/* Health Info Section */
+.health-info-section {
+ /* Inherits base section styles */
+}
+
+.health-info-container {
+  /* Styles for the container when info is present */
+}
+
+.health-content h3 {
+  color: var(--primary-color);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.25rem;
+}
+
+.health-content p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+
+/* Ensure error messages within placeholders are styled */
+.placeholder .error-message {
+  width: 100%;
+  text-align: center;
+  padding: 1rem;
+}
+
 
 /* Loading indicator */
 .loading-spinner {

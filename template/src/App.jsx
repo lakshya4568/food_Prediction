@@ -1,13 +1,34 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react' // Added useEffect
 import './App.css'
 
 function App() {
+  // Existing state
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [prediction, setPrediction] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // Loading for prediction
+  const [error, setError] = useState(null); // Error for prediction
   const fileInputRef = useRef(null);
+
+  // New state for health info
+  const [height, setHeight] = useState(''); // in cm
+  const [weight, setWeight] = useState(''); // in kg
+  const [bmi, setBmi] = useState(null);
+  const [conditions, setConditions] = useState('');
+  const [healthInfo, setHealthInfo] = useState(null);
+  const [isHealthLoading, setIsHealthLoading] = useState(false); // Loading for health info
+  const [healthError, setHealthError] = useState(null); // Error for health info
+
+  // Calculate BMI automatically
+  useEffect(() => {
+    if (height > 0 && weight > 0) {
+      const heightInMeters = height / 100;
+      const calculatedBmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+      setBmi(calculatedBmi);
+    } else {
+      setBmi(null); // Reset if height or weight is invalid
+    }
+  }, [height, weight]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -60,22 +81,82 @@ function App() {
     } catch (err) {
       console.error('Error:', err);
       setError('Failed to get prediction. Please try again.');
-      // For development - show a mock result when backend is not available
-      setPrediction({
-        class: 'pizza',
-        confidence: 0.95,
-        top_classes: [
-          { class: 'pizza', confidence: 0.95 },
-          { class: 'steak', confidence: 0.03 },
-          { class: 'sushi', confidence: 0.02 }
-        ]
-      });
+      // Clear previous health info on new prediction error
+      setHealthInfo(null); 
+      setHealthError(null);
+      // // For development - show a mock result when backend is not available
+      // setPrediction({
+      //   class: 'pizza',
+      //   confidence: 0.95,
+      //   top_classes: [
+      //     { class: 'pizza', confidence: 0.95 },
+      //     { class: 'steak', confidence: 0.03 },
+      //     { class: 'sushi', confidence: 0.02 }
+      //   ]
+      // });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Fetch health info after prediction and if health details are available
+  const fetchHealthInfo = async () => {
+    if (!prediction || !prediction.class || !height || !weight || !bmi) {
+      setHealthError("Please enter your height and weight to get health recommendations.");
+      return;
+    }
+
+    setIsHealthLoading(true);
+    setHealthError(null);
+    setHealthInfo(null); // Clear previous results
+
+    try {
+      const response = await fetch('http://localhost:5000/get_health_info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          food_name: prediction.class,
+          height: height,
+          weight: weight,
+          bmi: bmi,
+          conditions: conditions,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Server responded with ${response.status}`);
+      }
+
+      const data = await response.json();
+      setHealthInfo(data);
+
+    } catch (err) {
+      console.error('Error fetching health info:', err);
+      setHealthError(`Failed to get health info: ${err.message}`);
+    } finally {
+      setIsHealthLoading(false);
+    }
+  };
+
+  // Trigger health info fetch when prediction is ready and health inputs are valid
+  useEffect(() => {
+    if (prediction && prediction.class && height && weight && bmi) {
+      fetchHealthInfo();
+    }
+     // Clear health info if prediction is reset
+    if (!prediction) {
+        setHealthInfo(null);
+        setHealthError(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prediction, height, weight, bmi]); // Re-fetch if prediction or core health details change
+
+
   const resetForm = () => {
+    // Reset existing state
     setSelectedImage(null);
     setImagePreview(null);
     setPrediction(null);
@@ -83,6 +164,15 @@ function App() {
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
     }
+    // Reset new health state
+    setHeight('');
+    setWeight('');
+    setBmi(null);
+    setConditions('');
+    setHealthInfo(null);
+    setHealthError(null);
+    setIsHealthLoading(false);
+    setIsLoading(false); // Also reset prediction loading
   };
 
   return (
@@ -156,11 +246,59 @@ function App() {
           )}
         </section>
 
+        {/* New User Health Input Section */}
+        <section className="health-input-section">
+          <div className="health-input-container">
+            <h2>Your Health Profile</h2>
+            <p>Enter your details for personalized recommendations.</p>
+            <div className="input-group">
+              <label htmlFor="height">Height (cm):</label>
+              <input
+                type="number"
+                id="height"
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                placeholder="e.g., 175"
+                disabled={isLoading || isHealthLoading}
+              />
+            </div>
+            <div className="input-group">
+              <label htmlFor="weight">Weight (kg):</label>
+              <input
+                type="number"
+                id="weight"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                placeholder="e.g., 70"
+                disabled={isLoading || isHealthLoading}
+              />
+            </div>
+            <div className="input-group">
+              <label>Calculated BMI:</label>
+              <span className="bmi-display">{bmi ? bmi : 'Enter height & weight'}</span>
+            </div>
+            <div className="input-group">
+              <label htmlFor="conditions">Pre-existing Conditions (optional):</label>
+              <textarea
+                id="conditions"
+                value={conditions}
+                onChange={(e) => setConditions(e.target.value)}
+                placeholder="e.g., Diabetes, High Blood Pressure"
+                rows="3"
+                disabled={isLoading || isHealthLoading}
+              />
+            </div>
+             {/* Display health-related errors here */}
+             {healthError && !isHealthLoading && <div className="error-message">{healthError}</div>}
+          </div>
+        </section>
+
+        {/* Prediction Results Section (Modified) */}
         <section className="results-section">
           {prediction ? (
             <div className="results-container">
               <h2>Prediction Results</h2>
-              <div className="prediction-result">
+              <div className="prediction-result"> {/* Keep existing prediction display */}
                 <div className="main-prediction">
                   <span className="prediction-label">Predicted Food:</span>
                   <span className="prediction-class">{prediction.class}</span>
@@ -182,6 +320,7 @@ function App() {
                   ))}
                 </div>
               </div>
+              {/* Extra div removed */}
             </div>
           ) : (
             <div className="placeholder">
@@ -192,6 +331,47 @@ function App() {
               </div>
             </div>
           )}
+        </section>
+
+        {/* New Health Info Display Section */}
+        <section className="health-info-section">
+           {isHealthLoading ? (
+             <div className="placeholder">
+               <h2>Health Information</h2>
+               <div className="placeholder-content">
+                 <p>Fetching health recommendations...</p>
+                 <div className="loading-spinner"></div>
+               </div>
+             </div>
+           ) : healthInfo ? (
+            <div className="health-info-container">
+              <h2>Health Information for {prediction?.class}</h2>
+              <div className="health-content">
+                <h3>Health Benefits:</h3>
+                <p>{healthInfo.health_benefits}</p>
+                <h3>Recommendation:</h3>
+                <p>{healthInfo.recommendation}</p>
+              </div>
+            </div>
+          ) : prediction && height && weight && !healthError ? (
+             // Show placeholder only if prediction exists and health details entered, but no info yet (and not loading/error)
+             <div className="placeholder">
+               <h2>Health Information</h2>
+               <div className="placeholder-content">
+                 <p>Health recommendations will appear here once calculated.</p>
+               </div>
+             </div>
+           ) : null /* Don't show this section if no prediction or health details */
+           }
+           {/* Display health errors specifically in this section if not loading */}
+           {healthError && !isHealthLoading && (
+              <div className="placeholder">
+                 <h2>Health Information</h2>
+                 <div className="placeholder-content error-message">
+                   <p>Error: {healthError}</p>
+                 </div>
+              </div>
+           )}
         </section>
       </div>
 
