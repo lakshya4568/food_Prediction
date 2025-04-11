@@ -18,7 +18,7 @@ CORS(app)  # Enable CORS to allow cross-origin requests from React frontend
 # os.environ['GEMINI_API_KEY'] = 'YOUR_API_KEY_HERE' # Replace if needed
 try:
     # Use the key provided by the user directly for now
-    GEMINI_API_KEY = "AIzaSyA6zoYdzKltTpYd4BoMcwfAUmMT6u_JdKE" 
+    GEMINI_API_KEY = os.environ('GEMINI_API_KEY') 
     genai.configure(api_key=GEMINI_API_KEY)
     gemini_model = genai.GenerativeModel('gemini-pro')
     print("Gemini API configured successfully.")
