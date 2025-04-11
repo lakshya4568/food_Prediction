@@ -4,7 +4,29 @@ import './App.css';
 
 function App() {
   // Theme state ('light' or 'dark')
-  const [theme, setTheme] = useState('light'); 
+  const [theme, setTheme] = useState(() => {
+    // Check for saved theme preference or use system preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      return savedTheme;
+    }
+    // Check if user prefers dark mode
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    return 'light';
+  }); 
+
+  // Apply theme to document body
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
+    // Save theme preference
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   // Existing state
   const [selectedImage, setSelectedImage] = useState(null);
