@@ -1,4 +1,5 @@
 import os
+import os
 import io
 import torch
 import torchvision.transforms as transforms
@@ -6,9 +7,25 @@ from torchvision import models
 from PIL import Image
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import google.generativeai as genai
+import json # Although not strictly needed for this change, good practice if handling complex JSON later
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS to allow cross-origin requests from React frontend
+
+# Configure Gemini API
+# IMPORTANT: Set the GEMINI_API_KEY environment variable before running the app
+# For development/testing, we can use the key provided, but env var is safer
+# os.environ['GEMINI_API_KEY'] = 'YOUR_API_KEY_HERE' # Replace if needed
+try:
+    # Use the key provided by the user directly for now
+    GEMINI_API_KEY = "AIzaSyA6zoYdzKltTpYd4BoMcwfAUmMT6u_JdKE" 
+    genai.configure(api_key=GEMINI_API_KEY)
+    gemini_model = genai.GenerativeModel('gemini-pro')
+    print("Gemini API configured successfully.")
+except Exception as e:
+    print(f"Error configuring Gemini API: {e}")
+    gemini_model = None
 
 # Load the pretrained ViT model
 def load_model():
@@ -82,9 +99,85 @@ def predict():
     
     return jsonify(result)
 
+@app.route('/get_health_info', methods=['POST'])
+def get_health_info():
+    if not gemini_model:
+        return jsonify({'error': 'Gemini API not configured'}), 500
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No input data provided'}), 400
+
+    food_name = data.get('food_name')
+    height = data.get('height')
+    weight = data.get('weight')
+    bmi = data.get('bmi')
+    conditions = data.get('conditions')
+
+    if not all([food_name, height, weight, bmi]): # Conditions can be empty
+        return jsonify({'error': 'Missing required health data (food_name, height, weight, bmi)'}), 400
+
+    prompt = f"""
+Analyze the food '{food_name}'. 
+Provide its key health benefits. 
+Based on the following user profile:
+- Height: {height} cm
+- Weight: {weight} kg
+- BMI: {bmi}
+- Pre-existing conditions: {conditions if conditions else 'None specified'}
+
+Should this user eat this food? Provide a brief recommendation (e.g., 'Recommended', 'Eat in moderation', 'Avoid') and a short explanation for the recommendation.
+
+Format the response strictly as a JSON object with two keys:
+1.  "health_benefits": A string containing the health benefits.
+2.  "recommendation": A string containing the recommendation and explanation.
+
+Example JSON output:
+{{
+  "health_benefits": "Rich in protein and iron, supports muscle growth.",
+  "recommendation": "Recommended: Good source of nutrients, but consider portion size due to fat content."
+}}
+"""
+
+    try:
+        response = gemini_model.generate_content(prompt)
+        
+        # Attempt to parse the response text as JSON
+        # Gemini might sometimes add markdown backticks or other text
+        response_text = response.text.strip()
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        
+        response_json = json.loads(response_text)
+
+        if 'health_benefits' not in response_json or 'recommendation' not in response_json:
+             raise ValueError("Response JSON missing required keys")
+
+        return jsonify(response_json)
+
+    except json.JSONDecodeError:
+        print(f"Error decoding Gemini JSON response: {response.text}")
+        # Return the raw text if JSON parsing fails, maybe it's still useful
+        return jsonify({'error': 'Failed to parse Gemini response as JSON', 'raw_response': response.text}), 500
+    except Exception as e:
+        print(f"Error calling Gemini API: {e}")
+        return jsonify({'error': f'Error generating health info: {str(e)}'}), 500
+
+
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
+    # It's better practice to get the API key from environment variables
+    # api_key = os.getenv("GEMINI_API_KEY")
+    # if not api_key:
+    #     print("Warning: GEMINI_API_KEY environment variable not set.")
+    # else:
+    #     genai.configure(api_key=api_key)
+    #     gemini_model = genai.GenerativeModel('gemini-pro')
+    #     print("Gemini API configured successfully from environment variable.")
+
     app.run(host='0.0.0.0', port=5000, debug=True)
