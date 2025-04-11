@@ -41,19 +41,86 @@
   color: #888;
 }
 
-/* Base styles */
+/* Base styles & Light Theme (Default) */
 :root {
-  --primary-color: #4a6fa5;
-  --secondary-color: #ff7e5f;
-  --accent-color: #feb47b;
-  --background-color: #f8f9fa;
-  --text-color: #333;
-  --border-color: #ddd;
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --success-color: #28a745;
-  --error-color: #dc3545;
+  --primary-color-light: #4a6fa5;
+  --secondary-color-light: #ff7e5f;
+  --accent-color-light: #feb47b;
+  --background-color-light: #f8f9fa;
+  --card-background-light: #ffffff;
+  --text-color-light: #333;
+  --text-muted-light: #777;
+  --border-color-light: #ddd;
+  --placeholder-bg-light: #f5f5f5;
+  --placeholder-text-light: #999;
+  --button-reset-bg-light: #ddd;
+  --button-reset-text-light: #333;
+  --shadow-color-light: rgba(0, 0, 0, 0.1);
+  --success-color-light: #28a745;
+  --error-color-light: #dc3545;
+  --error-bg-light: rgba(220, 53, 69, 0.1);
   --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  /* Assign default variables */
+  --primary-color: var(--primary-color-light);
+  --secondary-color: var(--secondary-color-light);
+  --accent-color: var(--accent-color-light);
+  --background-color: var(--background-color-light);
+  --card-background: var(--card-background-light);
+  --text-color: var(--text-color-light);
+  --text-muted: var(--text-muted-light);
+  --border-color: var(--border-color-light);
+  --placeholder-bg: var(--placeholder-bg-light);
+  --placeholder-text: var(--placeholder-text-light);
+  --button-reset-bg: var(--button-reset-bg-light);
+  --button-reset-text: var(--button-reset-text-light);
+  --shadow-color: var(--shadow-color-light);
+  --success-color: var(--success-color-light);
+  --error-color: var(--error-color-light);
+  --error-bg: var(--error-bg-light);
+
+  /* Transitions */
+  --transition-speed: 0.3s;
 }
+
+/* Dark Theme Variables */
+.dark-theme {
+  --primary-color-dark: #7aa0d6; /* Lighter blue */
+  --secondary-color-dark: #ff9a85; /* Lighter orange */
+  --accent-color-dark: #fcc9a3; /* Lighter accent */
+  --background-color-dark: #1a1a1a; /* Dark background */
+  --card-background-dark: #2a2a2a; /* Slightly lighter card background */
+  --text-color-dark: #e0e0e0; /* Light text */
+  --text-muted-dark: #a0a0a0; /* Muted light text */
+  --border-color-dark: #444; /* Darker border */
+  --placeholder-bg-dark: #333; /* Dark placeholder */
+  --placeholder-text-dark: #888; /* Lighter placeholder text */
+  --button-reset-bg-dark: #555; /* Darker reset button */
+  --button-reset-text-dark: #e0e0e0; /* Light text on reset button */
+  --shadow-color-dark: rgba(255, 255, 255, 0.1); /* Light shadow */
+  --success-color-dark: #4caf50; /* Adjusted success */
+  --error-color-dark: #f44336; /* Adjusted error */
+  --error-bg-dark: rgba(244, 67, 54, 0.2); /* Darker error background */
+
+  /* Assign dark theme variables */
+  --primary-color: var(--primary-color-dark);
+  --secondary-color: var(--secondary-color-dark);
+  --accent-color: var(--accent-color-dark);
+  --background-color: var(--background-color-dark);
+  --card-background: var(--card-background-dark);
+  --text-color: var(--text-color-dark);
+  --text-muted: var(--text-muted-dark);
+  --border-color: var(--border-color-dark);
+  --placeholder-bg: var(--placeholder-bg-dark);
+  --placeholder-text: var(--placeholder-text-dark);
+  --button-reset-bg: var(--button-reset-bg-dark);
+  --button-reset-text: var(--button-reset-text-dark);
+  --shadow-color: var(--shadow-color-dark);
+  --success-color: var(--success-color-dark);
+  --error-color: var(--error-color-dark);
+  --error-bg: var(--error-bg-dark);
+}
+
 
 * {
   box-sizing: border-box;
@@ -63,20 +130,24 @@
 
 body {
   font-family: var(--font-main);
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--background-color); /* Use variable */
+  color: var(--text-color); /* Use variable */
   line-height: 1.6;
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease; /* Add transition */
 }
 
 h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.5rem;
   font-weight: 500;
   line-height: 1.2;
+  color: var(--text-color); /* Use variable */
+  transition: color var(--transition-speed) ease;
 }
 
 button {
   cursor: pointer;
   font-family: inherit;
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
 }
 
 button:disabled {
@@ -92,27 +163,54 @@ button:disabled {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: var(--background-color); /* Use variable */
+  transition: background-color var(--transition-speed) ease;
 }
 
 /* Header */
 header {
+  position: relative; /* Needed for absolute positioning of toggle button */
   text-align: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color); /* Use variable */
+  transition: border-color var(--transition-speed) ease;
 }
 
 header h1 {
-  color: var(--primary-color);
+  color: var(--primary-color); /* Use variable */
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  color: var(--text-color);
+  color: var(--text-color); /* Use variable */
   font-size: 1.1rem;
   opacity: 0.8;
 }
+
+/* Theme Toggle Button */
+.theme-toggle-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+}
+
+.theme-toggle-button:hover {
+  background-color: var(--border-color);
+}
+
 
 /* Main Content */
 .main-content {
@@ -162,10 +260,11 @@ header h1 {
 .results-section,
 .health-input-section, /* Added */
 .health-info-section { /* Added */
-  background-color: white;
+  background-color: var(--card-background); /* Use variable */
   border-radius: 8px;
-  box-shadow: 0 4px 6px var(--shadow-color);
+  box-shadow: 0 4px 6px var(--shadow-color); /* Use variable */
   padding: 1.5rem;
+  transition: background-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
   /* Removed height: 100% to allow natural height */
 }
 
@@ -176,31 +275,32 @@ header h1 {
 .placeholder h2,
 .health-input-container h2, /* Added */
 .health-info-container h2 { /* Added */
-  color: var(--primary-color);
+  color: var(--primary-color); /* Use variable */
   margin-bottom: 1rem;
 }
 
 
 /* Upload Section */
-.upload-section, .preview-section, .results-section {
+/* Remove duplicate section styling */
+/* .upload-section, .preview-section, .results-section {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 6px var(--shadow-color);
   padding: 1.5rem;
   height: 100%;
-}
+} */
 
 .upload-container h2,
 .image-preview-container h2,
 .results-container h2,
 .placeholder h2 {
-  color: var(--primary-color);
+  color: var(--primary-color); /* Use variable */
   margin-bottom: 1rem;
 }
 
 .upload-container p {
   margin-bottom: 1.5rem;
-  color: var(--text-color);
+  color: var(--text-color); /* Use variable */
 }
 
 .file-input-container {
@@ -219,22 +319,28 @@ header h1 {
 }
 
 .custom-file-button {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--primary-color); /* Use variable */
+  color: white; /* Keep white for contrast */
   border: none;
   padding: 10px 15px;
   border-radius: 4px;
   font-size: 1rem;
-  transition: background-color 0.3s;
+  transition: background-color var(--transition-speed) ease;
 }
 
 .custom-file-button:hover {
-  background-color: #3a5a8c;
+  /* Slightly darken/lighten based on theme - using opacity for simplicity */
+  filter: brightness(90%); 
 }
+.dark-theme .custom-file-button:hover {
+  filter: brightness(120%);
+}
+
 
 .file-name {
   margin-left: 10px;
   font-size: 0.9rem;
+  color: var(--text-muted); /* Use variable */
 }
 
 .button-group {
@@ -247,43 +353,50 @@ header h1 {
   border: none;
   border-radius: 4px;
   font-size: 1rem;
-  transition: background-color 0.3s;
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
 .predict-button {
-  background-color: var(--secondary-color);
-  color: white;
+  background-color: var(--secondary-color); /* Use variable */
+  color: white; /* Keep white for contrast */
   flex: 2;
 }
 
 .predict-button:hover:not(:disabled) {
-  background-color: #e06e52;
+  filter: brightness(90%);
+}
+.dark-theme .predict-button:hover:not(:disabled) {
+  filter: brightness(120%);
 }
 
 .reset-button {
-  background-color: var(--border-color);
-  color: var(--text-color);
+  background-color: var(--button-reset-bg); /* Use variable */
+  color: var(--button-reset-text); /* Use variable */
   flex: 1;
 }
 
 .reset-button:hover:not(:disabled) {
-  background-color: #ccc;
+  filter: brightness(95%);
+}
+.dark-theme .reset-button:hover:not(:disabled) {
+  filter: brightness(110%);
 }
 
 .error-message {
-  color: var(--error-color);
+  color: var(--error-color); /* Use variable */
   margin-bottom: 1.5rem;
   padding: 10px;
-  background-color: rgba(220, 53, 69, 0.1);
+  background-color: var(--error-bg); /* Use variable */
   border-radius: 4px;
   font-size: 0.9rem;
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
 /* Preview Section */
 .image-preview-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  /* height: 100%; */ /* Removed */
 }
 
 .image-preview {
@@ -292,12 +405,14 @@ header h1 {
   object-fit: contain;
   border-radius: 4px;
   margin-top: 1rem;
+  background-color: var(--placeholder-bg); /* Add background for transparent images */
+  transition: background-color var(--transition-speed) ease;
 }
 
 .placeholder {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  /* height: 100%; */ /* Removed */
 }
 
 .placeholder-content {
@@ -305,12 +420,13 @@ header h1 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #f5f5f5;
+  background-color: var(--placeholder-bg); /* Use variable */
   border-radius: 4px;
   padding: 2rem;
   margin-top: 1rem;
   flex-grow: 1;
-  color: #999;
+  color: var(--placeholder-text); /* Use variable */
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
 /* Results Section */
@@ -327,20 +443,22 @@ header h1 {
 .main-prediction {
   display: flex;
   align-items: center;
-  background-color: #f5f8ff;
+  background-color: var(--placeholder-bg); /* Use variable */
   padding: 1rem;
   border-radius: 4px;
-  border-left: 4px solid var(--primary-color);
+  border-left: 4px solid var(--primary-color); /* Use variable */
+  transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
 }
 
 .prediction-label {
   font-weight: 500;
   margin-right: 10px;
+  color: var(--text-color); /* Use variable */
 }
 
 .prediction-class {
   font-size: 1.25rem;
-  color: var(--primary-color);
+  color: var(--primary-color); /* Use variable */
   font-weight: 600;
   text-transform: capitalize;
 }
@@ -351,7 +469,7 @@ header h1 {
 
 .confidence-bar-container h3 {
   margin-bottom: 1rem;
-  color: var(--text-color);
+  color: var(--text-color); /* Use variable */
   font-size: 1.1rem;
 }
 
@@ -365,24 +483,26 @@ header h1 {
   width: 100px;
   font-weight: 500;
   text-transform: capitalize;
+  color: var(--text-color); /* Use variable */
 }
 
 .confidence-bar-wrapper {
   flex-grow: 1;
-  background-color: #eee;
+  background-color: var(--border-color); /* Use variable */
   height: 25px;
   border-radius: 4px;
   overflow: hidden;
   position: relative;
   display: flex;
   align-items: center;
+  transition: background-color var(--transition-speed) ease;
 }
 
 .confidence-bar {
-  background-color: var(--accent-color);
+  background-color: var(--accent-color); /* Use variable */
   height: 100%;
   border-radius: 4px;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, background-color var(--transition-speed) ease;
 }
 
 .confidence-value {
@@ -390,6 +510,10 @@ header h1 {
   right: 10px;
   font-size: 0.85rem;
   font-weight: 600;
+  color: var(--text-color-light); /* Keep light text for visibility on accent */
+}
+.dark-theme .confidence-value {
+  color: var(--text-color-light); /* Keep light text */
 }
 
 
@@ -400,7 +524,7 @@ header h1 {
 
 .health-input-container p {
   margin-bottom: 1.5rem;
-  color: var(--text-color);
+  color: var(--text-color); /* Use variable */
 }
 
 .input-group {
@@ -412,16 +536,19 @@ header h1 {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: var(--text-color);
+  color: var(--text-color); /* Use variable */
 }
 
 .input-group input[type="number"],
 .input-group textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color); /* Use variable */
   border-radius: 4px;
   font-size: 1rem;
+  background-color: var(--card-background); /* Use variable */
+  color: var(--text-color); /* Use variable */
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
 }
 
 .input-group textarea {
@@ -431,11 +558,13 @@ header h1 {
 .bmi-display {
   display: inline-block;
   padding: 10px;
-  background-color: #f0f0f0;
+  background-color: var(--placeholder-bg); /* Use variable */
   border-radius: 4px;
   font-weight: 500;
   min-width: 100px; /* Ensure some width */
   text-align: center;
+  color: var(--text-color); /* Use variable */
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
 /* Health Info Section */
@@ -448,17 +577,19 @@ header h1 {
 }
 
 .health-content h3 {
-  color: var(--primary-color);
+  color: var(--primary-color); /* Use variable */
   margin-top: 1rem;
   margin-bottom: 0.5rem;
   font-size: 1.1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color); /* Use variable */
   padding-bottom: 0.25rem;
+  transition: color var(--transition-speed) ease, border-color var(--transition-speed) ease;
 }
 
 .health-content p {
   margin-bottom: 1rem;
   line-height: 1.7;
+  color: var(--text-color); /* Use variable */
 }
 
 /* Ensure error messages within placeholders are styled */
@@ -466,6 +597,7 @@ header h1 {
   width: 100%;
   text-align: center;
   padding: 1rem;
+  /* Uses existing .error-message styles which now use variables */
 }
 
 
@@ -474,10 +606,11 @@ header h1 {
   margin-top: 1rem;
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(0, 0, 0, 0.1);
+  border: 4px solid var(--border-color); /* Use variable */
   border-radius: 50%;
-  border-top-color: var(--primary-color);
+  border-top-color: var(--primary-color); /* Use variable */
   animation: spin 1s linear infinite;
+  transition: border-color var(--transition-speed) ease, border-top-color var(--transition-speed) ease;
 }
 
 @keyframes spin {
@@ -491,7 +624,8 @@ footer {
   margin-top: 2rem;
   text-align: center;
   padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-  color: #777;
+  border-top: 1px solid var(--border-color); /* Use variable */
+  color: var(--text-muted); /* Use variable */
   font-size: 0.9rem;
+  transition: border-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }

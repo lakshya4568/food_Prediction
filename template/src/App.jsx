@@ -1,7 +1,11 @@
-import { useState, useRef, useEffect } from 'react' // Added useEffect
-import './App.css'
+import { useState, useRef, useEffect } from 'react'; // Added useEffect
+import { FaSun, FaMoon } from 'react-icons/fa'; // Import icons
+import './App.css';
 
 function App() {
+  // Theme state ('light' or 'dark')
+  const [theme, setTheme] = useState('light'); 
+
   // Existing state
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -154,6 +158,10 @@ function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prediction, height, weight, bmi]); // Re-fetch if prediction or core health details change
 
+  // Function to toggle theme
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
 
   const resetForm = () => {
     // Reset existing state
@@ -176,10 +184,15 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    // Add theme class to the main container
+    <div className={`app-container ${theme === 'dark' ? 'dark-theme' : ''}`}> 
       <header>
         <h1>FoodVision Mini</h1>
         <p className="subtitle">Classify food images using Vision Transformer (ViT)</p>
+        {/* Add Theme Toggle Button */}
+        <button onClick={toggleTheme} className="theme-toggle-button">
+          {theme === 'light' ? <FaMoon /> : <FaSun />} 
+        </button>
       </header>
 
       <div className="main-content">
