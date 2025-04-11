@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Exclude the Gemini API key from version control
+GEMINI_API_KEY
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
