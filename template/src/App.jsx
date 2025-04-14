@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'; // Added useEffect
-import { FaSun, FaMoon } from 'react-icons/fa'; // Import icons
+import { FaSun, FaMoon, FaCheck, FaPizzaSlice, FaHamburger, FaAppleAlt } from 'react-icons/fa'; // Added food icons
 import './App.css';
 
 function App() {
@@ -44,6 +44,13 @@ function App() {
   const [healthInfo, setHealthInfo] = useState(null);
   const [isHealthLoading, setIsHealthLoading] = useState(false); // Loading for health info
   const [healthError, setHealthError] = useState(null); // Error for health info
+  // New state for common health conditions
+  const [commonConditions, setCommonConditions] = useState({
+    diabetes: false,
+    hypertension: false,
+    cholesterol: false,
+    allergies: false,
+  });
 
   // Calculate BMI automatically
   useEffect(() => {
@@ -205,9 +212,45 @@ function App() {
     setIsLoading(false); // Also reset prediction loading
   };
 
+  // Handle condition button toggle
+  const toggleCondition = (condition) => {
+    setCommonConditions(prev => {
+      const newState = { ...prev, [condition]: !prev[condition] };
+      
+      // Update conditions text field based on selected buttons
+      const activeConditions = Object.entries(newState)
+        .filter(([, isActive]) => isActive)
+        .map(([name]) => name.charAt(0).toUpperCase() + name.slice(1));
+      
+      setConditions(activeConditions.join(', '));
+      
+      return newState;
+    });
+  };
+
+  // Manually trigger health info fetch
+  const handleHealthSubmit = () => {
+    if (!prediction) {
+      setHealthError("Please upload and analyze a food image first");
+      return;
+    }
+    
+    if (!height || !weight || !bmi) {
+      setHealthError("Please enter your height and weight");
+      return;
+    }
+    
+    fetchHealthInfo();
+  };
+
   return (
     // Add theme class to the main container
     <div className={`app-container ${theme === 'dark' ? 'dark-theme' : ''}`}> 
+      {/* Animated Food Icons */}
+      <FaPizzaSlice className="food-icon food-icon-1" />
+      <FaHamburger className="food-icon food-icon-2" />
+      <FaAppleAlt className="food-icon food-icon-3" />
+      
       <header>
         <h1>FoodVision Mini</h1>
         <p className="subtitle">Classify food images using Vision Transformer (ViT)</p>
@@ -281,10 +324,10 @@ function App() {
           )}
         </section>
 
-        {/* New User Health Input Section */}
+        {/* Modified User Health Input Section */}
         <section className="health-input-section">
           <div className="health-input-container">
-            <h2>Your Health Profile</h2>
+            <h2 className="animated-header">Your Health Profile</h2>
             <p>Enter your details for personalized recommendations.</p>
             <div className="input-group">
               <label htmlFor="height">Height (cm):</label>
@@ -312,19 +355,67 @@ function App() {
               <label>Calculated BMI:</label>
               <span className="bmi-display">{bmi ? bmi : 'Enter height & weight'}</span>
             </div>
+            
             <div className="input-group">
-              <label htmlFor="conditions">Pre-existing Conditions (optional):</label>
+              <label>Common Health Conditions:</label>
+              <div className="condition-buttons">
+                <button 
+                  type="button" 
+                  className={`condition-btn ${commonConditions.diabetes ? 'active' : ''}`}
+                  onClick={() => toggleCondition('diabetes')}
+                  disabled={isLoading || isHealthLoading}
+                >
+                  Diabetes
+                </button>
+                <button 
+                  type="button" 
+                  className={`condition-btn ${commonConditions.hypertension ? 'active' : ''}`}
+                  onClick={() => toggleCondition('hypertension')}
+                  disabled={isLoading || isHealthLoading}
+                >
+                  Hypertension
+                </button>
+                <button 
+                  type="button" 
+                  className={`condition-btn ${commonConditions.cholesterol ? 'active' : ''}`}
+                  onClick={() => toggleCondition('cholesterol')}
+                  disabled={isLoading || isHealthLoading}
+                >
+                  High Cholesterol
+                </button>
+                <button 
+                  type="button" 
+                  className={`condition-btn ${commonConditions.allergies ? 'active' : ''}`}
+                  onClick={() => toggleCondition('allergies')}
+                  disabled={isLoading || isHealthLoading}
+                >
+                  Food Allergies
+                </button>
+              </div>
+            </div>
+            
+            <div className="input-group">
+              <label htmlFor="conditions">Other Conditions:</label>
               <textarea
                 id="conditions"
                 value={conditions}
                 onChange={(e) => setConditions(e.target.value)}
                 placeholder="e.g., Diabetes, High Blood Pressure"
-                rows="3"
+                rows="2"
                 disabled={isLoading || isHealthLoading}
               />
             </div>
-             {/* Display health-related errors here */}
-             {healthError && !isHealthLoading && <div className="error-message">{healthError}</div>}
+            
+            <button 
+              className="health-submit-button" 
+              onClick={handleHealthSubmit}
+              disabled={isLoading || isHealthLoading || !prediction}
+            >
+              <FaCheck /> Get Health Recommendations
+            </button>
+            
+            {/* Display health-related errors here */}
+            {healthError && !isHealthLoading && <div className="error-message">{healthError}</div>}
           </div>
         </section>
 
