@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -172,24 +174,20 @@ html, body, #root {
   padding: 0;
   min-height: 100vh;
   width: 100%;
-  background-color: var(--background-color);
+  /* background-color: var(--background-color); */ /* Removed to allow body gradient */
   color: var(--text-color);
   transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
-/* Light theme gradient background */
+/* Animated Gradient Background */
 body {
-  background: linear-gradient(-45deg, 
-    var(--gradient-bg-light-1), 
-    var(--gradient-bg-light-2), 
-    var(--gradient-bg-light-3), 
-    var(--gradient-bg-light-4), 
-    var(--gradient-bg-light-5));
+  /* orange, pink, red, sky-blue, orchid, violet */
+  background: linear-gradient(-45deg, #FFA500, #FFC0CB, #7ec555, #87CEEB, #DA70D6, #EE82EE);
   background-size: 400% 400%;
   animation: gradient-shift 15s ease infinite;
 }
 
-/* Dark theme keeps solid background */
+/* Dark theme keeps solid background - might need adjustment if dark theme is used */
 body.dark-theme {
   background: var(--background-color-dark);
   animation: none;
@@ -278,6 +276,31 @@ body.dark-theme {
   color: var(--accent-color-dark);
 }
 
+.food-icon-4 { /* Style for the new icon in Health Input */
+  bottom: 15px;
+  left: 15px;
+  font-size: 1.7rem;
+  color: var(--gradient-bg-light-1); /* Use a different color */
+  animation: float 7s ease-in-out infinite reverse; /* Use float animation, reversed */
+}
+
+.food-icon-5 { /* Style for the new icon in Health Info */
+  top: 15px;
+  left: 15px;
+  font-size: 1.6rem;
+  color: var(--gradient-bg-light-4); /* Use another color */
+  animation: bounce 5s ease-in-out infinite; /* Use bounce animation */
+}
+
+.dark-theme .food-icon-4 {
+  color: var(--secondary-color-dark);
+}
+
+.dark-theme .food-icon-5 {
+  color: var(--accent-color-dark);
+}
+
+
 /* Make card backgrounds more translucent to show gradient */
 .upload-section, 
 .preview-section, 
@@ -338,7 +361,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--background-color);
+  /* background-color: var(--background-color); */ /* Removed to allow body gradient to show */
   transition: background-color var(--transition-speed) ease;
 }
 
@@ -353,8 +376,9 @@ header {
 }
 
 header h1 {
+  font-family: 'Pacifico', cursive; /* Added cursive font */
   color: var(--primary-color); /* Use variable */
-  font-size: 2.8rem;
+  font-size: 3.5rem; /* Slightly larger for cursive */
   margin-bottom: 0.5rem;
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -364,14 +388,15 @@ header h1 {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-fill-color: transparent;
-  animation: gradientText 5s ease-in-out infinite;
+  animation: gradientText 3s ease-in-out infinite;
   transition: transform var(--transition-speed) ease;
 }
 
 .subtitle {
   color: var(--text-color); /* Use variable */
-  font-size: 1.1rem;
+  font-size: 2rem;
   opacity: 0.8;
+  font-family: 'pacifico', cursive;
 }
 
 /* Theme Toggle Button */

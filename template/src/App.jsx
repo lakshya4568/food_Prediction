@@ -246,14 +246,11 @@ function App() {
   return (
     // Add theme class to the main container
     <div className={`app-container ${theme === 'dark' ? 'dark-theme' : ''}`}> 
-      {/* Animated Food Icons */}
-      <FaPizzaSlice className="food-icon food-icon-1" />
-      <FaHamburger className="food-icon food-icon-2" />
-      <FaAppleAlt className="food-icon food-icon-3" />
+      {/* Icons moved into sections below */}
       
       <header>
-        <h1>FoodVision Mini</h1>
-        <p className="subtitle">Classify food images using Vision Transformer (ViT)</p>
+        <h1>Nutri VISION</h1>
+        <p className="subtitle"> AINIKA, BAAT KARLE NAA, PLEASE 😭</p>
         {/* Add Theme Toggle Button */}
         <button onClick={toggleTheme} className="theme-toggle-button">
           {theme === 'light' ? <FaMoon /> : <FaSun />} 
@@ -262,6 +259,7 @@ function App() {
 
       <div className="main-content">
         <section className="upload-section">
+          <FaPizzaSlice className="food-icon food-icon-1" /> {/* Icon moved here */}
           <div className="upload-container">
             <h2>Upload Image</h2>
             <p>Select an image of pizza, steak, or sushi</p>
@@ -305,6 +303,7 @@ function App() {
         </section>
 
         <section className="preview-section">
+          <FaHamburger className="food-icon food-icon-2" /> {/* Icon moved here */}
           {imagePreview ? (
             <div className="image-preview-container">
               <h2>Image Preview</h2>
@@ -326,6 +325,7 @@ function App() {
 
         {/* Modified User Health Input Section */}
         <section className="health-input-section">
+          <FaAppleAlt className="food-icon food-icon-4" /> {/* Added new icon instance */}
           <div className="health-input-container">
             <h2 className="animated-header">Your Health Profile</h2>
             <p>Enter your details for personalized recommendations.</p>
@@ -421,6 +421,7 @@ function App() {
 
         {/* Prediction Results Section (Modified) */}
         <section className="results-section">
+          <FaCheck className="food-icon food-icon-3" /> {/* Icon moved here (using FaCheck for variety) */}
           {prediction ? (
             <div className="results-container">
               <h2>Prediction Results</h2>
@@ -461,6 +462,7 @@ function App() {
 
         {/* New Health Info Display Section */}
         <section className="health-info-section">
+           <FaPizzaSlice className="food-icon food-icon-5" /> {/* Added new icon instance */}
            {isHealthLoading ? (
              <div className="placeholder">
                <h2>Health Information</h2>
@@ -503,6 +505,7 @@ function App() {
 
       <footer>
         <p>Powered by Vision Transformer (ViT) | Created with PyTorch</p>
+        <p>Copyright © 2025 : Lakshya Sharma, Sharda University</p>
       </footer>
     </div>
   )

@@ -7,12 +7,18 @@
 
   color-scheme: light dark;
   color: var(--text-color);
-  background-color: var(--background-color);
+  /* background-color: var(--background-color); */ /* Removed conflicting background */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 a {
@@ -29,10 +35,10 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-place-items: center;
+  place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--background-color);
+  /* Removed conflicting background - style is now in App.css */
 }
 
 h1 {
