@@ -18,9 +18,9 @@ CORS(app)  # Enable CORS to allow cross-origin requests from React frontend
 # os.environ['GEMINI_API_KEY'] = 'YOUR_API_KEY_HERE' # Replace if needed
 try:
     # Use the key provided by the user directly for now
-    GEMINI_API_KEY = os.environ('GEMINI_API_KEY') 
+    GEMINI_API_KEY = ""
     genai.configure(api_key=GEMINI_API_KEY)
-    gemini_model = genai.GenerativeModel('gemini-pro')
+    gemini_model = genai.GenerativeModel('gemini-2.0-flash')
     print("Gemini API configured successfully.")
 except Exception as e:
     print(f"Error configuring Gemini API: {e}")
@@ -36,7 +36,7 @@ def load_model():
     model.heads = torch.nn.Linear(in_features=768, out_features=3)
     
     # Load saved model weights if they exist (replace with your saved model path)
-    model_path = 'model.pth'
+    model_path = 'pretrained.pth'
     if os.path.exists(model_path):
         try:
             model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
