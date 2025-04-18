@@ -166,7 +166,7 @@ Example JSON output:
         return jsonify({'error': 'Failed to parse Gemini response as JSON', 'raw_response': response.text}), 500
     except Exception as e:
         print(f"Error calling Gemini API: {e}")
-        return jsonify({'error': f'Error generating health info: {str(e)}')}), 500
+        return jsonify({'error': f'Error generating health info: {str(e)}'}), 500
 
 
 @app.route('/health', methods=['GET'])
