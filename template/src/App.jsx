@@ -250,7 +250,7 @@ function App() {
       
       <header>
         <h1>Nutri VISION</h1>
-        <p className="subtitle"> AINIKA, BAAT KARLE NAA, PLEASE 😭</p>
+        <p className="subtitle"> Classification of Food & Drug with Health Advisory</p>
         {/* Add Theme Toggle Button */}
         <button onClick={toggleTheme} className="theme-toggle-button">
           {theme === 'light' ? <FaMoon /> : <FaSun />} 

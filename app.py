@@ -9,6 +9,10 @@ from flask_cors import CORS
 import google.generativeai as genai
 import json # Although not strictly needed for this change, good practice if handling complex JSON later
 
+from pyngrok import ngrok
+
+
+
 app = Flask(__name__)
 CORS(app)  # Enable CORS to allow cross-origin requests from React frontend
 
@@ -36,7 +40,7 @@ def load_model():
     model.heads = torch.nn.Linear(in_features=768, out_features=3)
     
     # Load saved model weights if they exist (replace with your saved model path)
-    model_path = 'pretrained.pth'
+    model_path = 'models/pretrained.pth'
     if os.path.exists(model_path):
         try:
             model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
@@ -162,7 +166,7 @@ Example JSON output:
         return jsonify({'error': 'Failed to parse Gemini response as JSON', 'raw_response': response.text}), 500
     except Exception as e:
         print(f"Error calling Gemini API: {e}")
-        return jsonify({'error': f'Error generating health info: {str(e)}'}), 500
+        return jsonify({'error': f'Error generating health info: {str(e)}')}), 500
 
 
 @app.route('/health', methods=['GET'])
@@ -170,13 +174,9 @@ def health_check():
     return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
-    # It's better practice to get the API key from environment variables
-    # api_key = os.getenv("GEMINI_API_KEY")
-    # if not api_key:
-    #     print("Warning: GEMINI_API_KEY environment variable not set.")
-    # else:
-    #     genai.configure(api_key=api_key)
-    #     gemini_model = genai.GenerativeModel('gemini-pro')
-    #     print("Gemini API configured successfully from environment variable.")
-
+    # Set up ngrok tunnel to expose the Flask app to the internet
+    # This will generate a public URL that routes to your local Flask server
+    public_url = ngrok.connect(5000)
+    print(f"* Flask API is publicly accessible at: {public_url}")
+    
     app.run(host='0.0.0.0', port=5000, debug=True)
