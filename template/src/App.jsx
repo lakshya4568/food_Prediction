@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'; // Added useEffect
 import { FaSun, FaMoon, FaCheck, FaPizzaSlice, FaHamburger, FaAppleAlt } from 'react-icons/fa'; // Added food icons
 import './App.css';
 
+const API_BASE_URL = 'https://0e25-122-162-150-93.ngrok-free.app/';
+
 function App() {
   // Theme state ('light' or 'dark')
   const [theme, setTheme] = useState(() => {
@@ -100,7 +102,7 @@ function App() {
 
     try {
       // TODO: Replace with your actual backend API endpoint
-      const response = await fetch('http://localhost:5000/predict', {
+      const response = await fetch(`${API_BASE_URL}/predict`, {
         method: 'POST',
         body: formData,
       });
@@ -144,7 +146,7 @@ function App() {
     setHealthInfo(null); // Clear previous results
 
     try {
-      const response = await fetch('http://localhost:5000/get_health_info', {
+      const response = await fetch(`${API_BASE_URL}/get_health_info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

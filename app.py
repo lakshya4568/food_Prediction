@@ -9,8 +9,9 @@ from flask_cors import CORS
 import google.generativeai as genai
 import json # Although not strictly needed for this change, good practice if handling complex JSON later
 
-from pyngrok import ngrok
+from pyngrok import ngrok, conf
 
+conf.get_default().auth_token = "2vuIkaBHuxB8IsBgWa1DfgFvSsO_5ninjhmiKtmfsn4xWADxL"
 
 
 app = Flask(__name__)
@@ -176,7 +177,16 @@ def health_check():
 if __name__ == '__main__':
     # Set up ngrok tunnel to expose the Flask app to the internet
     # This will generate a public URL that routes to your local Flask server
+    import subprocess
+    import platform
+    
+    if platform.system() == "Windows":
+        subprocess.run(['taskkill', '/F', '/IM', 'ngrok.exe'], capture_output=True, shell=True)
+    else:
+        subprocess.run(['pkill', 'ngrok'], capture_output=True, shell=True)
+        
+    
     public_url = ngrok.connect(5000)
     print(f"* Flask API is publicly accessible at: {public_url}")
     
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)  # Run the Flask app on port 5000
