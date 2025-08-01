@@ -49,22 +49,26 @@ const Features = () => {
   ];
 
   return (
-    <section id="features" className="features">
-      <div className="container">
-        <div className="section-header">
-          <h2>
-            Powerful <span>Features</span>
+    <section id="features" className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
+            Powerful <span className="text-primary-600">Features</span>
           </h2>
-          <p>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Discover how NutriVision can transform your relationship with food
           </p>
         </div>
-        <div className="features-grid">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div key={index} className="feature-card">
-              <div className="feature-icon">{feature.icon}</div>
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
+            <div key={index} className="group bg-gray-50 rounded-xl p-8 hover:bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary-600 transition-colors">
+                <div className="text-2xl text-primary-600 group-hover:text-white transition-colors">
+                  {feature.icon}
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">{feature.title}</h3>
+              <p className="text-gray-600 leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>

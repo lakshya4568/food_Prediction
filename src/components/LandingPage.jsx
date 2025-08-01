@@ -10,7 +10,7 @@ import Footer from "./Footer";
 
 const LandingPage = () => {
   return (
-    <div className="landing-page">
+    <div>
       <Hero />
       <Features />
       <Benefits />
