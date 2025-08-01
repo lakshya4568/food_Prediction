@@ -1,10 +1,14 @@
 # NutriVision: AI-Powered Food Recognition & Nutrition Analysis
 
 <div align="center">
-  <img src="https://img.shields.io/badge/Python-3.9+-blue.svg" alt="Python Version">
-  <img src="https://img.shields.io/badge/PyTorch-2.0+-orange.svg" alt="PyTorch Version">
-  <img src="https://img.shields.io/badge/Flask-2.0+-green.svg" alt="Flask Version">
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+  
+  ![Python Version](https://img.shields.io/badge/Python-3.9+-blue.svg)
+  ![React Version](https://img.shields.io/badge/React-19.0+-blue.svg)
+  ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1+-38B2AC?logo=tailwind-css)
+  ![PyTorch Version](https://img.shields.io/badge/PyTorch-2.0+-orange.svg)
+  ![Flask Version](https://img.shields.io/badge/Flask-2.0+-green.svg)
+  ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 </div>
 
 <div align="center">
@@ -15,25 +19,25 @@
 
 ## 📋 Table of Contents
 
-- Overview
-- Features
-- Project Architecture
-- Machine Learning Models
-- API Endpoints
-- Tech Stack
-- Installation & Setup
-- Usage
-- Frontend Integration
-- Development Roadmap
-- License
+- [Overview](#overview)
+- [Features](#features)
+- [Project Architecture](#project-architecture)
+- [Machine Learning Models](#machine-learning-models)
+- [API Endpoints](#api-endpoints)
+- [Tech Stack](#tech-stack)
+- [Installation & Setup](#installation--setup)
+- [Usage](#usage)
+- [Frontend Integration](#frontend-integration)
+- [Development Roadmap](#development-roadmap)
+- [License](#license)
 
 ---
 
 ## 🔍 Overview
 
-NutriVision is an AI-powered application that uses computer vision and machine learning to identify food from photos and provide detailed nutritional information. The system combines a Vision Transformer (ViT) model for food classification with Google's Gemini API for personalized health recommendations based on user profiles.
+NutriVision is a modern AI-powered web application that uses computer vision and machine learning to identify food from photos and provide detailed nutritional information. The system combines a Vision Transformer (ViT) model for food classification with Google's Gemini API for personalized health recommendations based on user profiles.
 
-This application aims to simplify nutrition tracking and promote healthier eating habits by making nutritional information instantly accessible through a simple photo.
+This application features a beautiful, responsive React frontend built with Tailwind CSS, offering an intuitive user experience for nutrition tracking and health insights.
 
 ---
 
@@ -41,35 +45,42 @@ This application aims to simplify nutrition tracking and promote healthier eatin
 
 | Feature | Description |
 |---------|-------------|
-| **AI Food Recognition** | Uses a Vision Transformer model to identify food items from photos with high accuracy |
-| **Nutritional Analysis** | Provides detailed breakdown of nutritional content for identified foods |
-| **Personalized Health Insights** | Offers customized recommendations based on user health profiles |
-| **Cross-Platform Access** | Accessible via web interface or mobile devices |
-| **Real-time Processing** | Delivers instant analysis of food images |
-| **Health Profile Integration** | Takes into account user height, weight, BMI, and pre-existing conditions |
-| **REST API Architecture** | Easy integration with various frontend frameworks |
+| **🤖 AI Food Recognition** | Uses a Vision Transformer model to identify food items from photos with high accuracy |
+| **📊 Nutritional Analysis** | Provides detailed breakdown of nutritional content for identified foods |
+| **👤 Personalized Health Insights** | Offers customized recommendations based on user health profiles |
+| **📱 Responsive Design** | Modern, mobile-first UI built with React and Tailwind CSS |
+| **⚡ Real-time Processing** | Delivers instant analysis of food images |
+| **🎯 Health Profile Integration** | BMI calculation and health condition considerations |
+| **🔗 REST API Architecture** | Easy integration with various frontend frameworks |
+| **🎨 Modern UI/UX** | Beautiful gradients, animations, and interactive components |
 
 ---
 
 ## 🏗 Project Architecture
 
-The NutriVision project is structured as follows:
+The NutriVision project is structured as a modern full-stack application:
 
 ```
 food_Prediction/
-├── app.py                    # Main Flask application
-├── ViT_food_prediction.py    # Vision Transformer model implementation
+├── app.py                          # Flask backend API
+├── ViT_food_prediction.py          # Vision Transformer model
 ├── models/
-│   └── pretrained.pth        # Pre-trained food classification model
-├── NutriVision/              # Frontend components
-│   └── nutri-vision-mainpage/
-│       ├── index.html        # Landing page
-│       ├── login.html        # User authentication
-│       ├── dashboard.html    # User dashboard
-│       ├── css/              # Styling
-│       ├── js/               # Client-side scripts
-│       └── src/              # React components (if using React)
-└── README.md                 # Project documentation
+│   └── pretrained_vit_food_model.pth  # Pre-trained model weights
+├── src/                            # React frontend
+│   ├── components/                 # React components
+│   │   ├── NutriVision.jsx        # Main prediction interface
+│   │   ├── Header.jsx             # Navigation header
+│   │   ├── LandingPage.jsx        # Landing page
+│   │   ├── AuthPage.jsx           # Authentication
+│   │   ├── Dashboard.jsx          # User dashboard
+│   │   └── ...                    # Other components
+│   ├── App.jsx                    # Main app component
+│   ├── main.jsx                   # Entry point
+│   └── index.css                  # Tailwind CSS styles
+├── tailwind.config.js             # Tailwind configuration
+├── package.json                   # Frontend dependencies
+├── vite.config.js                 # Vite build configuration
+└── README.md                      # Project documentation
 ```
 
 ---
@@ -118,8 +129,17 @@ NutriVision utilizes two primary AI components:
 
 ### Frontend
 
-- **HTML/CSS/JavaScript**: UI components
-- **React** (optional): For advanced UI interactions
+- **React**: Modern UI library with hooks and functional components
+- **Tailwind CSS**: Utility-first CSS framework for rapid UI development
+- **Vite**: Fast build tool and development server
+- **React Icons**: Beautiful icon library
+- **JavaScript (ES6+)**: Modern JavaScript features
+
+### Development Tools
+
+- **ESLint**: Code linting and quality assurance
+- **PostCSS**: CSS processing and optimization
+- **Autoprefixer**: CSS vendor prefixing
 
 ---
 
@@ -127,9 +147,10 @@ NutriVision utilizes two primary AI components:
 
 ### Prerequisites
 
-- Python 3.9+
-- PyTorch 2.0+
-- A Google Gemini API key
+- **Node.js**: 18.0+ (for frontend development)
+- **Python**: 3.9+
+- **PyTorch**: 2.0+
+- **A Google Gemini API key**
 
 ### Step-by-Step Installation
 
@@ -140,19 +161,27 @@ NutriVision utilizes two primary AI components:
    cd food_Prediction
    ```
 
-2. **Create and activate a virtual environment**
+2. **Frontend Setup**
 
    ```bash
+   # Install frontend dependencies
+   npm install
+   
+   # Start development server
+   npm run dev
+   ```
+
+3. **Backend Setup**
+
+   ```bash
+   # Create and activate a virtual environment
    python -m venv venv
    # On Windows
    venv\Scripts\activate
    # On macOS/Linux
    source venv/bin/activate
-   ```
-
-3. **Install dependencies**
-
-   ```bash
+   
+   # Install Python dependencies
    pip install -r requirements.txt
    ```
 
@@ -163,15 +192,20 @@ NutriVision utilizes two primary AI components:
    GEMINI_API_KEY = "your-api-key-here"
    ```
 
-5. **Run the application**
+5. **Run the applications**
 
    ```bash
+   # Terminal 1: Start backend
    python app.py
+   
+   # Terminal 2: Start frontend (if not already running)
+   npm run dev
    ```
 
 6. **Access the application**
-   - The app will be available at: `http://localhost:5000`
-   - An ngrok public URL will be displayed in the console
+   - Frontend: `http://localhost:5173` (Vite dev server)
+   - Backend API: `http://localhost:5000`
+   - An ngrok public URL will be displayed in the console for external access
 
 ---
 
@@ -205,14 +239,53 @@ prediction = response.json()
 
 ## 🔗 Frontend Integration
 
-The NutriVision backend API can be integrated with various frontend frameworks. A sample HTML/CSS/JS implementation is provided in the nutri-vision-mainpage directory.
+The NutriVision frontend is built with modern React and Tailwind CSS, providing:
 
-For a complete user experience, the frontend should:
+### Key Components
 
-1. Provide image upload/capture functionality
-2. Collect user health metrics
-3. Display food recognition results
-4. Present nutritional information and recommendations
+- **NutriVision.jsx**: Main prediction interface with image upload, AI analysis, and health profiling
+- **LandingPage.jsx**: Beautiful landing page with features, benefits, and testimonials
+- **Header.jsx**: Responsive navigation with mobile menu support
+- **AuthPage.jsx**: User authentication interface
+- **Dashboard.jsx**: User dashboard for tracking nutrition history
+
+### Features
+
+1. **Responsive Design**: Mobile-first approach with Tailwind CSS
+2. **Modern UI/UX**: Gradient backgrounds, smooth animations, and interactive components
+3. **Real-time Updates**: Live feedback during image processing and health analysis
+4. **Accessibility**: Proper ARIA labels and keyboard navigation support
+5. **Performance**: Optimized with Vite for fast development and production builds
+
+### Routing
+
+The application uses hash-based routing for single-page navigation:
+
+- `#` or `#landing`: Landing page
+- `#auth`: Authentication page
+- `#dashboard`: User dashboard
+- `#nutrivision`: Main prediction interface
+
+### Customization
+
+The Tailwind configuration includes custom colors, animations, and utilities:
+
+```javascript
+// tailwind.config.js
+theme: {
+  extend: {
+    colors: {
+      primary: { /* Custom color palette */ },
+      success: { /* Success states */ },
+      // ...
+    },
+    animation: {
+      'gradient': 'gradient 6s ease infinite',
+      'float': 'float 3s ease-in-out infinite',
+    }
+  }
+}
+```
 
 ---
 

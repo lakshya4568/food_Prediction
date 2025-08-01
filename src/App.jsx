@@ -3,8 +3,7 @@ import Header from "./components/Header";
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
-import "./styles/nutrivision.css";
-import "./App.css";
+import NutriVision from "./components/NutriVision";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("landing");
@@ -49,6 +48,9 @@ function App() {
         case "dashboard":
           setCurrentPage("dashboard");
           break;
+        case "nutrivision":
+          setCurrentPage("nutrivision");
+          break;
         default:
           setCurrentPage("landing");
       }
@@ -69,6 +71,8 @@ function App() {
         return <AuthPage />;
       case "dashboard":
         return <Dashboard />;
+      case "nutrivision":
+        return <NutriVision />;
       default:
         return (
           <>
@@ -79,7 +83,7 @@ function App() {
     }
   };
 
-  return <div className="App">{renderCurrentPage()}</div>;
+  return <div className="min-h-screen bg-gray-50">{renderCurrentPage()}</div>;
 }
 
 export default App;

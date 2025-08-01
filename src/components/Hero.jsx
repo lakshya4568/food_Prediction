@@ -6,7 +6,6 @@ import {
   FaArrowRight,
   FaPlay,
 } from "react-icons/fa";
-import "./Hero.css";
 
 const Hero = () => {
   const handleGetStarted = () => {
