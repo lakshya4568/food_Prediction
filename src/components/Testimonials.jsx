@@ -48,7 +48,10 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="testimonials" className="py-20 bg-gradient-to-br from-green-50 to-blue-50">
+    <section
+      id="testimonials"
+      className="py-20 bg-gradient-to-br from-green-50 to-blue-50"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
@@ -65,7 +68,9 @@ const Testimonials = () => {
               <div
                 key={index}
                 className={`w-full transition-all duration-500 ease-in-out ${
-                  index === currentIndex ? "opacity-100 scale-100" : "opacity-0 scale-95 absolute inset-0"
+                  index === currentIndex
+                    ? "opacity-100 scale-100"
+                    : "opacity-0 scale-95 absolute inset-0"
                 }`}
               >
                 <div className="bg-white rounded-2xl shadow-xl p-8 lg:p-12 text-center">
@@ -77,14 +82,16 @@ const Testimonials = () => {
                   </p>
                   <div className="flex items-center justify-center space-x-4">
                     <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-primary-100">
-                      <img 
-                        src={testimonial.image} 
+                      <img
+                        src={testimonial.image}
                         alt={testimonial.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div className="text-left">
-                      <h4 className="text-lg font-semibold text-gray-800">{testimonial.name}</h4>
+                      <h4 className="text-lg font-semibold text-gray-800">
+                        {testimonial.name}
+                      </h4>
                       <p className="text-gray-600">{testimonial.role}</p>
                     </div>
                   </div>
@@ -92,9 +99,9 @@ const Testimonials = () => {
               </div>
             ))}
           </div>
-          
+
           <div className="flex items-center justify-center mt-8 space-x-4">
-            <button 
+            <button
               className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary-50 transition-colors"
               onClick={goToPrevious}
             >
@@ -111,7 +118,7 @@ const Testimonials = () => {
                 />
               ))}
             </div>
-            <button 
+            <button
               className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary-50 transition-colors"
               onClick={goToNext}
             >

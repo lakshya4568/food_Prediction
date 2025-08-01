@@ -30,13 +30,18 @@ const Benefits = () => {
   ];
 
   return (
-    <section id="benefits" className="py-20 bg-gradient-to-br from-primary-50 to-green-50">
+    <section
+      id="benefits"
+      className="py-20 bg-gradient-to-br from-primary-50 to-green-50"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
             Why Choose <span className="text-primary-600">NutriVision</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">Transform your health journey with our cutting-edge technology</p>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Transform your health journey with our cutting-edge technology
+          </p>
         </div>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="order-2 lg:order-1">
@@ -58,8 +63,12 @@ const Benefits = () => {
                   </div>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">{benefit.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{benefit.description}</p>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                    {benefit.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {benefit.description}
+                  </p>
                 </div>
               </div>
             ))}

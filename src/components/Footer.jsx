@@ -23,29 +23,29 @@ const Footer = () => {
               technology.
             </p>
             <div className="flex space-x-4">
-              <a 
-                href="#" 
+              <a
+                href="#"
                 aria-label="Facebook"
                 className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors"
               >
                 <FaFacebookF />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 aria-label="Twitter"
                 className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors"
               >
                 <FaTwitter />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 aria-label="Instagram"
                 className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors"
               >
                 <FaInstagram />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 aria-label="LinkedIn"
                 className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors"
               >
@@ -53,64 +53,126 @@ const Footer = () => {
               </a>
             </div>
           </div>
-          
+
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#features" className="text-gray-300 hover:text-primary-400 transition-colors">Features</a>
+                <a
+                  href="#features"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  Features
+                </a>
               </li>
               <li>
-                <a href="#benefits" className="text-gray-300 hover:text-primary-400 transition-colors">Benefits</a>
+                <a
+                  href="#benefits"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  Benefits
+                </a>
               </li>
               <li>
-                <a href="#how-it-works" className="text-gray-300 hover:text-primary-400 transition-colors">How It Works</a>
+                <a
+                  href="#how-it-works"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  How It Works
+                </a>
               </li>
               <li>
-                <a href="#testimonials" className="text-gray-300 hover:text-primary-400 transition-colors">Testimonials</a>
+                <a
+                  href="#testimonials"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  Testimonials
+                </a>
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h3 className="text-lg font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors">About Us</a>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  About Us
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors">Careers</a>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  Careers
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors">Press</a>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  Press
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors">Contact</a>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  Contact
+                </a>
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h3 className="text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors">Help Center</a>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  Help Center
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors">Privacy Policy</a>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  Privacy Policy
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors">Terms of Service</a>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  Terms of Service
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-primary-400 transition-colors">FAQ</a>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-primary-400 transition-colors"
+                >
+                  FAQ
+                </a>
               </li>
             </ul>
           </div>
         </div>
-        
+
         <div className="border-t border-gray-700 mt-8 pt-8 text-center">
-          <p className="text-gray-400">&copy; 2025 CyberKnights. All rights reserved.</p>
+          <p className="text-gray-400">
+            &copy; 2025 CyberKnights. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

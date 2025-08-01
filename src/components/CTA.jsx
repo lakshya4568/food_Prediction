@@ -22,7 +22,7 @@ const CTA = () => {
             className="group inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 text-lg font-semibold rounded-xl hover:bg-gray-100 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
             onClick={handleGetStarted}
           >
-            Get Started Now 
+            Get Started Now
             <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

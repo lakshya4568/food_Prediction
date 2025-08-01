@@ -21,7 +21,10 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 pt-16 lg:pt-20">
+    <section
+      id="home"
+      className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 pt-16 lg:pt-20"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-5rem)]">
           <div className="text-center lg:text-left">
@@ -41,7 +44,7 @@ const Hero = () => {
                 className="group inline-flex items-center justify-center px-8 py-4 bg-primary-600 text-white text-lg font-semibold rounded-xl hover:bg-primary-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
                 onClick={handleGetStarted}
               >
-                Get Started Now 
+                Get Started Now
                 <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
@@ -53,7 +56,7 @@ const Hero = () => {
               </button>
             </div>
           </div>
-          
+
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
               <img
@@ -63,18 +66,23 @@ const Hero = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
-            
+
             {/* Floating cards */}
             <div className="absolute -top-4 -left-4 bg-white rounded-lg shadow-lg p-4 animate-float">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
                   <FaCamera className="text-primary-600" />
                 </div>
-                <span className="font-semibold text-gray-800">Snap a Photo</span>
+                <span className="font-semibold text-gray-800">
+                  Snap a Photo
+                </span>
               </div>
             </div>
-            
-            <div className="absolute top-1/3 -right-4 bg-white rounded-lg shadow-lg p-4 animate-float" style={{animationDelay: '1s'}}>
+
+            <div
+              className="absolute top-1/3 -right-4 bg-white rounded-lg shadow-lg p-4 animate-float"
+              style={{ animationDelay: "1s" }}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <FaBrain className="text-green-600" />
@@ -82,22 +90,31 @@ const Hero = () => {
                 <span className="font-semibold text-gray-800">AI Analyzes</span>
               </div>
             </div>
-            
-            <div className="absolute -bottom-4 left-1/4 bg-white rounded-lg shadow-lg p-4 animate-float" style={{animationDelay: '2s'}}>
+
+            <div
+              className="absolute -bottom-4 left-1/4 bg-white rounded-lg shadow-lg p-4 animate-float"
+              style={{ animationDelay: "2s" }}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
                   <FaChartPie className="text-yellow-600" />
                 </div>
-                <span className="font-semibold text-gray-800">Get Nutrition Data</span>
+                <span className="font-semibold text-gray-800">
+                  Get Nutrition Data
+                </span>
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Wave divider */}
       <div className="absolute bottom-0 left-0 right-0">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1440 320"
+          className="w-full"
+        >
           <path
             fill="#ffffff"
             fillOpacity="1"

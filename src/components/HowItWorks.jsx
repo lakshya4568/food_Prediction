@@ -41,7 +41,9 @@ const HowItWorks = () => {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
             How <span className="text-primary-600">NutriVision</span> Works
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">A simple three-step process to transform your nutrition</p>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            A simple three-step process to transform your nutrition
+          </p>
         </div>
         <div className="space-y-20">
           {steps.map((step, index) => (
@@ -57,15 +59,19 @@ const HowItWorks = () => {
                     {step.number}
                   </div>
                   <div className="bg-gray-50 rounded-2xl p-8 pt-12">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-4">{step.title}</h3>
-                    <p className="text-gray-600 text-lg leading-relaxed">{step.description}</p>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-600 text-lg leading-relaxed">
+                      {step.description}
+                    </p>
                   </div>
                 </div>
               </div>
               <div className={`${step.reverse ? "lg:col-start-1" : ""}`}>
                 <div className="relative rounded-2xl overflow-hidden shadow-xl transform hover:scale-105 transition-transform duration-300">
-                  <img 
-                    src={step.image} 
+                  <img
+                    src={step.image}
                     alt={step.alt}
                     className="w-full h-64 lg:h-80 object-cover"
                   />
