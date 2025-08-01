@@ -81,7 +81,7 @@ const AuthPage = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
-            
+
             {/* Floating cards */}
             <div className="absolute -top-4 -left-4 bg-white rounded-lg shadow-lg p-4 animate-float">
               <div className="flex items-center space-x-3">
@@ -91,8 +91,11 @@ const AuthPage = () => {
                 <span className="font-semibold text-gray-800">Snap</span>
               </div>
             </div>
-            
-            <div className="absolute top-1/3 -right-4 bg-white rounded-lg shadow-lg p-4 animate-float" style={{animationDelay: '1s'}}>
+
+            <div
+              className="absolute top-1/3 -right-4 bg-white rounded-lg shadow-lg p-4 animate-float"
+              style={{ animationDelay: "1s" }}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <FaBrain className="text-green-600" />
@@ -100,8 +103,11 @@ const AuthPage = () => {
                 <span className="font-semibold text-gray-800">Analyze</span>
               </div>
             </div>
-            
-            <div className="absolute -bottom-4 left-1/4 bg-white rounded-lg shadow-lg p-4 animate-float" style={{animationDelay: '2s'}}>
+
+            <div
+              className="absolute -bottom-4 left-1/4 bg-white rounded-lg shadow-lg p-4 animate-float"
+              style={{ animationDelay: "2s" }}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
                   <FaChartPie className="text-yellow-600" />
@@ -153,12 +159,19 @@ const AuthPage = () => {
           {activeTab === "login" && (
             <form onSubmit={handleLoginSubmit} className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
-                <p className="text-gray-600">Sign in to your account to continue your nutrition journey.</p>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  Welcome Back!
+                </h2>
+                <p className="text-gray-600">
+                  Sign in to your account to continue your nutrition journey.
+                </p>
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="login-email" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="login-email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email Address
                 </label>
                 <input
@@ -174,7 +187,10 @@ const AuthPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="login-password"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -200,10 +216,18 @@ const AuthPage = () => {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                  <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                  <input
+                    type="checkbox"
+                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-600">
+                    Remember me
+                  </span>
                 </label>
-                <a href="#" className="text-sm text-primary-600 hover:text-primary-700">
+                <a
+                  href="#"
+                  className="text-sm text-primary-600 hover:text-primary-700"
+                >
                   Forgot password?
                 </a>
               </div>
@@ -221,7 +245,9 @@ const AuthPage = () => {
                     <div className="w-full border-t border-gray-300"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                    <span className="px-2 bg-white text-gray-500">
+                      Or continue with
+                    </span>
                   </div>
                 </div>
 
@@ -249,12 +275,19 @@ const AuthPage = () => {
           {activeTab === "signup" && (
             <form onSubmit={handleSignupSubmit} className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Create Account</h2>
-                <p className="text-gray-600">Join NutriVision and start your healthy journey today.</p>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  Create Account
+                </h2>
+                <p className="text-gray-600">
+                  Join NutriVision and start your healthy journey today.
+                </p>
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="signup-fullName" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="signup-fullName"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Full Name
                 </label>
                 <input
@@ -270,7 +303,10 @@ const AuthPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="signup-email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email Address
                 </label>
                 <input
@@ -286,7 +322,10 @@ const AuthPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="signup-password"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -311,7 +350,10 @@ const AuthPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="signup-confirmPassword" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="signup-confirmPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -336,14 +378,24 @@ const AuthPage = () => {
               </div>
 
               <div className="flex items-start">
-                <input type="checkbox" className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500" required />
+                <input
+                  type="checkbox"
+                  className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  required
+                />
                 <label className="ml-3 text-sm text-gray-600">
                   I agree to the{" "}
-                  <a href="#" className="text-primary-600 hover:text-primary-700">
+                  <a
+                    href="#"
+                    className="text-primary-600 hover:text-primary-700"
+                  >
                     Terms of Service
                   </a>{" "}
                   and{" "}
-                  <a href="#" className="text-primary-600 hover:text-primary-700">
+                  <a
+                    href="#"
+                    className="text-primary-600 hover:text-primary-700"
+                  >
                     Privacy Policy
                   </a>
                 </label>
@@ -362,7 +414,9 @@ const AuthPage = () => {
                     <div className="w-full border-t border-gray-300"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                    <span className="px-2 bg-white text-gray-500">
+                      Or continue with
+                    </span>
                   </div>
                 </div>
 
