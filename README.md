@@ -108,6 +108,7 @@ NutriVision utilizes two primary AI components:
 ## 🛠 Tech Stack
 
 ### Backend
+
 - **Python**: Core programming language
 - **Flask**: Web framework
 - **PyTorch**: Deep learning framework
@@ -116,6 +117,7 @@ NutriVision utilizes two primary AI components:
 - **Google Generative AI**: Nutritional analysis
 
 ### Frontend
+
 - **HTML/CSS/JavaScript**: UI components
 - **React** (optional): For advanced UI interactions
 
@@ -124,6 +126,7 @@ NutriVision utilizes two primary AI components:
 ## 📥 Installation & Setup
 
 ### Prerequisites
+
 - Python 3.9+
 - PyTorch 2.0+
 - A Google Gemini API key
@@ -131,12 +134,14 @@ NutriVision utilizes two primary AI components:
 ### Step-by-Step Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/food_Prediction.git
    cd food_Prediction
    ```
 
 2. **Create and activate a virtual environment**
+
    ```bash
    python -m venv venv
    # On Windows
@@ -146,17 +151,20 @@ NutriVision utilizes two primary AI components:
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Configure Gemini API**
    - Set your Gemini API key in app.py
+
    ```python
    GEMINI_API_KEY = "your-api-key-here"
    ```
 
 5. **Run the application**
+
    ```bash
    python app.py
    ```
@@ -170,16 +178,19 @@ NutriVision utilizes two primary AI components:
 ## 🚀 Usage
 
 ### Food Recognition
+
 1. Take or upload a photo of food
 2. The system identifies the food item
 3. View confidence scores for the prediction
 
 ### Nutritional Analysis
+
 1. After food recognition, submit your health profile
 2. Receive personalized nutritional information
 3. Get recommendations based on your health metrics
 
 ### API Integration
+
 ```python
 # Example: Food Recognition API Call
 import requests
@@ -197,6 +208,7 @@ prediction = response.json()
 The NutriVision backend API can be integrated with various frontend frameworks. A sample HTML/CSS/JS implementation is provided in the nutri-vision-mainpage directory.
 
 For a complete user experience, the frontend should:
+
 1. Provide image upload/capture functionality
 2. Collect user health metrics
 3. Display food recognition results

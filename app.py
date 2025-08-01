@@ -9,9 +9,9 @@ from flask_cors import CORS
 import google.generativeai as genai
 import json # Although not strictly needed for this change, good practice if handling complex JSON later
 
-from pyngrok import ngrok, conf
-
-conf.get_default().auth_token = "2vuIkaBHuxB8IsBgWa1DfgFvSsO_5ninjhmiKtmfsn4xWADxL"
+# Commenting out ngrok imports and configuration
+# from pyngrok import ngrok, conf
+# conf.get_default().auth_token = "2vuIkaBHuxB8IsBgWa1DfgFvSsO_5ninjhmiKtmfsn4xWADxL"
 
 
 app = Flask(__name__)
@@ -23,7 +23,7 @@ CORS(app)  # Enable CORS to allow cross-origin requests from React frontend
 # os.environ['GEMINI_API_KEY'] = 'YOUR_API_KEY_HERE' # Replace if needed
 try:
     # Use the key provided by the user directly for now
-    GEMINI_API_KEY = ""
+    GEMINI_API_KEY = "AIzaSyDMyFFXZ7qV6Xa1QxR082cz7RqfJbQZZDs"
     genai.configure(api_key=GEMINI_API_KEY)
     gemini_model = genai.GenerativeModel('gemini-2.0-flash')
     print("Gemini API configured successfully.")
@@ -41,7 +41,7 @@ def load_model():
     model.heads = torch.nn.Linear(in_features=768, out_features=3)
     
     # Load saved model weights if they exist (replace with your saved model path)
-    model_path = 'models/pretrained.pth'
+    model_path = 'models/pretrained_vit_food_model.pth'
     if os.path.exists(model_path):
         try:
             model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
@@ -175,18 +175,16 @@ def health_check():
     return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
-    # Set up ngrok tunnel to expose the Flask app to the internet
-    # This will generate a public URL that routes to your local Flask server
-    import subprocess
-    import platform
+    # Commented out ngrok tunnel setup
+    # import subprocess
+    # import platform
     
-    if platform.system() == "Windows":
-        subprocess.run(['taskkill', '/F', '/IM', 'ngrok.exe'], capture_output=True, shell=True)
-    else:
-        subprocess.run(['pkill', 'ngrok'], capture_output=True, shell=True)
-        
+    # if platform.system() == "Windows":
+    #     subprocess.run(['taskkill', '/F', '/IM', 'ngrok.exe'], capture_output=True, shell=True)
+    # else:
+    #     subprocess.run(['pkill', 'ngrok'], capture_output=True, shell=True)
     
-    public_url = ngrok.connect(5000)
-    print(f"* Flask API is publicly accessible at: {public_url}")
+    # public_url = ngrok.connect(5000)
+    # print(f"* Flask API is publicly accessible at: {public_url}")
     
-    app.run(host='0.0.0.0', port=5000, debug=True)  # Run the Flask app on port 5000
+    app.run(host='0.0.0.0', port=5002, debug=True)  # Run the Flask app on port 5002
