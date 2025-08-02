@@ -65,7 +65,8 @@
            shadow-nutrition hover:shadow-nutrition-lg transform hover:scale-105 
            transition-all duration-300 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
            dark:bg-nutrition-gradient-dark dark:shadow-glow-green hover:shadow-glow-green
-           border border-primary-400/20 dark:border-primary-600/30;
+           border border-primary-400/20 dark:border-primary-600/30
+           cursor-pointer pointer-events-auto relative z-10;
   }
 
   .btn-secondary {
@@ -73,7 +74,8 @@
            shadow-accent hover:shadow-accent-lg transform hover:scale-105 
            transition-all duration-300 focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2
            dark:shadow-glow-orange hover:shadow-glow-orange
-           border border-secondary-400/20 dark:border-secondary-600/30;
+           border border-secondary-400/20 dark:border-secondary-600/30
+           cursor-pointer pointer-events-auto relative z-10;
   }
 
   .btn-purple {
@@ -81,14 +83,16 @@
            shadow-purple hover:shadow-purple-lg transform hover:scale-105 
            transition-all duration-300 focus:ring-2 focus:ring-accent-500 focus:ring-offset-2
            dark:shadow-glow-purple hover:shadow-glow-purple
-           border border-accent-400/20 dark:border-accent-600/30;
+           border border-accent-400/20 dark:border-accent-600/30
+           cursor-pointer pointer-events-auto relative z-10;
   }
 
   .btn-outline {
     @apply border-2 border-primary-500 text-primary-600 font-bold py-3 px-8 rounded-xl 
            hover:bg-primary-50 hover:border-primary-600 transition-all duration-300
            dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-900/30 
-           dark:hover:border-primary-300 hover:shadow-nutrition dark:hover:shadow-glow-green;
+           dark:hover:border-primary-300 hover:shadow-nutrition dark:hover:shadow-glow-green
+           cursor-pointer pointer-events-auto relative z-10;
   }
 
   /* Enhanced card components */
@@ -315,4 +319,44 @@
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.6),
       0 0 30px rgba(16, 185, 129, 0.3);
   }
+}
+
+/* Utility classes for enhanced button functionality */
+.btn-clickable {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 50 !important;
+}
+
+.clickable {
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+}
+
+.non-interactive {
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure all buttons are clickable */
+button, 
+.btn-primary, 
+.btn-secondary, 
+.btn-outline, 
+.btn-purple {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none;
+}
+
+button:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-outline:hover,
+.btn-purple:hover {
+  transform: scale(1.05) !important;
+  transition: all 0.3s ease !important;
 }

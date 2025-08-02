@@ -47,6 +47,11 @@ const Header = () => {
           <div className="flex-shrink-0 group">
             <div className="flex items-center space-x-2">
               <div className="relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 lg:h-20">
+          <div className="flex-shrink-0 group">
+            <div className="flex items-center space-x-2">
+              <div className="relative">
                 <FaLeaf className="text-2xl text-primary-500 group-hover:text-primary-400 transition-colors duration-300" />
                 <FaStar className="absolute -top-1 -right-1 text-xs text-secondary-400 animate-pulse" />
               </div>
@@ -64,7 +69,7 @@ const Header = () => {
           <nav className="hidden lg:flex items-center space-x-8">
             <a
               href="#home"
-              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group cursor-pointer"
+              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#home");
@@ -75,7 +80,7 @@ const Header = () => {
             </a>
             <a
               href="#features"
-              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group cursor-pointer"
+              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#features");
@@ -86,7 +91,7 @@ const Header = () => {
             </a>
             <a
               href="#benefits"
-              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group cursor-pointer"
+              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#benefits");
@@ -97,7 +102,7 @@ const Header = () => {
             </a>
             <a
               href="#how-it-works"
-              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group cursor-pointer"
+              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#how-it-works");
@@ -108,7 +113,7 @@ const Header = () => {
             </a>
             <a
               href="#testimonials"
-              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group cursor-pointer"
+              className="text-sm font-medium transition-all duration-300 hover:text-primary-600 text-text-dark dark:text-text-light dark:hover:text-primary-400 relative group"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#testimonials");
@@ -123,15 +128,13 @@ const Header = () => {
             <ThemeToggle />
             <button
               onClick={handleAuthClick}
-              className="px-4 py-2 text-sm font-medium text-text-muted-light hover:text-primary-600 dark:text-text-muted-dark dark:hover:text-primary-400 transition-all duration-300 hover:scale-105 cursor-pointer relative z-50"
-              type="button"
+              className="px-4 py-2 text-sm font-medium text-text-muted-light hover:text-primary-600 dark:text-text-muted-dark dark:hover:text-primary-400 transition-all duration-300 hover:scale-105"
             >
               Log In
             </button>
             <button
               onClick={handleAuthClick}
-              className="btn-secondary text-sm transform hover:scale-105 transition-all duration-300 cursor-pointer relative z-50"
-              type="button"
+              className="btn-secondary text-sm transform hover:scale-105 transition-all duration-300"
             >
               Sign Up
             </button>
@@ -141,8 +144,7 @@ const Header = () => {
             <ThemeToggle />
             <button
               onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-xl text-text-dark dark:text-text-light hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 dark:hover:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300 cursor-pointer relative z-50"
-              type="button"
+              className="inline-flex items-center justify-center p-2 rounded-xl text-text-dark dark:text-text-light hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 dark:hover:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300"
             >
               <div className="space-y-1.5">
                 <div
@@ -176,7 +178,7 @@ const Header = () => {
           <div className="py-6 space-y-4 border-t border-primary-200 bg-white/95 backdrop-blur-xl dark:bg-bg-secondary-dark/95 dark:border-primary-800 rounded-b-2xl shadow-nutrition-lg dark:shadow-dark-lg">
             <a
               href="#home"
-              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4 cursor-pointer"
+              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#home");
@@ -186,7 +188,7 @@ const Header = () => {
             </a>
             <a
               href="#features"
-              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4 cursor-pointer"
+              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#features");
@@ -196,7 +198,7 @@ const Header = () => {
             </a>
             <a
               href="#benefits"
-              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4 cursor-pointer"
+              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#benefits");
@@ -206,7 +208,7 @@ const Header = () => {
             </a>
             <a
               href="#how-it-works"
-              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4 cursor-pointer"
+              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#how-it-works");
@@ -216,7 +218,7 @@ const Header = () => {
             </a>
             <a
               href="#testimonials"
-              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4 cursor-pointer"
+              className="block px-6 py-3 text-sm font-medium transition-all duration-300 text-text-dark dark:text-text-light hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg mx-4"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#testimonials");
@@ -230,8 +232,7 @@ const Header = () => {
                   setIsMenuOpen(false);
                   handleAuthClick();
                 }}
-                className="btn-outline w-full text-center cursor-pointer relative z-50"
-                type="button"
+                className="btn-outline w-full text-center"
               >
                 Log In
               </button>
@@ -240,8 +241,7 @@ const Header = () => {
                   setIsMenuOpen(false);
                   handleAuthClick();
                 }}
-                className="btn-secondary w-full text-center cursor-pointer relative z-50"
-                type="button"
+                className="btn-secondary w-full text-center"
               >
                 Sign Up
               </button>

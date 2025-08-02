@@ -4,16 +4,11 @@ import LandingPage from "../components/LandingPage";
 import NutriVision from "../components/NutriVision";
 import AuthPage from "../components/AuthPage";
 import Dashboard from "../components/Dashboard";
-import App from "../app/App";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
-  },
-  {
-    path: "/app",
-    element: <App />,
   },
   {
     path: "/nutrivision",

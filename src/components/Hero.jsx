@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FaCamera,
   FaBrain,
@@ -7,14 +7,28 @@ import {
   FaPlay,
   FaStar,
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
 
 const Hero = () => {
+  useEffect(() => {
+    // Ensure all buttons are clickable by removing any conflicting styles
+    const buttons = document.querySelectorAll('.btn-primary, .btn-outline, .btn-secondary');
+    buttons.forEach(button => {
+      button.style.pointerEvents = 'auto';
+      button.style.zIndex = '50';
+      button.style.position = 'relative';
+    });
+  }, []);
+
   const handleLearnMore = () => {
     const element = document.querySelector("#how-it-works");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
+  };
+
+  const handleGetStarted = () => {
+    // Navigate to auth page
+    window.location.href = "/auth";
   };
 
   return (
@@ -23,7 +37,7 @@ const Hero = () => {
       className="relative min-h-screen bg-hero-pattern-light dark:bg-hero-pattern-dark bg-bg-light dark:bg-bg-dark pt-16 lg:pt-20 overflow-hidden"
     >
       {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-10 left-10 w-72 h-72 bg-primary-200/30 dark:bg-primary-800/20 rounded-full blur-3xl animate-pulse-slow"></div>
         <div
           className="absolute bottom-10 right-10 w-96 h-96 bg-secondary-200/30 dark:bg-secondary-800/20 rounded-full blur-3xl animate-pulse-slow"
@@ -35,9 +49,9 @@ const Hero = () => {
         ></div>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-5rem)]">
-          <div className="text-center lg:text-left animate-fade-in">
+          <div className="text-center lg:text-left animate-fade-in relative z-20">
             <div className="inline-flex items-center bg-primary-100/80 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-4 py-2 rounded-full text-sm font-medium mb-6 backdrop-blur-sm">
               <FaStar className="mr-2 animate-bounce-gentle" />
               Powered by Advanced AI Vision Technology
@@ -66,19 +80,21 @@ const Hero = () => {
               .
             </p>
 
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link
-                to="/auth"
-                className="btn-primary group animate-scale-in"
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start relative z-20">
+              <button
+                onClick={handleGetStarted}
+                className="btn-primary btn-clickable group animate-scale-in cursor-pointer relative z-30"
                 style={{ animationDelay: "0.2s" }}
+                type="button"
               >
                 Get Started Now
                 <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </button>
               <button
-                className="btn-outline group animate-scale-in"
+                className="btn-outline btn-clickable group animate-scale-in cursor-pointer relative z-30"
                 onClick={handleLearnMore}
                 style={{ animationDelay: "0.4s" }}
+                type="button"
               >
                 <FaPlay className="mr-2 group-hover:scale-110 transition-transform" />
                 Learn More
@@ -141,7 +157,7 @@ const Hero = () => {
             </div>
 
             {/* Enhanced floating cards */}
-            <div className="absolute -top-4 -left-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-nutrition p-4 animate-float border border-primary-200 dark:border-primary-700">
+            <div className="absolute -top-4 -left-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-nutrition p-4 animate-float border border-primary-200 dark:border-primary-700 pointer-events-none z-10">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-info-400 to-info-600 rounded-xl flex items-center justify-center shadow-lg">
                   <FaCamera className="text-white text-lg" />
@@ -158,7 +174,7 @@ const Hero = () => {
             </div>
 
             <div
-              className="absolute top-1/3 -right-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-nutrition p-4 animate-float border border-primary-200 dark:border-primary-700"
+              className="absolute top-1/3 -right-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-nutrition p-4 animate-float border border-primary-200 dark:border-primary-700 pointer-events-none z-10"
               style={{ animationDelay: "1s" }}
             >
               <div className="flex items-center space-x-3">
@@ -177,7 +193,7 @@ const Hero = () => {
             </div>
 
             <div
-              className="absolute -bottom-4 left-1/4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-nutrition p-4 animate-float border border-primary-200 dark:border-primary-700"
+              className="absolute -bottom-4 left-1/4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-nutrition p-4 animate-float border border-primary-200 dark:border-primary-700 pointer-events-none z-10"
               style={{ animationDelay: "2s" }}
             >
               <div className="flex items-center space-x-3">
@@ -199,11 +215,11 @@ const Hero = () => {
       </div>
 
       {/* Enhanced wave divider */}
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="absolute bottom-0 left-0 right-0 z-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1440 320"
-          className="w-full"
+          className="w-full pointer-events-none"
         >
           <path
             fill="url(#waveGradient)"

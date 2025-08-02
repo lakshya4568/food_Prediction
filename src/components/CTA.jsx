@@ -1,8 +1,10 @@
 import React from "react";
 import { FaArrowRight, FaStar, FaHeart } from "react-icons/fa";
-import { Link } from "react-router-dom";
 
 const CTA = () => {
+  const handleGetStarted = () => {
+    window.location.href = "/auth";
+  };
   return (
     <section className="relative py-20 overflow-hidden">
       {/* Enhanced dynamic background with vibrant nutrition-themed gradients */}
@@ -54,10 +56,11 @@ const CTA = () => {
           </p>
 
           {/* CTA Button */}
-          <div className="animate-scale-in" style={{ animationDelay: "0.4s" }}>
-            <Link
-              to="/auth"
-              className="group inline-flex items-center justify-center px-10 py-5 bg-white text-primary-600 text-xl font-bold rounded-2xl hover:bg-gray-50 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-3xl relative overflow-hidden"
+          <div className="animate-scale-in relative z-20" style={{ animationDelay: "0.4s" }}>
+            <button
+              onClick={handleGetStarted}
+              className="btn-clickable group inline-flex items-center justify-center px-10 py-5 bg-white text-primary-600 text-xl font-bold rounded-2xl hover:bg-gray-50 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-3xl relative overflow-hidden cursor-pointer z-30"
+              type="button"
             >
               {/* Button shimmer effect */}
               <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
@@ -66,7 +69,7 @@ const CTA = () => {
                 Get Started Now
                 <FaArrowRight className="ml-3 group-hover:translate-x-2 transition-transform duration-300" />
               </span>
-            </Link>
+            </button>
           </div>
 
           {/* Trust indicators */}
