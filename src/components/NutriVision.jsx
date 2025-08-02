@@ -184,26 +184,26 @@ const NutriVision = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-vibrant-overlay dark:bg-dark-overlay">
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-md shadow-lg sticky top-0 z-50">
+      <header className="bg-surface-light/90 dark:bg-surface-dark/90 backdrop-blur-md shadow-lg dark:shadow-glow-green sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={goBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+              className="flex items-center space-x-2 text-text-muted-light dark:text-text-muted-dark hover:text-text-dark dark:hover:text-text-light transition-colors"
             >
               <FaArrowLeft />
               <span>Back to Home</span>
             </button>
 
             <div className="text-center">
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-1">
-                <span className="bg-gradient-to-r from-emerald-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl lg:text-4xl font-bold text-text-dark dark:text-text-light mb-1">
+                <span className="bg-gradient-to-r from-primary-600 via-accent-600 to-secondary-600 dark:from-primary-400 dark:via-accent-400 dark:to-secondary-400 bg-clip-text text-transparent">
                   🍽️ NutriVision
                 </span>
               </h1>
-              <p className="text-sm lg:text-base text-gray-600">
+              <p className="text-sm lg:text-base text-text-muted-light dark:text-text-muted-dark">
                 AI-Powered Food Recognition & Nutrition Analysis
               </p>
             </div>
@@ -217,13 +217,13 @@ const NutriVision = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error Display */}
         {error && (
-          <div className="mb-8 bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
+          <div className="mb-8 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-500 p-4 rounded-lg">
             <div className="flex items-center">
-              <FaExclamationTriangle className="text-red-400 mr-3" />
-              <p className="text-red-700">{error}</p>
+              <FaExclamationTriangle className="text-red-400 dark:text-red-300 mr-3" />
+              <p className="text-red-700 dark:text-red-200">{error}</p>
               <button
                 onClick={() => setError(null)}
-                className="ml-auto text-red-400 hover:text-red-600"
+                className="ml-auto text-red-400 dark:text-red-300 hover:text-red-600 dark:hover:text-red-100 transition-colors"
               >
                 <FaTimes />
               </button>
@@ -235,14 +235,14 @@ const NutriVision = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Upload Section */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+            <div className="card hover:shadow-xl dark:hover:shadow-glow-green border border-primary-200/50 dark:border-primary-700/50 transition-all duration-300">
               <div className="flex items-center justify-center mb-6">
-                <div className="bg-gradient-to-r from-emerald-500 to-blue-500 p-3 rounded-full">
+                <div className="bg-nutrition-gradient dark:bg-nutrition-gradient-dark p-3 rounded-full">
                   <FaCamera className="text-white text-2xl" />
                 </div>
               </div>
 
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+              <h2 className="text-2xl font-bold text-text-dark dark:text-text-light mb-6 text-center">
                 Upload Food Image
               </h2>
 
@@ -251,8 +251,8 @@ const NutriVision = () => {
                   className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer
                     ${
                       selectedImage
-                        ? "border-emerald-400 bg-emerald-50"
-                        : "border-gray-300 hover:border-emerald-400 hover:bg-emerald-50"
+                        ? "border-primary-400 dark:border-primary-500 bg-primary-50 dark:bg-primary-900/20"
+                        : "border-primary-300 dark:border-primary-600 hover:border-primary-400 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20"
                     }`}
                   onClick={() => fileInputRef.current?.click()}
                 >
@@ -264,17 +264,17 @@ const NutriVision = () => {
                     className="hidden"
                   />
                   <div className="space-y-3">
-                    <FaUpload className="text-4xl text-gray-400 mx-auto" />
+                    <FaUpload className="text-4xl text-text-muted-light dark:text-text-muted-dark mx-auto" />
                     <div>
-                      <p className="text-gray-600 font-medium">
+                      <p className="text-text-muted-light dark:text-text-muted-dark font-medium">
                         Click to upload or drag and drop
                       </p>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-text-muted-light dark:text-text-muted-dark">
                         PNG, JPG, JPEG up to 10MB
                       </p>
                     </div>
                     {selectedImage && (
-                      <div className="flex items-center justify-center text-emerald-600">
+                      <div className="flex items-center justify-center text-primary-600 dark:text-primary-400">
                         <FaCheck className="mr-2" />
                         <span className="text-sm font-medium">
                           Image selected
@@ -288,10 +288,7 @@ const NutriVision = () => {
                   <button
                     onClick={predictFood}
                     disabled={!selectedImage || isLoading}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 text-white py-4 px-6 rounded-xl font-bold text-lg 
-                      hover:from-emerald-600 hover:to-blue-600 disabled:from-gray-300 disabled:to-gray-400 
-                      disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 
-                      hover:shadow-lg disabled:hover:scale-100 disabled:hover:shadow-none"
+                    className="btn-primary w-full py-4 text-lg disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
@@ -309,8 +306,8 @@ const NutriVision = () => {
 
                   <button
                     onClick={resetAll}
-                    className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold 
-                      hover:bg-gray-200 transition-colors duration-200"
+                    className="w-full px-6 py-3 bg-surface-hover-light dark:bg-surface-hover-dark text-text-muted-light dark:text-text-muted-dark rounded-xl font-semibold 
+                      hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-text-dark dark:hover:text-text-light transition-colors duration-200"
                   >
                     🔄 Reset All
                   </button>
@@ -321,12 +318,12 @@ const NutriVision = () => {
 
           {/* Preview Section */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            <div className="card hover:shadow-xl dark:hover:shadow-glow-green border border-primary-200/50 dark:border-primary-700/50 transition-all duration-300">
+              <h2 className="text-2xl font-bold text-text-dark dark:text-text-light mb-6 text-center">
                 Image Preview
               </h2>
 
-              <div className="aspect-square bg-gray-50 rounded-xl overflow-hidden border-2 border-gray-100">
+              <div className="aspect-square bg-surface-hover-light dark:bg-surface-hover-dark rounded-xl overflow-hidden border-2 border-primary-200/50 dark:border-primary-700/50">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
@@ -334,7 +331,7 @@ const NutriVision = () => {
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <div className="h-full flex items-center justify-center text-gray-400">
+                  <div className="h-full flex items-center justify-center text-text-muted-light dark:text-text-muted-dark">
                     <div className="text-center">
                       <div className="text-6xl mb-4">🖼️</div>
                       <p className="text-lg font-medium">
@@ -350,7 +347,7 @@ const NutriVision = () => {
 
           {/* Results Section */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+            <div className="card hover:shadow-xl dark:hover:shadow-glow-green border border-primary-200/50 dark:border-primary-700/50 transition-all duration-300">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                 AI Prediction
               </h2>

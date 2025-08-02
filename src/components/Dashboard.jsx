@@ -89,10 +89,16 @@ const Dashboard = () => {
 
             <div className="text-center">
               <h1 className="text-2xl lg:text-3xl font-bold text-text-dark dark:text-text-light">
-                <span className="text-text-dark dark:text-text-light">Nutri</span>
-                <span className="text-primary-600 dark:text-primary-400">Vision</span>
+                <span className="text-text-dark dark:text-text-light">
+                  Nutri
+                </span>
+                <span className="text-primary-600 dark:text-primary-400">
+                  Vision
+                </span>
               </h1>
-              <p className="text-sm text-text-muted-light dark:text-text-muted-dark">Dashboard</p>
+              <p className="text-sm text-text-muted-light dark:text-text-muted-dark">
+                Dashboard
+              </p>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -142,15 +148,21 @@ const Dashboard = () => {
             >
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-primary-100 dark:bg-primary-800/50 rounded-xl flex items-center justify-center mr-4">
-                  <div className="text-primary-600 dark:text-primary-400 text-xl">{stat.icon}</div>
+                  <div className="text-primary-600 dark:text-primary-400 text-xl">
+                    {stat.icon}
+                  </div>
                 </div>
                 <h3 className="text-lg font-semibold text-text-dark dark:text-text-light">
                   {stat.title}
                 </h3>
               </div>
               <div className="space-y-2">
-                <p className="text-3xl font-bold text-text-dark dark:text-text-light">{stat.value}</p>
-                <p className="text-sm text-text-muted-light dark:text-text-muted-dark">{stat.target}</p>
+                <p className="text-3xl font-bold text-text-dark dark:text-text-light">
+                  {stat.value}
+                </p>
+                <p className="text-sm text-text-muted-light dark:text-text-muted-dark">
+                  {stat.target}
+                </p>
               </div>
             </div>
           ))}
@@ -159,7 +171,9 @@ const Dashboard = () => {
         {/* Recent Meals */}
         <div className="card mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-text-dark dark:text-text-light">Recent Meals</h3>
+            <h3 className="text-xl font-bold text-text-dark dark:text-text-light">
+              Recent Meals
+            </h3>
             <button className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors">
               View All
             </button>
@@ -176,11 +190,17 @@ const Dashboard = () => {
                   className="w-16 h-16 rounded-xl object-cover"
                 />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-text-dark dark:text-text-light">{meal.food}</h4>
-                  <p className="text-sm text-text-muted-light dark:text-text-muted-dark">{meal.time}</p>
+                  <h4 className="font-semibold text-text-dark dark:text-text-light">
+                    {meal.food}
+                  </h4>
+                  <p className="text-sm text-text-muted-light dark:text-text-muted-dark">
+                    {meal.time}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-text-dark dark:text-text-light">{meal.calories}</p>
+                  <p className="font-semibold text-text-dark dark:text-text-light">
+                    {meal.calories}
+                  </p>
                 </div>
               </div>
             ))}
@@ -209,7 +229,10 @@ const Dashboard = () => {
       {/* Bottom Navigation (Mobile) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-light dark:bg-surface-dark border-t border-primary-200 dark:border-primary-700 px-4 py-2">
         <div className="flex justify-around">
-          <Link to="/dashboard" className="flex flex-col items-center py-2 px-4 text-primary-600 dark:text-primary-400">
+          <Link
+            to="/dashboard"
+            className="flex flex-col items-center py-2 px-4 text-primary-600 dark:text-primary-400"
+          >
             <FaChartLine className="text-xl mb-1" />
             <span className="text-xs">Dashboard</span>
           </Link>
@@ -220,11 +243,17 @@ const Dashboard = () => {
             <FaCamera className="text-xl mb-1" />
             <span className="text-xs">Scan</span>
           </button>
-          <Link to="#" className="flex flex-col items-center py-2 px-4 text-text-muted-light dark:text-text-muted-dark">
+          <Link
+            to="#"
+            className="flex flex-col items-center py-2 px-4 text-text-muted-light dark:text-text-muted-dark"
+          >
             <FaHistory className="text-xl mb-1" />
             <span className="text-xs">History</span>
           </Link>
-          <Link to="#" className="flex flex-col items-center py-2 px-4 text-text-muted-light dark:text-text-muted-dark">
+          <Link
+            to="#"
+            className="flex flex-col items-center py-2 px-4 text-text-muted-light dark:text-text-muted-dark"
+          >
             <FaUserCog className="text-xl mb-1" />
             <span className="text-xs">Profile</span>
           </Link>

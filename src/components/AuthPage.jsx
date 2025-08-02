@@ -67,8 +67,12 @@ const AuthPage = () => {
           <div className="text-center lg:text-left">
             <Link to="/" className="inline-block">
               <h1 className="text-4xl lg:text-5xl font-bold">
-                <span className="text-text-dark dark:text-text-light">Nutri</span>
-                <span className="text-primary-600 dark:text-primary-400">Vision</span>
+                <span className="text-text-dark dark:text-text-light">
+                  Nutri
+                </span>
+                <span className="text-primary-600 dark:text-primary-400">
+                  Vision
+                </span>
               </h1>
             </Link>
           </div>
@@ -83,32 +87,44 @@ const AuthPage = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
-            
+
             {/* Floating cards */}
             <div className="absolute -top-4 -left-4 bg-surface-light dark:bg-surface-dark rounded-lg shadow-lg dark:shadow-glow-green p-4 animate-float border border-primary-200/50 dark:border-primary-700/50">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-800 dark:to-primary-700 rounded-lg flex items-center justify-center">
                   <FaCamera className="text-primary-600 dark:text-primary-300" />
                 </div>
-                <span className="font-semibold text-text-dark dark:text-text-light">Snap</span>
+                <span className="font-semibold text-text-dark dark:text-text-light">
+                  Snap
+                </span>
               </div>
             </div>
-            
-            <div className="absolute top-1/3 -right-4 bg-surface-light dark:bg-surface-dark rounded-lg shadow-lg dark:shadow-glow-green p-4 animate-float border border-primary-200/50 dark:border-primary-700/50" style={{animationDelay: '1s'}}>
+
+            <div
+              className="absolute top-1/3 -right-4 bg-surface-light dark:bg-surface-dark rounded-lg shadow-lg dark:shadow-glow-green p-4 animate-float border border-primary-200/50 dark:border-primary-700/50"
+              style={{ animationDelay: "1s" }}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-secondary-100 to-secondary-200 dark:from-secondary-800 dark:to-secondary-700 rounded-lg flex items-center justify-center">
                   <FaBrain className="text-secondary-600 dark:text-secondary-300" />
                 </div>
-                <span className="font-semibold text-text-dark dark:text-text-light">Analyze</span>
+                <span className="font-semibold text-text-dark dark:text-text-light">
+                  Analyze
+                </span>
               </div>
             </div>
-            
-            <div className="absolute -bottom-4 left-1/4 bg-surface-light dark:bg-surface-dark rounded-lg shadow-lg dark:shadow-glow-purple p-4 animate-float border border-primary-200/50 dark:border-primary-700/50" style={{animationDelay: '2s'}}>
+
+            <div
+              className="absolute -bottom-4 left-1/4 bg-surface-light dark:bg-surface-dark rounded-lg shadow-lg dark:shadow-glow-purple p-4 animate-float border border-primary-200/50 dark:border-primary-700/50"
+              style={{ animationDelay: "2s" }}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-accent-100 to-accent-200 dark:from-accent-800 dark:to-accent-700 rounded-lg flex items-center justify-center">
                   <FaChartPie className="text-accent-600 dark:text-accent-300" />
                 </div>
-                <span className="font-semibold text-text-dark dark:text-text-light">Track</span>
+                <span className="font-semibold text-text-dark dark:text-text-light">
+                  Track
+                </span>
               </div>
             </div>
           </div>
@@ -155,12 +171,19 @@ const AuthPage = () => {
           {activeTab === "login" && (
             <form onSubmit={handleLoginSubmit} className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-text-dark dark:text-text-light mb-2">Welcome Back!</h2>
-                <p className="text-text-muted-light dark:text-text-muted-dark">Sign in to your account to continue your nutrition journey.</p>
+                <h2 className="text-2xl font-bold text-text-dark dark:text-text-light mb-2">
+                  Welcome Back!
+                </h2>
+                <p className="text-text-muted-light dark:text-text-muted-dark">
+                  Sign in to your account to continue your nutrition journey.
+                </p>
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="login-email" className="block text-sm font-medium text-text-dark dark:text-text-light">
+                <label
+                  htmlFor="login-email"
+                  className="block text-sm font-medium text-text-dark dark:text-text-light"
+                >
                   Email Address
                 </label>
                 <input
@@ -176,7 +199,10 @@ const AuthPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="login-password" className="block text-sm font-medium text-text-dark dark:text-text-light">
+                <label
+                  htmlFor="login-password"
+                  className="block text-sm font-medium text-text-dark dark:text-text-light"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -202,18 +228,23 @@ const AuthPage = () => {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-primary-300 dark:border-primary-600 text-primary-600 focus:ring-primary-500 bg-surface-light dark:bg-surface-dark" />
-                  <span className="ml-2 text-sm text-text-muted-light dark:text-text-muted-dark">Remember me</span>
+                  <input
+                    type="checkbox"
+                    className="rounded border-primary-300 dark:border-primary-600 text-primary-600 focus:ring-primary-500 bg-surface-light dark:bg-surface-dark"
+                  />
+                  <span className="ml-2 text-sm text-text-muted-light dark:text-text-muted-dark">
+                    Remember me
+                  </span>
                 </label>
-                <a href="#" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
+                <a
+                  href="#"
+                  className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                >
                   Forgot password?
                 </a>
               </div>
 
-              <button
-                type="submit"
-                className="btn-primary w-full"
-              >
+              <button type="submit" className="btn-primary w-full">
                 Sign In
               </button>
 
@@ -223,7 +254,9 @@ const AuthPage = () => {
                     <div className="w-full border-t border-primary-300/50 dark:border-primary-600/50"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-surface-light dark:bg-surface-dark text-text-muted-light dark:text-text-muted-dark">Or continue with</span>
+                    <span className="px-2 bg-surface-light dark:bg-surface-dark text-text-muted-light dark:text-text-muted-dark">
+                      Or continue with
+                    </span>
                   </div>
                 </div>
 
@@ -251,12 +284,19 @@ const AuthPage = () => {
           {activeTab === "signup" && (
             <form onSubmit={handleSignupSubmit} className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-text-dark dark:text-text-light mb-2">Create Account</h2>
-                <p className="text-text-muted-light dark:text-text-muted-dark">Join NutriVision and start your healthy journey today.</p>
+                <h2 className="text-2xl font-bold text-text-dark dark:text-text-light mb-2">
+                  Create Account
+                </h2>
+                <p className="text-text-muted-light dark:text-text-muted-dark">
+                  Join NutriVision and start your healthy journey today.
+                </p>
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="signup-fullName" className="block text-sm font-medium text-text-dark dark:text-text-light">
+                <label
+                  htmlFor="signup-fullName"
+                  className="block text-sm font-medium text-text-dark dark:text-text-light"
+                >
                   Full Name
                 </label>
                 <input
@@ -272,7 +312,10 @@ const AuthPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="signup-email" className="block text-sm font-medium text-text-dark dark:text-text-light">
+                <label
+                  htmlFor="signup-email"
+                  className="block text-sm font-medium text-text-dark dark:text-text-light"
+                >
                   Email Address
                 </label>
                 <input
@@ -288,7 +331,10 @@ const AuthPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="signup-password" className="block text-sm font-medium text-text-dark dark:text-text-light">
+                <label
+                  htmlFor="signup-password"
+                  className="block text-sm font-medium text-text-dark dark:text-text-light"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -313,7 +359,10 @@ const AuthPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="signup-confirmPassword" className="block text-sm font-medium text-text-dark dark:text-text-light">
+                <label
+                  htmlFor="signup-confirmPassword"
+                  className="block text-sm font-medium text-text-dark dark:text-text-light"
+                >
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -338,23 +387,30 @@ const AuthPage = () => {
               </div>
 
               <div className="flex items-start">
-                <input type="checkbox" className="mt-1 rounded border-primary-300 dark:border-primary-600 text-primary-600 focus:ring-primary-500 bg-surface-light dark:bg-surface-dark" required />
+                <input
+                  type="checkbox"
+                  className="mt-1 rounded border-primary-300 dark:border-primary-600 text-primary-600 focus:ring-primary-500 bg-surface-light dark:bg-surface-dark"
+                  required
+                />
                 <label className="ml-3 text-sm text-text-muted-light dark:text-text-muted-dark">
                   I agree to the{" "}
-                  <a href="#" className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
+                  <a
+                    href="#"
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                  >
                     Terms of Service
                   </a>{" "}
                   and{" "}
-                  <a href="#" className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
+                  <a
+                    href="#"
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                  >
                     Privacy Policy
                   </a>
                 </label>
               </div>
 
-              <button
-                type="submit"
-                className="btn-primary w-full"
-              >
+              <button type="submit" className="btn-primary w-full">
                 Create Account
               </button>
 
@@ -364,7 +420,9 @@ const AuthPage = () => {
                     <div className="w-full border-t border-primary-300/50 dark:border-primary-600/50"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-surface-light dark:bg-surface-dark text-text-muted-light dark:text-text-muted-dark">Or continue with</span>
+                    <span className="px-2 bg-surface-light dark:bg-surface-dark text-text-muted-light dark:text-text-muted-dark">
+                      Or continue with
+                    </span>
                   </div>
                 </div>
 
