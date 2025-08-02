@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App_new.jsx";
+import "../styles/index.css";
+import Routes from "../pages/routes";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+    <Routes />
   </StrictMode>
 );

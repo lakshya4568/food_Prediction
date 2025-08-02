@@ -10,20 +10,22 @@ import {
   FaSignOutAlt,
   FaArrowLeft,
 } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   const handleTakePhoto = () => {
-    // Navigate to NutriVision page
-    window.location.hash = "nutrivision";
+    navigate("/nutrivision");
   };
 
   const handleLogout = () => {
     // Handle logout logic
-    window.location.hash = "landing";
+    navigate("/");
   };
 
   const goBack = () => {
-    window.location.hash = "landing";
+    navigate("/");
   };
 
   const stats = [
@@ -207,10 +209,10 @@ const Dashboard = () => {
       {/* Bottom Navigation (Mobile) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
         <div className="flex justify-around">
-          <button className="flex flex-col items-center py-2 px-4 text-primary-600">
+          <Link to="/dashboard" className="flex flex-col items-center py-2 px-4 text-primary-600">
             <FaChartLine className="text-xl mb-1" />
             <span className="text-xs">Dashboard</span>
-          </button>
+          </Link>
           <button
             onClick={handleTakePhoto}
             className="flex flex-col items-center py-2 px-4 text-gray-600"
@@ -218,14 +220,14 @@ const Dashboard = () => {
             <FaCamera className="text-xl mb-1" />
             <span className="text-xs">Scan</span>
           </button>
-          <button className="flex flex-col items-center py-2 px-4 text-gray-600">
+          <Link to="#" className="flex flex-col items-center py-2 px-4 text-gray-600">
             <FaHistory className="text-xl mb-1" />
             <span className="text-xs">History</span>
-          </button>
-          <button className="flex flex-col items-center py-2 px-4 text-gray-600">
+          </Link>
+          <Link to="#" className="flex flex-col items-center py-2 px-4 text-gray-600">
             <FaUserCog className="text-xl mb-1" />
             <span className="text-xs">Profile</span>
-          </button>
+          </Link>
         </div>
       </nav>
     </div>

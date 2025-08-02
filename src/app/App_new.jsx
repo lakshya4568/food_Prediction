@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Header from "./components/Header";
-import LandingPage from "./components/LandingPage";
-import AuthPage from "./components/AuthPage";
-import Dashboard from "./components/Dashboard";
-import NutriVision from "./components/NutriVision";
+import Header from "../components/Header";
+import LandingPage from "../components/LandingPage";
+import AuthPage from "../components/AuthPage";
+import Dashboard from "../components/Dashboard";
+import NutriVision from "../components/NutriVision";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("landing");

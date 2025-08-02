@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
-const Header = ({ activeSection = "home" }) => {
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -19,10 +20,7 @@ const Header = ({ activeSection = "home" }) => {
 
   const handleMenuClick = (sectionId) => {
     setIsMenuOpen(false);
-    if (sectionId.startsWith("#auth")) {
-      // Navigate to auth page
-      window.location.hash = "auth";
-    } else if (sectionId.startsWith("#")) {
+    if (sectionId.startsWith("#")) {
       const element = document.querySelector(sectionId);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -50,11 +48,7 @@ const Header = ({ activeSection = "home" }) => {
           <nav className="hidden lg:flex items-center space-x-8">
             <a
               href="#home"
-              className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                activeSection === "home"
-                  ? "text-primary-600 border-b-2 border-primary-600 pb-1"
-                  : "text-gray-700"
-              }`}
+              className="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#home");
@@ -64,11 +58,7 @@ const Header = ({ activeSection = "home" }) => {
             </a>
             <a
               href="#features"
-              className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                activeSection === "features"
-                  ? "text-primary-600 border-b-2 border-primary-600 pb-1"
-                  : "text-gray-700"
-              }`}
+              className="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#features");
@@ -78,11 +68,7 @@ const Header = ({ activeSection = "home" }) => {
             </a>
             <a
               href="#benefits"
-              className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                activeSection === "benefits"
-                  ? "text-primary-600 border-b-2 border-primary-600 pb-1"
-                  : "text-gray-700"
-              }`}
+              className="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#benefits");
@@ -92,11 +78,7 @@ const Header = ({ activeSection = "home" }) => {
             </a>
             <a
               href="#how-it-works"
-              className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                activeSection === "how-it-works"
-                  ? "text-primary-600 border-b-2 border-primary-600 pb-1"
-                  : "text-gray-700"
-              }`}
+              className="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#how-it-works");
@@ -106,11 +88,7 @@ const Header = ({ activeSection = "home" }) => {
             </a>
             <a
               href="#testimonials"
-              className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                activeSection === "testimonials"
-                  ? "text-primary-600 border-b-2 border-primary-600 pb-1"
-                  : "text-gray-700"
-              }`}
+              className="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#testimonials");
@@ -121,26 +99,18 @@ const Header = ({ activeSection = "home" }) => {
           </nav>
 
           <div className="hidden lg:flex items-center space-x-4">
-            <a
-              href="#auth"
+            <Link
+              to="/auth"
               className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                handleMenuClick("#auth");
-              }}
             >
               Log In
-            </a>
-            <a
-              href="#auth"
+            </Link>
+            <Link
+              to="/auth"
               className="px-6 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                handleMenuClick("#auth");
-              }}
             >
               Sign Up
-            </a>
+            </Link>
           </div>
 
           <div className="lg:hidden">
@@ -180,9 +150,7 @@ const Header = ({ activeSection = "home" }) => {
           <div className="py-4 space-y-4 border-t border-gray-200 bg-white/95 backdrop-blur-md">
             <a
               href="#home"
-              className={`block px-4 py-2 text-sm font-medium transition-colors ${
-                activeSection === "home" ? "text-primary-600" : "text-gray-700"
-              }`}
+              className="block px-4 py-2 text-sm font-medium transition-colors text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#home");
@@ -192,11 +160,7 @@ const Header = ({ activeSection = "home" }) => {
             </a>
             <a
               href="#features"
-              className={`block px-4 py-2 text-sm font-medium transition-colors ${
-                activeSection === "features"
-                  ? "text-primary-600"
-                  : "text-gray-700"
-              }`}
+              className="block px-4 py-2 text-sm font-medium transition-colors text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#features");
@@ -206,11 +170,7 @@ const Header = ({ activeSection = "home" }) => {
             </a>
             <a
               href="#benefits"
-              className={`block px-4 py-2 text-sm font-medium transition-colors ${
-                activeSection === "benefits"
-                  ? "text-primary-600"
-                  : "text-gray-700"
-              }`}
+              className="block px-4 py-2 text-sm font-medium transition-colors text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#benefits");
@@ -220,11 +180,7 @@ const Header = ({ activeSection = "home" }) => {
             </a>
             <a
               href="#how-it-works"
-              className={`block px-4 py-2 text-sm font-medium transition-colors ${
-                activeSection === "how-it-works"
-                  ? "text-primary-600"
-                  : "text-gray-700"
-              }`}
+              className="block px-4 py-2 text-sm font-medium transition-colors text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#how-it-works");
@@ -234,11 +190,7 @@ const Header = ({ activeSection = "home" }) => {
             </a>
             <a
               href="#testimonials"
-              className={`block px-4 py-2 text-sm font-medium transition-colors ${
-                activeSection === "testimonials"
-                  ? "text-primary-600"
-                  : "text-gray-700"
-              }`}
+              className="block px-4 py-2 text-sm font-medium transition-colors text-gray-700"
               onClick={(e) => {
                 e.preventDefault();
                 handleMenuClick("#testimonials");
@@ -247,26 +199,20 @@ const Header = ({ activeSection = "home" }) => {
               Testimonials
             </a>
             <div className="px-4 pt-4 space-y-2 border-t border-gray-200">
-              <a
-                href="#auth"
+              <Link
+                to="/auth"
                 className="block w-full px-4 py-2 text-center text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleMenuClick("#auth");
-                }}
+                onClick={() => setIsMenuOpen(false)}
               >
                 Log In
-              </a>
-              <a
-                href="#auth"
+              </Link>
+              <Link
+                to="/auth"
                 className="block w-full px-4 py-2 text-center text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleMenuClick("#auth");
-                }}
+                onClick={() => setIsMenuOpen(false)}
               >
                 Sign Up
-              </a>
+              </Link>
             </div>
           </div>
         </div>

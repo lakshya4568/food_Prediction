@@ -6,13 +6,9 @@ import {
   FaArrowRight,
   FaPlay,
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
-  const handleGetStarted = () => {
-    // Navigate to auth page
-    window.location.hash = "auth";
-  };
-
   const handleLearnMore = () => {
     const element = document.querySelector("#how-it-works");
     if (element) {
@@ -40,13 +36,13 @@ const Hero = () => {
               information to help you make healthier choices.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button
+              <Link
+                to="/auth"
                 className="group inline-flex items-center justify-center px-8 py-4 bg-primary-600 text-white text-lg font-semibold rounded-xl hover:bg-primary-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
-                onClick={handleGetStarted}
               >
                 Get Started Now
                 <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </Link>
               <button
                 className="group inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 text-lg font-semibold rounded-xl hover:bg-gray-50 border-2 border-primary-600 transition-all duration-200 shadow-lg hover:shadow-xl"
                 onClick={handleLearnMore}

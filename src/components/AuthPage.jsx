@@ -8,11 +8,13 @@ import {
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
   const [loginData, setLoginData] = useState({
     email: "",
@@ -45,7 +47,7 @@ const AuthPage = () => {
     // Handle login logic here
     console.log("Login data:", loginData);
     // Navigate to dashboard
-    window.location.hash = "dashboard";
+    navigate("/dashboard");
   };
 
   const handleSignupSubmit = (e) => {
@@ -53,7 +55,7 @@ const AuthPage = () => {
     // Handle signup logic here
     console.log("Signup data:", signupData);
     // Navigate to dashboard
-    window.location.hash = "dashboard";
+    navigate("/dashboard");
   };
 
   return (
@@ -63,12 +65,12 @@ const AuthPage = () => {
         <div className="space-y-8">
           {/* Logo */}
           <div className="text-center lg:text-left">
-            <a href="#landing" className="inline-block">
+            <Link to="/" className="inline-block">
               <h1 className="text-4xl lg:text-5xl font-bold">
                 <span className="text-gray-800">Nutri</span>
                 <span className="text-primary-600">Vision</span>
               </h1>
-            </a>
+            </Link>
           </div>
 
           {/* Image with floating cards */}

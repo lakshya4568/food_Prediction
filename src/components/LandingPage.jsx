@@ -5,21 +5,19 @@ import Benefits from "./Benefits";
 import HowItWorks from "./HowItWorks";
 import Testimonials from "./Testimonials";
 import CTA from "./CTA";
-import AuthPage from "./AuthPage";
 import Footer from "./Footer";
+import Header from "./Header";
 
 const LandingPage = () => {
   return (
     <div>
+      <Header />
       <Hero />
       <Features />
       <Benefits />
       <HowItWorks />
       <Testimonials />
       <CTA />
-      <div id="auth">
-        <AuthPage />
-      </div>
       <Footer />
     </div>
   );

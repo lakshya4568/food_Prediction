@@ -11,8 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
-models/*
-
+models
 # Exclude the Gemini API key from version control
 GEMINI_API_KEY
 .env

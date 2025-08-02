@@ -13,6 +13,7 @@ import {
   FaRuler,
   FaCalculator,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const NutriVision = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -23,6 +24,7 @@ const NutriVision = () => {
   const [healthInfo, setHealthInfo] = useState(null);
   const [showHealthForm, setShowHealthForm] = useState(false);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   // Health form state
   const [healthData, setHealthData] = useState({
@@ -178,7 +180,7 @@ const NutriVision = () => {
   };
 
   const goBack = () => {
-    window.location.hash = "";
+    navigate(-1);
   };
 
   return (
