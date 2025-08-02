@@ -49,13 +49,19 @@ const Features = () => {
   ];
 
   return (
-    <section id="features" className="py-20 bg-white">
+    <section
+      id="features"
+      className="py-20 bg-gradient-to-br from-bg-light via-primary-50/30 to-secondary-50/30 dark:from-bg-dark dark:via-primary-900/20 dark:to-secondary-900/20"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
-            Powerful <span className="text-primary-600">Features</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark dark:text-text-light mb-4">
+            Powerful{" "}
+            <span className="text-gradient bg-gradient-to-r from-primary-600 via-secondary-500 to-accent-600 bg-clip-text text-transparent">
+              Features
+            </span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-text-muted-light dark:text-text-muted-dark max-w-2xl mx-auto">
             Discover how NutriVision can transform your relationship with food
           </p>
         </div>
@@ -63,17 +69,17 @@ const Features = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group bg-gray-50 rounded-xl p-8 hover:bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+              className="card-feature group transition-all duration-300 transform hover:-translate-y-2 hover:shadow-nutrition dark:hover:shadow-glow-green"
             >
-              <div className="w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary-600 transition-colors">
-                <div className="text-2xl text-primary-600 group-hover:text-white transition-colors">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-800 dark:to-primary-700 rounded-xl flex items-center justify-center mb-6 group-hover:from-primary-500 group-hover:to-primary-600 transition-all duration-300 shadow-sm group-hover:shadow-glow-green">
+                <div className="text-2xl text-primary-600 dark:text-primary-300 group-hover:text-white transition-colors">
                   {feature.icon}
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              <h3 className="text-xl font-semibold text-text-dark dark:text-text-light mb-4">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-text-muted-light dark:text-text-muted-dark leading-relaxed">
                 {feature.description}
               </p>
             </div>
