@@ -2,6 +2,7 @@ import os
 import io
 import sys
 import torch
+import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import models
 from PIL import Image
@@ -107,7 +108,7 @@ def load_model():
     model = models.vit_b_16(weights='IMAGENET1K_V1')
     
     # Modify the classifier to predict 3 classes (pizza, steak, sushi)
-    model.heads = torch.nn.Linear(in_features=768, out_features=3)
+    model.heads.head = torch.nn.Linear(in_features=768, out_features=3)
     
     # Load saved model weights if they exist (replace with your saved model path)
     model_path = 'C:\\Users\\Lakshya Sharma\\Documents\\GitHub\\food_Prediction\\models\\pretrained.pth'
@@ -147,7 +148,8 @@ def predict():
     img = Image.open(image_file.stream).convert('RGB')
     
     # Apply transformations to the image
-    img_tensor = transform(img).unsqueeze(0)  # Add batch dimension
+    img_tensor = transform(img)
+    img_tensor = img_tensor.unsqueeze(0)  # Add batch dimension  # type: ignore
     
     # Make prediction
     with torch.no_grad():
@@ -240,12 +242,7 @@ Example JSON output:
             config=types.GenerateContentConfig(
                 response_mime_type='application/json',
                 temperature=0.3,
-                max_output_tokens=1000,
-                # Use thinking budget of 0 for faster responses (disable thinking)
-                thinking_config=types.GenerationConfigThinkingConfig(
-                    thinking_budget=0,
-                    include_thoughts=False
-                )
+                max_output_tokens=1000
             )
         )
         
@@ -312,7 +309,7 @@ def list_models():
         model_info = []
         
         for model in models:
-            if hasattr(model, 'name') and 'gemini' in model.name.lower():
+            if hasattr(model, 'name') and model.name and 'gemini' in model.name.lower():
                 info = {
                     'name': model.name,
                     'display_name': getattr(model, 'display_name', model.name),

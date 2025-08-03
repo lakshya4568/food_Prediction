@@ -1,0 +1,15 @@
+{
+  "reportAttributeAccessIssue": "none",
+  "reportOptionalMemberAccess": "warning",
+  "reportGeneralTypeIssues": "warning",
+  "pythonVersion": "3.10",
+  "typeCheckingMode": "basic",
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*"
+  ],
+  "ignore": [
+    "src/backend/app.py"
+  ]
+}
