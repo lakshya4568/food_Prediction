@@ -1,0 +1,21 @@
+# Core ML and Computer Vision
+torch>=2.0.0
+torchvision>=0.15.0
+Pillow>=9.0.0
+
+# Flask Web Framework
+Flask>=2.3.0
+Flask-CORS>=4.0.0
+
+# Google AI SDK - New Unified SDK
+google-genai>=0.2.0
+
+# HTTP Requests
+requests>=2.28.0
+
+# Redis for caching
+redis>=4.0.0
+
+# Development and testing (optional)
+pytest>=7.0.0
+python-dotenv>=1.0.0
