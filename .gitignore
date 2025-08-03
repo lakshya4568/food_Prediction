@@ -7,6 +7,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Environment variables
+.env.example
+.env.local
+
 .taskmaster
 node_modules
 dist
@@ -19,6 +23,7 @@ GEMINI_API_KEY
 
 # Editor directories and files
 .vscode
+.vscode/*
 .cursor
 .github
 !.vscode/extensions.json
@@ -38,5 +43,5 @@ node_modules/
 # OS specific
 
 # Task files
-# tasks.json
-# tasks/ 
+tasks.json
+tasks/ 
