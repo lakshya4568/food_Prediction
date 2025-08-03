@@ -1,5 +1,7 @@
 # NutriVision AI Coding Agent Instructions
 
+For maximum efficiency, whenever you need to perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially.
+
 ## Project Overview
 
 NutriVision is a full-stack AI-powered food recognition app with a **Vision Transformer (ViT) PyTorch backend** and **modern React + Tailwind frontend**. The system identifies food from photos and provides personalized nutrition insights via Google Gemini API.

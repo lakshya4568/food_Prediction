@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+.taskmaster
 node_modules
 dist
 dist-ssr
@@ -17,7 +18,9 @@ GEMINI_API_KEY
 .env
 
 # Editor directories and files
-.vscode/*
+.vscode
+.cursor
+.github
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -26,3 +29,14 @@ GEMINI_API_KEY
 *.njsproj
 *.sln
 *.sw?
+
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+.vscode
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/ 
