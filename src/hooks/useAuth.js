@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 /**
  * Custom hook for managing authentication state
@@ -9,14 +9,10 @@ export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
   /**
    * Check if user is authenticated by looking for auth token
    */
-  const checkAuthStatus = () => {
+  const checkAuthStatus = useCallback(() => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('authToken');
@@ -25,7 +21,12 @@ export const useAuth = () => {
       if (token) {
         setIsAuthenticated(true);
         if (userData) {
-          setUser(JSON.parse(userData));
+          try {
+            setUser(JSON.parse(userData));
+          } catch (parseError) {
+            console.error('Error parsing user data:', parseError);
+            setUser(null);
+          }
         }
       } else {
         setIsAuthenticated(false);
@@ -38,14 +39,18 @@ export const useAuth = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
 
   /**
    * Login function - stores token and user data
    * @param {string} token - Authentication token
    * @param {Object} userData - User information
    */
-  const login = (token, userData = null) => {
+  const login = useCallback((token, userData = null) => {
     try {
       localStorage.setItem('authToken', token);
       if (userData) {
@@ -53,37 +58,39 @@ export const useAuth = () => {
         setUser(userData);
       }
       setIsAuthenticated(true);
+      setIsLoading(false);
     } catch (error) {
       console.error('Error during login:', error);
     }
-  };
+  }, []);
 
   /**
    * Logout function - clears all auth data
    */
-  const logout = () => {
+  const logout = useCallback(() => {
     try {
       localStorage.removeItem('authToken');
       localStorage.removeItem('userData');
       setIsAuthenticated(false);
       setUser(null);
+      setIsLoading(false);
     } catch (error) {
       console.error('Error during logout:', error);
     }
-  };
+  }, []);
 
   /**
    * Get the current auth token
    * @returns {string|null} Current authentication token
    */
-  const getToken = () => {
+  const getToken = useCallback(() => {
     try {
       return localStorage.getItem('authToken');
     } catch (error) {
       console.error('Error getting auth token:', error);
       return null;
     }
-  };
+  }, []);
 
   return {
     isAuthenticated,

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import PageSkeleton from "./PageSkeleton";
@@ -15,17 +15,14 @@ const RequireAuth = ({
   redirectTo = "/auth", 
   requireAuth = true 
 }) => {
-  const { isAuthenticated, isLoading, checkAuthStatus } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
-    // Re-check auth status when component mounts
-    checkAuthStatus();
-  }, [checkAuthStatus]);
-
-  useEffect(() => {
-    if (!isLoading && requireAuth && !isAuthenticated) {
+    if (!isLoading && requireAuth && !isAuthenticated && !hasRedirected.current) {
+      hasRedirected.current = true;
       // Store the attempted location for redirect after login
       navigate(redirectTo, { 
         state: { from: location },
@@ -33,6 +30,13 @@ const RequireAuth = ({
       });
     }
   }, [isAuthenticated, isLoading, requireAuth, navigate, redirectTo, location]);
+
+  // Reset redirect flag when authentication state changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      hasRedirected.current = false;
+    }
+  }, [isAuthenticated]);
 
   // Show loading state while checking authentication
   if (isLoading) {
