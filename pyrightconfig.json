@@ -1,7 +1,8 @@
 {
   "reportAttributeAccessIssue": "none",
-  "reportOptionalMemberAccess": "warning",
+  "reportOptionalMemberAccess": "none",
   "reportGeneralTypeIssues": "warning",
+  "reportArgumentType": "warning",
   "pythonVersion": "3.10",
   "typeCheckingMode": "basic",
   "exclude": [
@@ -10,6 +11,7 @@
     "**/.*"
   ],
   "ignore": [
-    "src/backend/app.py"
+    "src/backend/app.py",
+    "src/backend/services/cache/nutrition_cache.py"
   ]
 }

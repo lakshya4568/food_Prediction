@@ -1,54 +1,54 @@
 """
-Edamam Micronutrients API Wrapper for NutriVision AI
+Edamam API Wrapper for NutriVision AI
 
-This module provides a robust wrapper for the Edamam Micronutrients API
-to fetch detailed micronutrient data for foods.
+This module provides robust wrappers for both Edamam Food Database API 
+and Meal Planner API to search foods and generate meal plans.
 """
 
 import requests
-import time
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
 import logging
+import time
+from typing import Dict, Any, Optional, List
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class EdamamNutrient:
-    """Represents a nutrient from Edamam API"""
+    """Represents a nutrient from Edamam Food Database"""
     label: str
     quantity: float
     unit: str
-    tag: str
 
 
-@dataclass  
+@dataclass
 class EdamamFoodItem:
-    """Represents a food item from Edamam API"""
+    """Represents a food item from Edamam Food Database"""
     food_id: str
     label: str
-    known_as: str
     nutrients: Dict[str, EdamamNutrient]
     category: Optional[str] = None
     category_label: Optional[str] = None
     image: Optional[str] = None
+    brand: Optional[str] = None
+    serving_weight: Optional[float] = None
 
 
-class EdamamNutrientsAPI:
+class EdamamFoodDatabaseAPI:
     """
-    Wrapper for Edamam Micronutrients API
+    Wrapper for Edamam Food Database API.
+    Searches for food items and retrieves detailed nutritional information.
     """
-    
     BASE_URL = "https://api.edamam.com/api/food-database/v2"
-    
+
     def __init__(self, app_id: str, app_key: str):
         """
-        Initialize Edamam API wrapper
+        Initialize the Edamam Food Database API wrapper.
         
         Args:
-            app_id: Edamam application ID
-            app_key: Edamam application key
+            app_id: Your Edamam application ID
+            app_key: Your Edamam application key
         """
         self.app_id = app_id
         self.app_key = app_key
@@ -58,47 +58,10 @@ class EdamamNutrientsAPI:
             'Accept': 'application/json'
         })
         
-        # Rate limiting - Edamam allows different limits based on plan
-        # Free tier: 5 calls/minute, 10,000/month
-        self.rate_limit_delay = 12  # 12 seconds between requests for free tier
+        # Rate limiting - Edamam allows 10 requests per minute on free tier
+        self.rate_limit_delay = 6.0  # seconds between requests
         self.last_request_time = 0
-        
-        # Common nutrient mappings
-        self.nutrient_mapping = {
-            'energy': 'ENERC_KCAL',      # Energy (kcal)
-            'protein': 'PROCNT',         # Protein
-            'total_fat': 'FAT',          # Total fat
-            'carbohydrate': 'CHOCDF',    # Carbohydrates
-            'fiber': 'FIBTG',            # Fiber
-            'sugars': 'SUGAR',           # Sugars
-            'sodium': 'NA',              # Sodium
-            'calcium': 'CA',             # Calcium
-            'iron': 'FE',                # Iron
-            'potassium': 'K',            # Potassium
-            'vitamin_c': 'VITC',         # Vitamin C
-            'vitamin_a': 'VITA_RAE',     # Vitamin A
-            'vitamin_d': 'VITD',         # Vitamin D
-            'vitamin_e': 'TOCPHA',       # Vitamin E
-            'vitamin_k': 'VITK1',        # Vitamin K
-            'thiamin': 'THIA',           # Thiamin
-            'riboflavin': 'RIBF',        # Riboflavin
-            'niacin': 'NIA',             # Niacin
-            'vitamin_b6': 'VITB6A',      # Vitamin B-6
-            'folate': 'FOLAC',           # Folate
-            'vitamin_b12': 'VITB12',     # Vitamin B-12
-            'magnesium': 'MG',           # Magnesium
-            'phosphorus': 'P',           # Phosphorus
-            'zinc': 'ZN',                # Zinc
-            'copper': 'CU',              # Copper
-            'manganese': 'MN',           # Manganese
-            'selenium': 'SE',            # Selenium
-            'cholesterol': 'CHOLE',      # Cholesterol
-            'saturated_fat': 'FASAT',    # Saturated fat
-            'monounsaturated_fat': 'FAMS',  # Monounsaturated fat
-            'polyunsaturated_fat': 'FAPU',  # Polyunsaturated fat
-            'trans_fat': 'FATRN'         # Trans fat
-        }
-    
+
     def _wait_for_rate_limit(self):
         """Enforce rate limiting"""
         current_time = time.time()
@@ -106,301 +69,405 @@ class EdamamNutrientsAPI:
         
         if time_since_last < self.rate_limit_delay:
             sleep_time = self.rate_limit_delay - time_since_last
+            logger.debug(f"Rate limiting: sleeping for {sleep_time:.2f} seconds")
             time.sleep(sleep_time)
         
         self.last_request_time = time.time()
-    
-    def _make_request(self, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    def search_foods(self, query: str, limit: int = 10) -> List[EdamamFoodItem]:
         """
-        Make API request with rate limiting and error handling
+        Search for foods using the Edamam Food Database parser endpoint.
         
         Args:
-            endpoint: API endpoint
-            params: Request parameters
+            query: Search query (ingredient name)
+            limit: Maximum number of results to return
             
         Returns:
-            dict: API response data
-            
-        Raises:
-            requests.RequestException: If API request fails
+            List of EdamamFoodItem objects
         """
         self._wait_for_rate_limit()
         
-        params.update({
+        url = f"{self.BASE_URL}/parser"
+        params = {
             'app_id': self.app_id,
-            'app_key': self.app_key
-        })
-        
-        url = f"{self.BASE_URL}/{endpoint}"
-        
+            'app_key': self.app_key,
+            'ingr': query
+        }
+
         try:
             response = self.session.get(url, params=params, timeout=30)
-            response.raise_for_status()
-            return response.json()
             
+            if response.status_code == 200:
+                data = response.json()
+                return self._parse_search_results(data, limit)
+            else:
+                logger.error(f"Food Database API Error: {response.status_code} | {response.text}")
+                response.raise_for_status()
+                return []
+                
         except requests.exceptions.RequestException as e:
-            logger.error(f"Edamam API request failed: {e}")
-            raise
-    
-    def search_foods(self, query: str, category: Optional[str] = None, 
-                    brand: Optional[str] = None) -> List[Dict[str, Any]]:
-        """
-        Search for foods by keyword
-        
-        Args:
-            query: Search query
-            category: Food category filter
-            brand: Brand filter
-            
-        Returns:
-            list: List of food search results
-        """
-        params = {'ingr': query}
-        
-        if category:
-            params['category'] = category
-        if brand:
-            params['brand'] = brand
-        
-        try:
-            response = self._make_request('parser', params)
-            return response.get('hints', [])
-            
-        except Exception as e:
-            logger.error(f"Error searching foods: {e}")
+            logger.error(f"Failed to search foods from Edamam API: {e}")
             return []
-    
-    def get_food_nutrients(self, food_id: str, measure_uri: Optional[str] = None) -> Optional[EdamamFoodItem]:
+
+    def get_food_details(self, food_id: str) -> Optional[EdamamFoodItem]:
         """
-        Get detailed nutrient information for a specific food
+        Get detailed nutrition information for a specific food.
         
         Args:
             food_id: Edamam food ID
-            measure_uri: Specific measure URI for portion size
             
         Returns:
-            EdamamFoodItem: Food item with nutrient data
+            EdamamFoodItem with detailed nutrition data or None
         """
-        request_body = {
-            'ingredients': [
+        self._wait_for_rate_limit()
+        
+        url = f"{self.BASE_URL}/nutrients"
+        
+        payload = {
+            "ingredients": [
                 {
-                    'quantity': 100,  # Default to 100g
-                    'measureURI': measure_uri or 'http://www.edamam.com/ontologies/edamam.owl#Measure_gram',
-                    'foodId': food_id
+                    "quantity": 100,
+                    "measureURI": "http://www.edamam.com/ontologies/edamam.owl#Measure_gram",
+                    "foodId": food_id
                 }
             ]
         }
         
+        params = {
+            'app_id': self.app_id,
+            'app_key': self.app_key
+        }
+
         try:
-            self._wait_for_rate_limit()
+            response = self.session.post(url, json=payload, params=params, timeout=30)
             
-            url = f"{self.BASE_URL}/nutrients"
-            params = {
-                'app_id': self.app_id,
-                'app_key': self.app_key
-            }
-            
-            response = self.session.post(url, json=request_body, params=params, timeout=30)
-            response.raise_for_status()
-            
-            data = response.json()
-            return self._parse_nutrients_response(data, food_id)
-            
-        except Exception as e:
-            logger.error(f"Error getting food nutrients for ID {food_id}: {e}")
-            return None
-    
-    def get_food_by_upc(self, upc: str) -> Optional[EdamamFoodItem]:
-        """
-        Get food information by UPC/barcode
-        
-        Args:
-            upc: UPC/barcode string
-            
-        Returns:
-            EdamamFoodItem: Food item if found
-        """
-        params = {'upc': upc}
-        
-        try:
-            response = self._make_request('parser', params)
-            hints = response.get('hints', [])
-            
-            if hints:
-                food_data = hints[0].get('food', {})
-                food_id = food_data.get('foodId')
+            if response.status_code == 200:
+                data = response.json()
+                return self._parse_nutrition_details(data, food_id)
+            else:
+                logger.error(f"Food Details API Error: {response.status_code} | {response.text}")
+                return None
                 
-                if food_id:
-                    return self.get_food_nutrients(food_id)
-            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to get food details from Edamam API: {e}")
             return None
-            
-        except Exception as e:
-            logger.error(f"Error getting food by UPC {upc}: {e}")
-            return None
-    
-    def _parse_nutrients_response(self, data: Dict[str, Any], food_id: str) -> Optional[EdamamFoodItem]:
-        """
-        Parse nutrients API response into EdamamFoodItem
+
+    def _parse_search_results(self, data: Dict[str, Any], limit: int) -> List[EdamamFoodItem]:
+        """Parse search results from Edamam API response"""
+        foods = []
         
-        Args:
-            data: Raw API response data
-            food_id: Food ID
-            
-        Returns:
-            EdamamFoodItem: Parsed food item
-        """
+        # Parse 'parsed' foods (exact matches)
+        parsed_foods = data.get('parsed', [])
+        for item in parsed_foods[:limit]:
+            food_data = item.get('food', {})
+            food_item = self._create_food_item(food_data)
+            if food_item:
+                foods.append(food_item)
+        
+        # Parse 'hints' foods (suggested matches) if we need more results
+        if len(foods) < limit:
+            hints = data.get('hints', [])
+            remaining_limit = limit - len(foods)
+            for item in hints[:remaining_limit]:
+                food_data = item.get('food', {})
+                food_item = self._create_food_item(food_data)
+                if food_item:
+                    foods.append(food_item)
+        
+        return foods
+
+    def _parse_nutrition_details(self, data: Dict[str, Any], food_id: str) -> Optional[EdamamFoodItem]:
+        """Parse detailed nutrition data from Edamam nutrients endpoint"""
         try:
+            logger.debug(f"Parsing nutrition details for food_id: {food_id}")
+            logger.debug(f"Response data keys: {list(data.keys()) if isinstance(data, dict) else 'Not a dict'}")
+            
+            # Extract nutrition data from the response
             total_nutrients = data.get('totalNutrients', {})
             ingredients = data.get('ingredients', [])
             
+            logger.debug(f"Total nutrients count: {len(total_nutrients)}")
+            logger.debug(f"Ingredients count: {len(ingredients)}")
+            
+            if not ingredients:
+                logger.warning("No ingredients found in nutrition response")
+                return None
+            
+            ingredient = ingredients[0]
+            logger.debug(f"First ingredient keys: {list(ingredient.keys()) if isinstance(ingredient, dict) else 'Not a dict'}")
+            
+            # Get parsed data or fallback to basic ingredient info
+            parsed_data = ingredient.get('parsed', [])
+            if not parsed_data:
+                # Fallback: use the ingredient data directly
+                food_label = "Unknown Food"
+                food_category = "food"
+                food_category_label = "Generic Food"
+                logger.debug("No parsed data found, using fallback values")
+            else:
+                food_info = parsed_data[0]
+                logger.debug(f"Food info keys: {list(food_info.keys()) if isinstance(food_info, dict) else f'Not a dict: {type(food_info)}'}")
+                logger.debug(f"Food info content: {food_info}")
+                
+                food_data = food_info.get('food', {})
+                logger.debug(f"Food data type: {type(food_data)}")
+                logger.debug(f"Food data content: {food_data}")
+                
+                if isinstance(food_data, dict):
+                    food_label = food_data.get('label', 'Unknown Food')
+                    food_category = food_data.get('category', 'food')
+                    food_category_label = food_data.get('categoryLabel', 'Generic Food')
+                else:
+                    # food_data might be a string or other type, handle gracefully
+                    food_label = str(food_data) if food_data else "Unknown Food"
+                    food_category = "food"
+                    food_category_label = "Generic Food"
+                
+                logger.debug(f"Found parsed food: {food_label}")
+            
+            # Convert nutrients to our format
             nutrients = {}
             for nutrient_key, nutrient_data in total_nutrients.items():
-                nutrient = EdamamNutrient(
-                    label=nutrient_data.get('label', ''),
-                    quantity=nutrient_data.get('quantity', 0.0),
-                    unit=nutrient_data.get('unit', ''),
-                    tag=nutrient_key
-                )
-                nutrients[nutrient_key] = nutrient
+                if isinstance(nutrient_data, dict):
+                    nutrients[nutrient_key] = EdamamNutrient(
+                        label=nutrient_data.get('label', nutrient_key),
+                        quantity=nutrient_data.get('quantity', 0.0),
+                        unit=nutrient_data.get('unit', '')
+                    )
+                else:
+                    logger.warning(f"Nutrient {nutrient_key} data is not a dict: {type(nutrient_data)}")
             
-            # Get food label from ingredients
-            food_label = 'Unknown Food'
-            if ingredients:
-                parsed_ingredient = ingredients[0].get('parsed', [])
-                if parsed_ingredient:
-                    food_label = parsed_ingredient[0].get('food', '')
+            logger.debug(f"Successfully parsed {len(nutrients)} nutrients")
             
             return EdamamFoodItem(
                 food_id=food_id,
                 label=food_label,
-                known_as=food_label,
-                nutrients=nutrients
+                nutrients=nutrients,
+                category=food_category,
+                category_label=food_category_label,
+                serving_weight=ingredient.get('weight', 100.0)
             )
             
         except Exception as e:
-            logger.error(f"Error parsing nutrients response: {e}")
+            logger.error(f"Error parsing nutrition details: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return None
-    
-    def search_food_by_name(self, food_name: str) -> Optional[EdamamFoodItem]:
-        """
-        Search for a single food by name and return detailed nutrient data
-        
-        Args:
-            food_name: Name of the food to search for
-            
-        Returns:
-            EdamamFoodItem: Best matching food item with nutrient data
-        """
+
+    def _create_food_item(self, food_data: Dict[str, Any]) -> Optional[EdamamFoodItem]:
+        """Create EdamamFoodItem from API food data"""
         try:
-            # Search for foods
-            search_results = self.search_foods(food_name)
-            
-            if not search_results:
+            food_id = food_data.get('foodId', '')
+            if not food_id:
                 return None
-            
-            # Get the first result (Edamam usually returns relevant results first)
-            best_match = search_results[0]
-            food_data = best_match.get('food', {})
-            food_id = food_data.get('foodId')
-            
-            if food_id:
-                return self.get_food_nutrients(food_id)
-            
-            return None
-            
-        except Exception as e:
-            logger.error(f"Error searching food by name '{food_name}': {e}")
-            return None
-    
-    def get_nutrient_by_name(self, food_item: EdamamFoodItem, nutrient_name: str) -> Optional[EdamamNutrient]:
-        """
-        Get a specific nutrient from a food item by common name
-        
-        Args:
-            food_item: EdamamFoodItem to search
-            nutrient_name: Common nutrient name (e.g., 'protein', 'energy')
-            
-        Returns:
-            EdamamNutrient: Found nutrient or None
-        """
-        nutrient_tag = self.nutrient_mapping.get(nutrient_name.lower())
-        
-        if not nutrient_tag:
-            return None
-        
-        return food_item.nutrients.get(nutrient_tag)
-    
-    def get_common_nutrients(self, food_item: EdamamFoodItem) -> Dict[str, float]:
-        """
-        Extract common nutrients from a food item into a simple dict
-        
-        Args:
-            food_item: EdamamFoodItem to extract nutrients from
-            
-        Returns:
-            dict: Common nutrients with values per 100g
-        """
-        nutrients = {}
-        
-        for name, nutrient_tag in self.nutrient_mapping.items():
-            nutrient = food_item.nutrients.get(nutrient_tag)
-            if nutrient:
-                nutrients[name] = nutrient.quantity
-            else:
-                nutrients[name] = 0.0
-        
-        return nutrients
-    
-    def get_autocomplete_suggestions(self, query: str) -> List[str]:
-        """
-        Get autocomplete suggestions for food search
-        
-        Args:
-            query: Partial search query
-            
-        Returns:
-            list: List of suggested food names
-        """
-        try:
-            params = {'ingr': query}
-            response = self._make_request('auto-complete', params)
-            
-            suggestions = []
-            for item in response:
-                suggestions.append(item)
-            
-            return suggestions
-            
-        except Exception as e:
-            logger.error(f"Error getting autocomplete suggestions: {e}")
-            return []
-
-
-# Example usage and testing
-if __name__ == "__main__":
-    # This would be used for testing
-    import os
-    
-    app_id = os.getenv('EDAMAM_APP_ID')
-    app_key = os.getenv('EDAMAM_APP_KEY')
-    
-    if app_id and app_key:
-        api = EdamamNutrientsAPI(app_id, app_key)
-        
-        # Test search
-        foods = api.search_foods("apple")
-        print(f"Found {len(foods)} foods")
-        
-        if foods:
-            # Test detailed lookup
-            food_data = foods[0].get('food', {})
-            food_id = food_data.get('foodId')
-            
-            if food_id:
-                food_item = api.get_food_nutrients(food_id)
                 
-                if food_item:
-                    print(f"Food: {food_item.label}")
-                    common_nutrients = api.get_common_nutrients(food_item)
-                    print("Common nutrients:", common_nutrients)
+            # Basic nutrients from search results (limited)
+            nutrients = {}
+            nutrients_data = food_data.get('nutrients', {})
+            
+            for nutrient_key, value in nutrients_data.items():
+                nutrients[nutrient_key] = EdamamNutrient(
+                    label=nutrient_key,
+                    quantity=value,
+                    unit='g'  # Default unit, may not be accurate
+                )
+            
+            return EdamamFoodItem(
+                food_id=food_id,
+                label=food_data.get('label', ''),
+                nutrients=nutrients,
+                category=food_data.get('category', ''),
+                category_label=food_data.get('categoryLabel', ''),
+                image=food_data.get('image', '')
+            )
+            
+        except Exception as e:
+            logger.error(f"Error creating food item: {e}")
+            return None
+
+
+class EdamamMealPlannerAPI:
+    """
+    Wrapper for Edamam Meal Planner API.
+    Generates meal plans based on specified dietary and nutritional constraints.
+    """
+    BASE_URL = "https://api.edamam.com/api/meal-planner/v1"
+
+    def __init__(self, app_id: str, app_key: str):
+        """
+        Initialize the Edamam Meal Planner API wrapper.
+        
+        Args:
+            app_id: Your Edamam application ID
+            app_key: Your Edamam application key
+        """
+        self.app_id = app_id
+        self.app_key = app_key
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        })
+        
+        # Rate limiting - same as Food Database API
+        self.rate_limit_delay = 6.0  # seconds between requests
+        self.last_request_time = 0
+
+    def _wait_for_rate_limit(self):
+        """Enforce rate limiting"""
+        current_time = time.time()
+        time_since_last = current_time - self.last_request_time
+        
+        if time_since_last < self.rate_limit_delay:
+            sleep_time = self.rate_limit_delay - time_since_last
+            logger.debug(f"Rate limiting: sleeping for {sleep_time:.2f} seconds")
+            time.sleep(sleep_time)
+        
+        self.last_request_time = time.time()
+
+    def get_meal_plan(self, plan_request: Dict[str, Any], user_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """
+        Generate a meal plan by sending a POST request to the Edamam Meal Planner API.
+        
+        Args:
+            plan_request: A dictionary representing the meal plan constraints
+            user_id: An optional unique identifier for the end-user for active user tracking
+            
+        Returns:
+            A dictionary containing the meal plan response, or None if an error occurs
+        """
+        self._wait_for_rate_limit()
+        
+        url = f"{self.BASE_URL}?app_id={self.app_id}&app_key={self.app_key}"
+        
+        headers = {}
+        if user_id:
+            headers["Edamam-User-ID"] = user_id
+
+        try:
+            response = self.session.post(url, json=plan_request, headers=headers, timeout=60)
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logger.error(f"Meal Planner API Error: {response.status_code} | {response.text}")
+                response.raise_for_status()
+                return None
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to get meal plan from Edamam API: {e}")
+            return None
+
+
+# Example usage for testing purposes
+if __name__ == "__main__":
+    import os
+    from dotenv import load_dotenv
+    
+    # Set logging level to DEBUG for detailed output
+    logging.basicConfig(level=logging.DEBUG)
+
+    # Load environment variables
+    load_dotenv()
+
+    # Get credentials from environment variables
+    EDAMAM_APP_ID = os.getenv("EDAMAM_APP_ID")
+    EDAMAM_APP_KEY = os.getenv("EDAMAM_APP_KEY") or os.getenv("EDAMAM_API_KEY")
+
+    if not EDAMAM_APP_ID or not EDAMAM_APP_KEY:
+        print("Please set EDAMAM_APP_ID and EDAMAM_APP_KEY environment variables.")
+        print("Example .env file:")
+        print("EDAMAM_APP_ID=your_app_id")
+        print("EDAMAM_APP_KEY=your_app_key")
+    else:
+        print("Testing Edamam Food Database API...")
+        
+        # Test Food Database API
+        food_api = EdamamFoodDatabaseAPI(app_id=EDAMAM_APP_ID, app_key=EDAMAM_APP_KEY)
+        
+        # Search for foods
+        print("\n=== Testing Food Search ===")
+        search_results = food_api.search_foods("apple", limit=3)
+        
+        if search_results:
+            print(f"Found {len(search_results)} food items:")
+            for i, food in enumerate(search_results, 1):
+                print(f"{i}. {food.label} (ID: {food.food_id})")
+                print(f"   Category: {food.category_label or food.category or 'N/A'}")
+                if food.nutrients:
+                    print(f"   Nutrients: {len(food.nutrients)} available")
+                print()
+            
+            # Test detailed nutrition lookup
+            if search_results:
+                print("=== Testing Detailed Nutrition ===")
+                first_food = search_results[0]
+                detailed_food = food_api.get_food_details(first_food.food_id)
+                
+                if detailed_food:
+                    print(f"Detailed nutrition for: {detailed_food.label}")
+                    print(f"Total nutrients available: {len(detailed_food.nutrients)}")
+                    
+                    # Show some key nutrients
+                    key_nutrients = ['ENERC_KCAL', 'PROCNT', 'FAT', 'CHOCDF', 'FIBTG']
+                    for nutrient_key in key_nutrients:
+                        if nutrient_key in detailed_food.nutrients:
+                            nutrient = detailed_food.nutrients[nutrient_key]
+                            print(f"  {nutrient.label}: {nutrient.quantity:.2f} {nutrient.unit}")
+                else:
+                    print("Failed to get detailed nutrition data")
+        else:
+            print("No food items found in search")
+        
+        print("\n=== Testing Meal Planner API ===")
+        
+        # Test Meal Planner API
+        meal_api = EdamamMealPlannerAPI(app_id=EDAMAM_APP_ID, app_key=EDAMAM_APP_KEY)
+
+        # Simple meal plan request
+        example_payload = {
+            "size": 1,  # 1-day plan for testing
+            "plan": {
+                "accept": {
+                    "all": [
+                        {"health": ["VEGETARIAN"]}
+                    ]
+                },
+                "fit": {
+                    "ENERC_KCAL": {"min": 1800, "max": 2200}
+                },
+                "sections": {
+                    "Breakfast": {
+                        "accept": {"all": [{"meal": ["breakfast"]}]},
+                        "fit": {"ENERC_KCAL": {"min": 400, "max": 600}}
+                    },
+                    "Lunch": {
+                        "accept": {"all": [{"meal": ["lunch/dinner"]}]},
+                        "fit": {"ENERC_KCAL": {"min": 600, "max": 800}}
+                    },
+                    "Dinner": {
+                        "accept": {"all": [{"meal": ["lunch/dinner"]}]},
+                        "fit": {"ENERC_KCAL": {"min": 600, "max": 800}}
+                    }
+                }
+            }
+        }
+
+        meal_plan_response = meal_api.get_meal_plan(plan_request=example_payload, user_id="nutrivision-test-user")
+
+        if meal_plan_response:
+            print("Successfully retrieved meal plan!")
+            print(f"Plan contains {len(meal_plan_response.get('selection', []))} days")
+            
+            # Show brief meal plan summary
+            for day_idx, day in enumerate(meal_plan_response.get('selection', []), 1):
+                print(f"\nDay {day_idx}:")
+                for section_name, section_data in day.get('sections', {}).items():
+                    recipes = section_data.get('assigned', [])
+                    if recipes:
+                        recipe = recipes[0]  # Get first recipe
+                        print(f"  {section_name}: {recipe.get('recipe', {}).get('label', 'Unknown Recipe')}")
+        else:
+            print("Failed to retrieve meal plan")
+            print("Note: Meal Planner API might not be available on your current Edamam plan")
+
+    print("\n--- API Testing Complete ---")

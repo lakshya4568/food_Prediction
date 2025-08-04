@@ -13,7 +13,8 @@ import time
 
 from ..services.nutrition_apis import (
     USDAFoodDataAPI,
-    EdamamNutrientsAPI,
+    EdamamMealPlannerAPI,
+    EdamamFoodDatabaseAPI,
     NutritionData,
     normalize_nutrition_data,
     merge_nutrition_data
@@ -29,9 +30,13 @@ nutrition_bp = Blueprint('nutrition', __name__)
 
 # Initialize API wrappers and cache
 usda_api = USDAFoodDataAPI(api_key=os.getenv('USDA_API_KEY', 'DEMO_KEY'))
-edamam_api = EdamamNutrientsAPI(
-    app_id=os.getenv('EDAMAM_APP_ID', 'demo_id'),
-    app_key=os.getenv('EDAMAM_APP_KEY', 'demo_key')
+edamam_food_api = EdamamFoodDatabaseAPI(
+    app_id=os.getenv('EDAMAM_APP_ID', 'b233e9b3'),
+    app_key=os.getenv('EDAMAM_APP_KEY', 'a76d3aa6719be9e4b8447053fff46331')
+)
+edamam_meal_planner_api = EdamamMealPlannerAPI(
+    app_id=os.getenv('EDAMAM_APP_ID', 'b233e9b3'),
+    app_key=os.getenv('EDAMAM_APP_KEY', 'a76d3aa6719be9e4b8447053fff46331')
 )
 cache = get_cache()
 
@@ -180,11 +185,16 @@ def get_food_details(food_id: str):
                 }), 400
         
         elif source == 'edamam':
-            # For now, we'll return an error since Edamam detailed lookup might not be available
-            return jsonify({
-                'error': 'Edamam detailed lookup not implemented yet',
-                'status': 'error'
-            }), 501
+            try:
+                edamam_food = edamam_food_api.get_food_details(item_id)
+                if edamam_food:
+                    nutrition_data = normalize_nutrition_data(edamam_food)
+            except Exception as e:
+                logger.error(f"Error getting Edamam food details: {e}")
+                return jsonify({
+                    'error': 'Failed to retrieve Edamam food details',
+                    'status': 'error'
+                }), 500
         
         else:
             return jsonify({
@@ -401,6 +411,51 @@ def invalidate_food_cache(food_id: str):
         }), 500
 
 
+@nutrition_bp.route('/nutri/meal-plan', methods=['POST'])
+def get_meal_plan():
+    """
+    Generate a meal plan using the Edamam Meal Planner API.
+    
+    Request Body:
+    - A JSON object specifying the meal plan constraints.
+    
+    Returns:
+    - JSON response with the generated meal plan.
+    """
+    try:
+        plan_request = request.get_json()
+        if not plan_request:
+            return jsonify({
+                'error': 'Request body must contain meal plan constraints',
+                'status': 'error'
+            }), 400
+
+        logger.info(f"Meal plan request received: {plan_request}")
+
+        # Optional: Extract user_id if you implement user tracking
+        user_id = request.headers.get("Edamam-User-ID", None)
+
+        meal_plan = edamam_meal_planner_api.get_meal_plan(plan_request, user_id=user_id)
+
+        if meal_plan:
+            return jsonify({
+                'status': 'success',
+                'meal_plan': meal_plan
+            })
+        else:
+            return jsonify({
+                'error': 'Failed to generate meal plan from Edamam API',
+                'status': 'error'
+            }), 502
+
+    except Exception as e:
+        logger.error(f"Error in meal plan generation: {e}")
+        return jsonify({
+            'error': 'Internal server error',
+            'status': 'error'
+        }), 500
+
+
 # Helper functions
 
 def _search_usda(query: str, limit: int) -> List[NutritionData]:
@@ -431,10 +486,25 @@ def _search_usda(query: str, limit: int) -> List[NutritionData]:
 def _search_edamam(query: str, limit: int) -> List[NutritionData]:
     """Search Edamam database and return normalized results"""
     try:
-        # For now, return empty results until Edamam search is properly implemented
-        # TODO: Implement proper Edamam search once API method signatures are clarified
-        logger.info("Edamam search not fully implemented yet")
-        return []
+        edamam_search_results = edamam_food_api.search_foods(query, limit)
+        normalized_results = []
+        
+        for edamam_food in edamam_search_results:
+            try:
+                # Get detailed nutrition data for each food
+                detailed_food = edamam_food_api.get_food_details(edamam_food.food_id)
+                if detailed_food:
+                    nutrition_data = normalize_nutrition_data(detailed_food)
+                    normalized_results.append(nutrition_data)
+                else:
+                    # If detailed data not available, use basic search result
+                    nutrition_data = normalize_nutrition_data(edamam_food)
+                    normalized_results.append(nutrition_data)
+            except Exception as e:
+                logger.warning(f"Failed to normalize Edamam food: {e}")
+                continue
+        
+        return normalized_results
         
     except Exception as e:
         logger.error(f"Edamam search error: {e}")

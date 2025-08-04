@@ -1,7 +1,7 @@
 # Nutrition APIs module for backend functionality
 
 from .usda_api import USDAFoodDataAPI, USDAFoodItem, USDANutrient
-from .edamam_api import EdamamNutrientsAPI, EdamamFoodItem, EdamamNutrient
+from .edamam_api import EdamamMealPlannerAPI, EdamamFoodDatabaseAPI, EdamamFoodItem, EdamamNutrient
 from .nutrition_schema import (
     NutritionData, 
     MacroNutrients, 
@@ -15,7 +15,8 @@ __all__ = [
     'USDAFoodDataAPI',
     'USDAFoodItem',
     'USDANutrient',
-    'EdamamNutrientsAPI',
+    'EdamamMealPlannerAPI',
+    'EdamamFoodDatabaseAPI',
     'EdamamFoodItem',
     'EdamamNutrient',
     'NutritionData',

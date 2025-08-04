@@ -111,7 +111,7 @@ class USDAFoodDataAPI:
     
     def _make_request(self, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Make API request with rate limiting and error handling
+        Make API request with rate limiting and comprehensive error handling
         
         Args:
             endpoint: API endpoint
@@ -130,12 +130,36 @@ class USDAFoodDataAPI:
         
         try:
             response = self.session.get(url, params=params, timeout=30)
+            
+            # Handle specific HTTP status codes with detailed error messages
+            if response.status_code == 400:
+                logger.error(f"Bad request to USDA API: {response.text}")
+                raise requests.exceptions.RequestException("Invalid request parameters")
+            elif response.status_code == 403:
+                logger.error("USDA API access forbidden - check API key")
+                raise requests.exceptions.RequestException("API key invalid or expired")
+            elif response.status_code == 429:
+                logger.error("USDA API rate limit exceeded (1000 requests/hour)")
+                raise requests.exceptions.RequestException("Rate limit exceeded")
+            elif response.status_code == 500:
+                logger.error("USDA API server error")
+                raise requests.exceptions.RequestException("Server error")
+            
             response.raise_for_status()
             return response.json()
             
+        except requests.exceptions.Timeout:
+            logger.error("USDA API request timed out")
+            raise requests.exceptions.RequestException("Request timed out")
+        except requests.exceptions.ConnectionError:
+            logger.error("Failed to connect to USDA API")
+            raise requests.exceptions.RequestException("Connection failed")
         except requests.exceptions.RequestException as e:
             logger.error(f"USDA API request failed: {e}")
             raise
+        except ValueError as e:  # JSON decode error
+            logger.error(f"Invalid JSON response from USDA API: {e}")
+            raise requests.exceptions.RequestException("Invalid response format")
     
     def search_foods(self, query: str, page_size: int = 10, 
                     data_type: Optional[List[str]] = None) -> List[Dict[str, Any]]:

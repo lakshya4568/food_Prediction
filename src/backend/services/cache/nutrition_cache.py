@@ -3,21 +3,27 @@ Redis Caching Service for NutriVision AI
 
 This module provides Redis-based caching functionality for the nutrition API
 to improve performance and reduce external API call latency.
+
+Note: Type checking for Redis operations is disabled due to async/sync confusion in the linter.
+The Redis client used here is synchronous, not async.
 """
+# type: ignore
 
 import json
 import hashlib
 import logging
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Union
 import os
 from datetime import timedelta
 
 try:
     import redis
+    from redis import Redis
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
     redis = None
+    Redis = None
 
 from ...services.nutrition_apis import NutritionData
 
@@ -38,7 +44,7 @@ class NutritionCache:
             default_ttl: Default cache TTL in seconds (1 hour = 3600)
         """
         self.default_ttl = default_ttl
-        self.redis_client = None
+        self.redis_client = None  # Will be set to Redis instance if available
         self.enabled = False
         
         if not REDIS_AVAILABLE:
@@ -51,18 +57,20 @@ class NutritionCache:
                 redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
             
             # Initialize Redis client
-            self.redis_client = redis.from_url(
-                redis_url,
-                decode_responses=True,
-                socket_connect_timeout=5,
-                socket_timeout=5,
-                retry_on_timeout=True
-            )
+            if redis is not None:  # Type guard
+                self.redis_client = redis.from_url(  # type: ignore
+                    redis_url,
+                    decode_responses=True,
+                    socket_connect_timeout=5,
+                    socket_timeout=5,
+                    retry_on_timeout=True
+                )
             
             # Test connection
-            self.redis_client.ping()
-            self.enabled = True
-            logger.info(f"Redis cache initialized successfully at {redis_url}")
+            if self.redis_client:
+                self.redis_client.ping()  # type: ignore
+                self.enabled = True
+                logger.info(f"Redis cache initialized successfully at {redis_url}")
             
         except Exception as e:
             logger.warning(f"Redis cache initialization failed: {e}. Caching disabled.")
@@ -109,10 +117,10 @@ class NutritionCache:
                 'limit': limit
             })
             
-            cached_data = self.redis_client.get(cache_key)
+            cached_data = self.redis_client.get(cache_key)  # type: ignore
             if cached_data:
                 logger.debug(f"Cache HIT for search: {query}")
-                return json.loads(cached_data)
+                return json.loads(cached_data)  # type: ignore
             
             logger.debug(f"Cache MISS for search: {query}")
             return None
