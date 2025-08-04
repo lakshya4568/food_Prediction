@@ -8,13 +8,19 @@ import {
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const AuthPage = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+
+  // Redirect destination after successful authentication
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const [loginData, setLoginData] = useState({
     email: "",
@@ -46,16 +52,42 @@ const AuthPage = () => {
     e.preventDefault();
     // Handle login logic here
     console.log("Login data:", loginData);
-    // Navigate to dashboard
-    navigate("/dashboard");
+    
+    // For demo purposes, create a mock token and user data
+    // In a real app, this would come from your authentication API
+    const mockToken = `auth_token_${Date.now()}`;
+    const mockUserData = {
+      email: loginData.email,
+      name: loginData.email.split('@')[0], // Use email prefix as name
+      id: Date.now().toString()
+    };
+    
+    // Use the login function from useAuth hook
+    login(mockToken, mockUserData);
+    
+    // Navigate to the intended destination or dashboard
+    navigate(from, { replace: true });
   };
 
   const handleSignupSubmit = (e) => {
     e.preventDefault();
     // Handle signup logic here
     console.log("Signup data:", signupData);
-    // Navigate to dashboard
-    navigate("/dashboard");
+    
+    // For demo purposes, create a mock token and user data
+    // In a real app, this would come from your authentication API
+    const mockToken = `auth_token_${Date.now()}`;
+    const mockUserData = {
+      email: signupData.email,
+      name: signupData.fullName,
+      id: Date.now().toString()
+    };
+    
+    // Use the login function from useAuth hook (same as login after signup)
+    login(mockToken, mockUserData);
+    
+    // Navigate to the intended destination or dashboard
+    navigate(from, { replace: true });
   };
 
   return (

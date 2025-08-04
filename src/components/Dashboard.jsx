@@ -9,18 +9,25 @@ import {
   FaUserCog,
   FaSignOutAlt,
   FaArrowLeft,
+  FaCalendarAlt,
+  FaShoppingCart,
+  FaFileAlt,
+  FaCog,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { logout, user } = useAuth();
 
   const handleTakePhoto = () => {
     navigate("/nutrivision");
   };
 
   const handleLogout = () => {
-    // Handle logout logic
+    // Use the logout function from useAuth hook
+    logout();
     navigate("/");
   };
 
@@ -121,7 +128,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-text-dark dark:text-text-light mb-2">
-            Welcome back, User!
+            Welcome back, {user?.name || "User"}!
           </h2>
           <p className="text-text-muted-light dark:text-text-muted-dark">
             Let's continue your healthy nutrition journey.
@@ -137,6 +144,62 @@ const Dashboard = () => {
             <FaCamera className="text-2xl" />
             <span>Analyze New Food</span>
           </button>
+        </div>
+
+        {/* Navigation Cards */}
+        <div className="mb-8">
+          <h3 className="text-xl font-bold text-text-dark dark:text-text-light mb-6">
+            Quick Access
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link
+              to="/planner"
+              className="card p-4 text-center hover:shadow-lg dark:hover:shadow-glow-green transition-all duration-300 group"
+            >
+              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-800/50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <FaCalendarAlt className="text-2xl text-primary-600 dark:text-primary-400" />
+              </div>
+              <h4 className="font-semibold text-text-dark dark:text-text-light text-sm">
+                Meal Planner
+              </h4>
+            </Link>
+
+            <Link
+              to="/grocery"
+              className="card p-4 text-center hover:shadow-lg dark:hover:shadow-glow-green transition-all duration-300 group"
+            >
+              <div className="w-12 h-12 bg-secondary-100 dark:bg-secondary-800/50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <FaShoppingCart className="text-2xl text-secondary-600 dark:text-secondary-400" />
+              </div>
+              <h4 className="font-semibold text-text-dark dark:text-text-light text-sm">
+                Grocery List
+              </h4>
+            </Link>
+
+            <Link
+              to="/health-docs"
+              className="card p-4 text-center hover:shadow-lg dark:hover:shadow-glow-green transition-all duration-300 group"
+            >
+              <div className="w-12 h-12 bg-accent-100 dark:bg-accent-800/50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <FaFileAlt className="text-2xl text-accent-600 dark:text-accent-400" />
+              </div>
+              <h4 className="font-semibold text-text-dark dark:text-text-light text-sm">
+                Health Docs
+              </h4>
+            </Link>
+
+            <Link
+              to="/settings"
+              className="card p-4 text-center hover:shadow-lg dark:hover:shadow-glow-green transition-all duration-300 group"
+            >
+              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800/50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <FaCog className="text-2xl text-gray-600 dark:text-gray-400" />
+              </div>
+              <h4 className="font-semibold text-text-dark dark:text-text-light text-sm">
+                Settings
+              </h4>
+            </Link>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -244,18 +307,18 @@ const Dashboard = () => {
             <span className="text-xs">Scan</span>
           </button>
           <Link
-            to="#"
-            className="flex flex-col items-center py-2 px-4 text-text-muted-light dark:text-text-muted-dark"
+            to="/planner"
+            className="flex flex-col items-center py-2 px-4 text-text-muted-light dark:text-text-muted-dark hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
           >
-            <FaHistory className="text-xl mb-1" />
-            <span className="text-xs">History</span>
+            <FaCalendarAlt className="text-xl mb-1" />
+            <span className="text-xs">Planner</span>
           </Link>
           <Link
-            to="#"
-            className="flex flex-col items-center py-2 px-4 text-text-muted-light dark:text-text-muted-dark"
+            to="/settings"
+            className="flex flex-col items-center py-2 px-4 text-text-muted-light dark:text-text-muted-dark hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
           >
-            <FaUserCog className="text-xl mb-1" />
-            <span className="text-xs">Profile</span>
+            <FaCog className="text-xl mb-1" />
+            <span className="text-xs">Settings</span>
           </Link>
         </div>
       </nav>
