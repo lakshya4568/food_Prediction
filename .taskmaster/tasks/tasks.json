@@ -1,0 +1,421 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 11,
+        "title": "Global Health Context Engine",
+        "description": "Design and implement a system to store user health profile data and inject it into nutrition API requests to adapt portion and nutrient targets based on WHO & ICMR guidelines.",
+        "details": "- Design user profile schema to store age, gender, activity level, allergies, and chronic conditions.\n- Build middleware to inject profile data into every nutrition API request.\n- Implement adaptive portion / nutrient targets derived from WHO & ICMR guidelines.",
+        "testStrategy": "Unit tests for schema validation and middleware injection. Integration tests to verify correct nutrient target adaptation based on profile data.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design User Health Profile Schema",
+            "description": "Define the data model for storing user health profiles, including fields for age, gender, activity level, allergies, and chronic conditions.",
+            "dependencies": [],
+            "details": "Design a robust and extensible database schema (e.g., SQL or NoSQL document structure) to store user health profile data. Ensure fields for age, gender, activity level, known allergies, and chronic medical conditions are included. Consider data types, constraints, and indexing for efficient retrieval.",
+            "status": "done",
+            "testStrategy": "Unit tests for schema validation rules (e.g., age range, valid gender values, data type constraints)."
+          },
+          {
+            "id": 2,
+            "title": "Implement User Profile CRUD API",
+            "description": "Develop API endpoints for creating, retrieving, updating, and deleting user health profiles based on the defined schema.",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Implement RESTful API endpoints (e.g., /profile, /profile/{userId}) to manage user health profile data. This includes logic for data validation, secure storage, and retrieval from the database designed in 11.1.",
+            "status": "done",
+            "testStrategy": "Unit tests for API endpoint functionality (e.g., successful profile creation, retrieval of specific fields). Integration tests for data persistence and retrieval from the database."
+          },
+          {
+            "id": 3,
+            "title": "Develop Nutrition API Request Middleware",
+            "description": "Create a middleware component that intercepts outgoing nutrition API requests and injects relevant user health profile data.",
+            "dependencies": [
+              "11.2"
+            ],
+            "details": "Build a backend middleware layer that can access the authenticated user's health profile via the API developed in 11.2. This middleware should automatically retrieve the user's profile data and dynamically modify or augment outgoing requests to external nutrition APIs (e.g., Task 14's /nutri endpoint) by adding profile-specific parameters (e.g., age, gender, activity level, health conditions).",
+            "status": "done",
+            "testStrategy": "Unit tests for middleware logic, ensuring correct data retrieval and injection into mock API requests. Integration tests to verify middleware intercepts and modifies actual requests."
+          },
+          {
+            "id": 4,
+            "title": "Research & Codify WHO/ICMR Guidelines",
+            "description": "Research and extract relevant WHO and ICMR guidelines for nutrient and portion recommendations based on age, gender, activity level, and health conditions.",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Systematically analyze WHO and ICMR nutritional guidelines to identify specific recommendations for macronutrients (carbohydrates, proteins, fats) and micronutrients (vitamins, minerals), as well as portion sizes. Consider factors like age groups, gender, activity levels, and common chronic conditions. Translate these guidelines into a structured, programmatic format (e.g., rule set, lookup tables, or configuration files) for use by the adaptive engine.",
+            "status": "done",
+            "testStrategy": "Manual verification of extracted guidelines against official documents. Unit tests for rule parsing or lookup table accuracy and completeness."
+          },
+          {
+            "id": 5,
+            "title": "Implement Adaptive Nutrient Target Engine",
+            "description": "Develop a service that calculates adaptive portion and nutrient targets based on user health profile data and integrated WHO/ICMR guidelines.",
+            "dependencies": [
+              "11.3",
+              "11.4"
+            ],
+            "details": "Implement a core logic engine that takes the user's health profile (as injected by the middleware from 11.3) and applies the codified WHO/ICMR guidelines (from 11.4) to dynamically calculate personalized daily or per-meal portion and nutrient targets (e.g., recommended calorie intake, macro ratios, specific vitamin/mineral needs). This engine should expose an interface for other services to consume these adaptive targets.",
+            "status": "done",
+            "testStrategy": "Unit tests for calculation accuracy with various profile inputs and guideline rules. Integration tests to verify correct nutrient target adaptation based on diverse profile data and guideline combinations, ensuring the engine correctly uses data from the middleware and codified rules."
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Multi-Route Frontend Expansion",
+        "description": "Extend the frontend with new routes and pages, ensuring lazy loading and basic authentication protection.",
+        "details": "- Add `/dashboard`, `/planner`, `/grocery`, `/health-docs`, `/settings` React Router routes.\n- Create lazy-loaded page bundles with `React.lazy` + Suspense skeletons.\n- Protect routes with basic auth guard (localStorage token).",
+        "testStrategy": "End-to-end tests for route navigation, lazy loading, and auth guard functionality.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize React Router & Define Base Routes",
+            "description": "Set up React Router in the application, define the main routing structure, and add initial, non-lazy-loaded routes for /dashboard, /planner, /grocery, /health-docs, and /settings.",
+            "dependencies": [],
+            "details": "Configure BrowserRouter or HashRouter. Define Routes and Route components for each specified path. Create minimal placeholder components for each page to ensure basic navigation works.\n<info added on 2025-08-04T19:47:34.388Z>\nPlaceholder components (PlannerPage.jsx, GroceryPage.jsx, HealthDocsPage.jsx, SettingsPage.jsx) were created for /planner, /grocery, /health-docs, and /settings. `routes.jsx` was updated with the necessary React Router setup for these paths. Each new component was designed following established patterns, including consistent headers, NutriVision branding, Tailwind CSS for responsiveness and dark mode, feature grids, and 'Coming Soon' badges. Navigation cards were added to the Dashboard, and the bottom navigation bar was updated with links to Planner and Settings, including required icon imports. Verification confirmed all routes are accessible via direct URL and Dashboard navigation, back navigation functions correctly, and components render without console errors.\n</info added on 2025-08-04T19:47:34.388Z>",
+            "status": "done",
+            "testStrategy": "Verify direct navigation to each route works by manually entering URLs or clicking placeholder links."
+          },
+          {
+            "id": 2,
+            "title": "Implement Lazy Loading for New Pages",
+            "description": "Refactor the newly defined routes to use React.lazy for code splitting and integrate Suspense with fallback UI (skeletons) for each page.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Wrap page component imports with React.lazy. Implement Suspense boundaries around the routes, providing a basic loading skeleton or spinner as a fallback component for each lazy-loaded page.\n<info added on 2025-08-04T19:52:31.020Z>\nSpecifically, PlannerPage, GroceryPage, HealthDocsPage, and SettingsPage are now lazy-loaded. A detailed `PageSkeleton.jsx` component was created, featuring an animated skeleton matching the app's layout and theming (including light/dark mode support) and utilizing Tailwind CSS animations. `routes.jsx` was updated to use `React.lazy()` and `Suspense` boundaries with `PageSkeleton` as the fallback, and direct imports were removed. ESLint errors were fixed, and the implementation maintains backward compatibility. The development server starts successfully with no build or runtime errors, confirming the lazy loading infrastructure is ready for bundle analysis.\n</info added on 2025-08-04T19:52:31.020Z>",
+            "status": "done",
+            "testStrategy": "Verify network requests show separate bundles loading on route navigation. Check that fallback UI displays during loading states."
+          },
+          {
+            "id": 3,
+            "title": "Develop Basic Authentication Guard Module",
+            "description": "Create a reusable authentication guard component or hook that checks for a valid token in localStorage and redirects unauthenticated users to a login page (or similar).",
+            "dependencies": [],
+            "details": "Implement a 'RequireAuth' component or a custom hook 'useAuthGuard' that reads 'localStorage.getItem('authToken')'. If no token is found, use React Router's useNavigate to redirect to a designated login path.\n<info added on 2025-08-04T19:56:52.639Z>\nThe authentication guard module has been developed as a comprehensive system. It includes a `useAuth` hook for managing authentication state and operations, a `RequireAuth` component for protecting routes and handling redirects (including post-login), and `Auth Utilities` with a `withAuth` HOC. The system leverages `localStorage` for token persistence, incorporates loading states, robust error handling for `localStorage` operations, and ensures consistent user data management. `AuthPage` and `SettingsPage` have been integrated to utilize this new system.\n</info added on 2025-08-04T19:56:52.639Z>",
+            "status": "done",
+            "testStrategy": "Unit tests for the guard logic (token present/absent, redirection logic). Integration tests to ensure it prevents access when no token is present."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Auth Guard with Protected Routes",
+            "description": "Apply the developed authentication guard to the /dashboard, /planner, /grocery, /health-docs, and /settings routes to ensure they are protected.",
+            "dependencies": [
+              "12.2",
+              "12.3"
+            ],
+            "details": "Wrap the protected Route components with the 'RequireAuth' component or integrate the 'useAuthGuard' hook within the page components, ensuring all specified routes require authentication.\n<info added on 2025-08-04T19:59:26.668Z>\nSuccessfully integrated authentication guards for `/dashboard`, `/planner`, `/grocery`, `/health-docs`, and `/settings` routes. This was achieved by wrapping protected routes in `routes.jsx` with the `RequireAuth` component, combining it with lazy loading (RequireAuth → Suspense → Lazy Component) and `PageSkeleton` fallbacks. Unauthenticated users are redirected to `/auth`, and upon successful login, are redirected to their intended destination. The Dashboard component now uses `useAuth` for logout and displays the user's name.\n</info added on 2025-08-04T19:59:26.668Z>",
+            "status": "done",
+            "testStrategy": "End-to-end tests: Attempt to access protected routes without a token (should redirect). Access protected routes with a valid token (should succeed)."
+          },
+          {
+            "id": 5,
+            "title": "Create Initial Page Skeletons & Error Boundaries",
+            "description": "Develop basic UI skeletons for each new page (/dashboard, /planner, /grocery, /health-docs, /settings) and implement error boundaries for robust lazy loading.",
+            "dependencies": [
+              "12.2",
+              "12.4"
+            ],
+            "details": "For each page, create a simple layout with a title and placeholder content. Implement ErrorBoundary components to gracefully handle potential errors during lazy loading or component rendering, providing a user-friendly fallback UI.\n<info added on 2025-08-04T20:06:33.036Z>\nImplemented detailed page skeletons including a generic `PageSkeleton.jsx` with animated loading states and specialized `DashboardSkeleton` and `SettingsSkeleton` components, all supporting dark mode and matching actual page structures. A robust `ErrorBoundary.jsx` was developed using `getDerivedStateFromError` and `componentDidCatch` for class-based error handling, complemented by `errorBoundaryUtils.js` for component health checks. Error reporting is environment-aware (dev vs production), providing graceful fallback UI with retry options. All routes in `src/pages/routes.jsx` have been updated to utilize these error boundaries with specific fallback skeletons. Key files created/modified include `src/components/PageSkeleton.jsx`, `src/components/PageSkeletons.jsx`, `src/components/ErrorBoundary.jsx`, `src/components/errorBoundaryUtils.js`, and `src/pages/routes.jsx`.\n</info added on 2025-08-04T20:06:33.036Z>",
+            "status": "done",
+            "testStrategy": "Verify basic page content renders correctly after navigation. Simulate lazy load failure (e.g., by blocking network requests) to ensure error boundary catches it and displays the fallback."
+          },
+          {
+            "id": 6,
+            "title": "Define Core Application Routes and Stubs",
+            "description": "Set up the React Router configuration to include the new routes: `/dashboard`, `/planner`, `/grocery`, `/health-docs`, and `/settings`. Create minimal, non-lazy-loaded placeholder components for each route to ensure basic navigation works.",
+            "dependencies": [],
+            "details": "Configure `BrowserRouter` or `HashRouter`. Define `Route` components for each path. Create simple functional components (e.g., `DashboardPage`, `PlannerPage`) that just render a heading or a 'Coming Soon' message.",
+            "status": "done",
+            "testStrategy": "Manually navigate to each route in the browser to confirm it renders its respective placeholder component."
+          },
+          {
+            "id": 7,
+            "title": "Implement Lazy Loading for New Pages",
+            "description": "Refactor the newly created page components (`DashboardPage`, `PlannerPage`, etc.) to be lazy-loaded using `React.lazy` and wrapped with `Suspense` components, providing basic loading skeletons.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "For each page component, create a separate file (e.g., `DashboardPage.js`). Use `React.lazy(() => import('./pages/DashboardPage'))` in the main routing file. Wrap the `Route` components or the `Routes` component with `Suspense` and provide a simple fallback UI (e.g., a loading spinner or 'Loading...' text).",
+            "status": "done",
+            "testStrategy": "Verify network requests in browser dev tools to confirm page bundles are loaded on demand. Check that the `Suspense` fallback appears briefly during navigation."
+          },
+          {
+            "id": 8,
+            "title": "Develop Basic Authentication Guard Logic",
+            "description": "Develop a reusable React component or custom hook that checks for the presence of an authentication token in `localStorage`. If no token is found, it should redirect the user to a login page or a default unauthorized route.",
+            "dependencies": [],
+            "details": "Create a component (e.g., `AuthGuard` or `ProtectedRoute`) that reads `localStorage.getItem('authToken')`. If the token is missing, use `useNavigate` or `Redirect` to send the user to `/login` (or a designated unauthorized path). If the token exists, render its children.",
+            "status": "done",
+            "testStrategy": "Unit test the guard logic with and without a token in `localStorage`. Manually test by clearing `localStorage` and attempting to access a protected route."
+          },
+          {
+            "id": 9,
+            "title": "Integrate Auth Guard with Protected Routes",
+            "description": "Apply the newly created authentication guard component to the specific routes that require protection: `/dashboard`, `/planner`, `/grocery`, `/health-docs`, and `/settings`.",
+            "dependencies": [
+              "12.2",
+              "12.3"
+            ],
+            "details": "Wrap the `Route` components for the specified paths with the `AuthGuard` component. Ensure the `AuthGuard` correctly renders the lazy-loaded page component if authenticated, or redirects otherwise.",
+            "status": "done",
+            "testStrategy": "Attempt to access protected routes without a token; verify redirection. Simulate a successful login (e.g., by manually setting a token in `localStorage`) and verify access to protected routes."
+          },
+          {
+            "id": 10,
+            "title": "Implement Route-Level Error Boundaries and Fallbacks",
+            "description": "Enhance the routing setup by adding basic error boundaries around the lazy-loaded components to gracefully handle loading failures or component errors, and ensure a user-friendly fallback UI is displayed.",
+            "dependencies": [
+              "12.4"
+            ],
+            "details": "Utilize `React.ErrorBoundary` (or a similar library/pattern) around the `Suspense` components or individual lazy-loaded routes. Provide a simple error message or a 'try again' button as a fallback for component errors. Ensure the `Suspense` fallback is visually distinct.",
+            "status": "done",
+            "testStrategy": "Simulate network failures (e.g., in browser dev tools) when loading lazy components to verify the error boundary catches the error and displays the fallback. Introduce a runtime error in a lazy-loaded component to confirm error boundary behavior."
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Micro-Interaction Library",
+        "description": "Develop a set of micro-interactions for improved user experience, including animations, haptic feedback, and contextual toast notifications.",
+        "details": "- Animate file-drop zones with Tailwind `scale-in` and shimmer loaders.\n- Add haptic-like button feedback (`active:translate-y-1`) for mobile.\n- Show contextual toast confirmations via Radix UI or custom hook.",
+        "testStrategy": "Manual UI testing across devices. Visual regression tests for animations.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Nutrition API Integration Layer",
+        "description": "Create a unified backend endpoint for nutrition data by integrating USDA FoodData Central and Edamam Micronutrients, with caching for performance.",
+        "details": "- Wrap USDA FoodData Central + Edamam Micronutrients in a single `/nutri` backend endpoint.\n- Cache frequent look-ups in Redis for 1 h to cut latency.\n- Normalize responses to common macro/micro JSON schema.",
+        "testStrategy": "Unit tests for API wrappers and response normalization. Integration tests for Redis caching. Performance tests for latency.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement USDA FoodData Central API Wrapper",
+            "description": "Develop a robust backend wrapper for the USDA FoodData Central API to fetch food nutrition data.",
+            "dependencies": [],
+            "details": "Implement functions to query USDA FoodData Central, handle API keys, rate limits, and parse raw responses into an initial structured format.",
+            "status": "done",
+            "testStrategy": "Unit tests for API calls, error handling, and initial data parsing from USDA responses."
+          },
+          {
+            "id": 2,
+            "title": "Implement Edamam Micronutrients API Wrapper",
+            "description": "Develop a robust backend wrapper for the Edamam Micronutrients API to fetch detailed micronutrient data.",
+            "dependencies": [],
+            "details": "Implement functions to query Edamam Micronutrients, handle API keys, rate limits, and parse raw responses into an initial structured format.",
+            "status": "done",
+            "testStrategy": "Unit tests for API calls, error handling, and initial data parsing from Edamam responses."
+          },
+          {
+            "id": 3,
+            "title": "Define & Implement Nutrition Data Schema and Normalization",
+            "description": "Create a common JSON schema for macro and micronutrient data and implement logic to normalize responses from USDA and Edamam to this schema.",
+            "dependencies": [
+              "14.1",
+              "14.2"
+            ],
+            "details": "Design the unified JSON schema for nutrition data (macros, micros). Implement transformation logic to map data from USDA and Edamam raw responses to this common schema, handling data discrepancies and missing fields.",
+            "status": "done",
+            "testStrategy": "Unit tests for schema validation and data transformation logic, ensuring correct mapping from raw API responses to the common schema."
+          },
+          {
+            "id": 4,
+            "title": "Implement Unified `/nutri` Backend Endpoint",
+            "description": "Create the `/nutri` backend endpoint that orchestrates calls to the USDA and Edamam wrappers and applies normalization.",
+            "dependencies": [
+              "14.1",
+              "14.2",
+              "14.3"
+            ],
+            "details": "Develop the `/nutri` endpoint logic. This endpoint will receive requests, call the appropriate wrapper(s) based on the query, and pass the combined results through the normalization layer before returning the response.",
+            "status": "done",
+            "testStrategy": "Integration tests for the endpoint's ability to call wrappers, combine data, and return normalized data correctly."
+          },
+          {
+            "id": 5,
+            "title": "Integrate Redis Caching for `/nutri` Endpoint",
+            "description": "Implement Redis caching for frequent look-ups within the `/nutri` endpoint to improve performance and reduce latency.",
+            "dependencies": [
+              "14.4"
+            ],
+            "details": "Add Redis integration to the `/nutri` endpoint. Implement a cache-aside or read-through strategy with a 1-hour Time-To-Live (TTL) for frequent look-ups, ensuring cache invalidation and consistency.",
+            "status": "done",
+            "testStrategy": "Integration tests for Redis caching functionality (cache hits, misses, expiration). Performance tests to measure latency reduction with caching enabled."
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Health Rating Algorithm",
+        "description": "Develop and expose an algorithm to score the healthiness of meals based on nutritional content and user goals.",
+        "details": "- Develop scoring formula combining calories, macros, sodium, and user goals.\n- Return grade (A-E) plus color code to frontend.\n- Expose `/rating` endpoint consumed by meal cards.",
+        "testStrategy": "Unit tests for the scoring formula with various inputs. API tests for the `/rating` endpoint.",
+        "priority": "medium",
+        "dependencies": [
+          11,
+          14
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Medical Document Uploader & Parser",
+        "description": "Implement a drag-and-drop document uploader with OCR and PDF parsing capabilities to extract and store key medical entities.",
+        "details": "- Build drag-and-drop PDF/PNG uploader capped at 10 MB.\n- Use OCR (Tesseract via WASM) for images; pdfminer for PDFs.\n- Pipe extracted text to Gemini function for key medical entities (diagnoses, meds).\n- Store structured JSON (FHIR-lite) in user profile.",
+        "testStrategy": "Unit tests for OCR/parser modules. Integration tests for file upload and Gemini function. End-to-end tests for document processing and storage.",
+        "priority": "high",
+        "dependencies": [
+          11
+        ],
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Drag-and-Drop File Uploader UI",
+            "description": "Develop the user interface for drag-and-drop file uploads, supporting PDF and PNG formats with client-side validation.",
+            "dependencies": [],
+            "details": "Build a responsive drag-and-drop area. Implement client-side file type (PDF, PNG) and size validation (up to 10 MB) before upload.\n<info added on 2025-08-04T20:23:26.688Z>\nImplemented visual feedback for drag states, progress indicators, and processing states, including file previews with icons, size formatting, and removal functionality. Enhanced error handling with clear, dismissible messages. Integrated the uploader into `HealthDocsPage` with proper state management. Added secondary extension validation and support for multiple file uploads. Ensured dark mode support and responsive design. Defined a component API including `onFileUpload`, `onFileRemove`, and `isProcessing` props. Comprehensive unit tests (`src/tests/MedicalDocumentUploader.test.jsx`) covering all validation scenarios have been created and pass. Key files created/modified include `src/components/MedicalDocumentUploader.jsx` and `src/components/HealthDocsPage.jsx`.\n</info added on 2025-08-04T20:23:26.688Z>",
+            "status": "done",
+            "testStrategy": "Unit tests for UI component rendering, drag-and-drop events, and client-side validation logic."
+          },
+          {
+            "id": 2,
+            "title": "Develop File Upload API and Pre-processor",
+            "description": "Create a backend API endpoint to receive uploaded files, perform server-side validation, and route them to the appropriate text extraction module.",
+            "dependencies": [
+              "16.1"
+            ],
+            "details": "Implement a secure API endpoint for file uploads. Perform server-side validation for file type (PDF, PNG) and size (max 10 MB). Route PDF files to the PDF parsing module and PNG files to the OCR module.\n<info added on 2025-08-04T23:20:28.948Z>\nThe API is production-ready and matches the requirements.\n**Completed Features:**\n- Complete `/api/documents/upload` endpoint with `multipart/form-data` support.\n- Robust server-side validation for file type (PDF, PNG), size (max 10 MB), MIME type, and file signatures.\n- Secure file handling with UUID-based naming, timestamp, and proper directory structure.\n- Comprehensive error handling and logging.\n- Processing module routing: PDF files to `pdf_parser` and PNG files to `ocr_processor`.\n- Implemented status tracking endpoint (`/status/<file_id>`), document listing endpoint (`/list`), and health check endpoint (`/health`).\n\n**Security Measures:**\n- File signature validation (PDF header, PNG header verification).\n- Secure filename generation with `werkzeug`.\n- File size limits enforced (10MB).\n- MIME type validation.\n- Directory traversal protection.\n\n**Remaining Implementation:**\n1. Frontend integration: Update `MedicalDocumentUploader` to call the API.\n2. Error handling integration between frontend and backend.\n3. File processing status tracking (currently uses mock data).\n4. Integration with PDF parser and OCR modules (subtasks 16.3 and 16.4).\nNext step is to integrate it with the frontend component.\n</info added on 2025-08-04T23:20:28.948Z>",
+            "status": "in-progress",
+            "testStrategy": "Integration tests for the file upload endpoint, covering validation, error handling, and correct routing of different file types."
+          },
+          {
+            "id": 3,
+            "title": "Implement PDF Text Parsing Module",
+            "description": "Develop a module to extract raw text content from uploaded PDF documents using pdfminer.",
+            "dependencies": [
+              "16.2"
+            ],
+            "details": "Integrate and configure `pdfminer` for robust text extraction from various PDF structures. Handle potential encoding issues and multi-page documents.",
+            "status": "pending",
+            "testStrategy": "Unit tests for `pdfminer` integration, covering text extraction from diverse PDF samples (e.g., scanned, text-based, complex layouts)."
+          },
+          {
+            "id": 4,
+            "title": "Implement Image OCR Module",
+            "description": "Develop a module to perform Optical Character Recognition (OCR) on uploaded image files (PNG) using Tesseract via WASM.",
+            "dependencies": [
+              "16.2"
+            ],
+            "details": "Integrate `Tesseract.js` (or a similar WASM-based Tesseract solution) for efficient OCR processing on PNG images. Optimize for performance and accuracy.",
+            "status": "pending",
+            "testStrategy": "Unit tests for OCR accuracy and performance on various PNG image types, resolutions, and text densities. Test edge cases like rotated or low-quality images."
+          },
+          {
+            "id": 5,
+            "title": "Integrate Gemini for Medical Entity Extraction",
+            "description": "Develop a component to pipe extracted raw text from parsing modules to the Gemini function for identifying and extracting key medical entities.",
+            "dependencies": [
+              "16.3",
+              "16.4"
+            ],
+            "details": "Design the interface to send raw text (from either PDF parser or OCR) to the Gemini function. Configure Gemini to specifically extract diagnoses and medications from the text.",
+            "status": "pending",
+            "testStrategy": "Integration tests for the Gemini function call, verifying correct entity extraction from diverse medical text samples (e.g., patient notes, prescription details)."
+          },
+          {
+            "id": 6,
+            "title": "Implement Structured Medical Data Storage",
+            "description": "Develop the functionality to store the extracted medical entities as structured FHIR-lite JSON in the user's profile.",
+            "dependencies": [
+              "16.5"
+            ],
+            "details": "Define the FHIR-lite schema for storing extracted diagnoses and medications. Implement database operations to persist this structured JSON data, associating it with the respective user profile.",
+            "status": "pending",
+            "testStrategy": "Integration tests for data storage, verifying the FHIR-lite JSON structure, data integrity, and successful persistence in the user profile. End-to-end tests for the entire document processing and storage flow."
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "Seamless Food-Detection Bridging",
+        "description": "Integrate the existing food detection pipeline with the new nutrition API and health rating system to provide a unified response to the UI.",
+        "details": "- Keep existing ViT endpoint path unchanged.\n- On successful classify, automatically chain to Nutrition API and Health Rating and unify response.\n- Emit consolidated JSON to UI: `{food, macros, micros, rating, flags}`.",
+        "testStrategy": "Integration tests for chaining calls and consolidating responses. End-to-end tests from food detection to UI display.",
+        "priority": "high",
+        "dependencies": [
+          14,
+          15
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Grocery List Generator v2",
+        "description": "Enhance the grocery list generator to aggregate ingredients, optimize quantities, and provide export/sharing options.",
+        "details": "- Aggregate ingredients across scheduled meals for the week.\n- Group by aisle and optimize quantities (kg, g).\n- Offer export to CSV and shareable link.",
+        "testStrategy": "Unit tests for aggregation and optimization logic. Integration tests for export and sharing features.",
+        "priority": "medium",
+        "dependencies": [
+          12
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 19,
+        "title": "Offline-First Enhancements",
+        "description": "Implement offline capabilities for health document parsing results and background synchronization of failed API requests.",
+        "details": "- Cache health-doc parse results in IndexedDB.\n- Queue failed `/nutri` & `/rating` posts for background sync.",
+        "testStrategy": "Manual testing for offline behavior. Unit tests for IndexedDB operations and background sync logic.",
+        "priority": "low",
+        "dependencies": [
+          14,
+          15,
+          16
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "UX Polish & Accessibility Sweep",
+        "description": "Conduct a comprehensive review and implement improvements for user experience and accessibility across the application.",
+        "details": "- Audit color contrast on new pages; tweak Tailwind palette where needed.\n- Implement keyboard navigation for uploader and planner grids.\n- Add ARIA live regions for loading states.",
+        "testStrategy": "Manual accessibility audits (e.g., using Lighthouse, axe-core). Automated accessibility tests where possible. User testing.",
+        "priority": "medium",
+        "dependencies": [
+          12,
+          16,
+          18
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-03T12:56:42.375Z",
+      "updated": "2025-08-04T23:15:17.077Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
