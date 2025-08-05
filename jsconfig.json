@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["../src/*"]
+    },
+    "typeRoots": ["./node_modules/@types"],
+    "types": [
+      "babel__core",
+      "babel__generator",
+      "babel__template",
+      "babel__traverse",
+      "react",
+      "react-dom"
+    ],
+    "jsx": "react",
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  },
+  "include": ["../src/**/*"],
+  "exclude": ["node_modules"]
+}
