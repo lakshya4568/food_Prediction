@@ -145,32 +145,74 @@ Example JSON output:
 """
 
     try:
-        # Use the new Gemini API client
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type='application/json',
-                max_output_tokens=500,
-                temperature=0.3,
+        # Use the new Gemini API client - first try with JSON format
+        try:
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type='application/json',
+                    max_output_tokens=500,
+                    temperature=0.3,
+                )
             )
-        )
+        except Exception as json_error:
+            print(f"JSON format failed, trying without JSON constraint: {json_error}")
+            # Fallback: Try without JSON format constraint
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    max_output_tokens=500,
+                    temperature=0.3,
+                )
+            )
+        
+        # Check if response exists and has text
+        if not response:
+            raise ValueError("No response received from Gemini API")
+        
+        if not hasattr(response, 'text') or response.text is None:
+            raise ValueError("Empty response from Gemini API")
         
         # Parse the JSON response
         response_text = response.text.strip()
-        response_json = json.loads(response_text)
+        
+        if not response_text:
+            raise ValueError("Empty text response from Gemini API")
+        
+        print(f"Gemini API response: {response_text}")  # Debug logging
+        
+        # Try to extract JSON from the response text
+        try:
+            response_json = json.loads(response_text)
+        except json.JSONDecodeError:
+            # If direct JSON parsing fails, try to extract JSON from markdown
+            import re
+            json_match = re.search(r'```json\s*(\{.*?\})\s*```', response_text, re.DOTALL)
+            if json_match:
+                response_json = json.loads(json_match.group(1))
+            else:
+                # Try to find any JSON-like structure
+                json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+                if json_match:
+                    response_json = json.loads(json_match.group(0))
+                else:
+                    raise ValueError("No valid JSON found in response")
 
         if 'health_benefits' not in response_json or 'recommendation' not in response_json:
              raise ValueError("Response JSON missing required keys")
 
         return jsonify(response_json)
 
-    except json.JSONDecodeError:
-        print(f"Error decoding Gemini JSON response: {response.text}")
+    except json.JSONDecodeError as e:
+        print(f"Error decoding Gemini JSON response: {response_text if 'response_text' in locals() else 'No response text'}")
+        print(f"JSON decode error: {str(e)}")
         # Return the raw text if JSON parsing fails, maybe it's still useful
-        return jsonify({'error': 'Failed to parse Gemini response as JSON', 'raw_response': response.text}), 500
+        return jsonify({'error': 'Failed to parse Gemini response as JSON', 'raw_response': response_text if 'response_text' in locals() else 'No response'}), 500
     except Exception as e:
         print(f"Error calling Gemini API: {e}")
+        print(f"Response object: {response if 'response' in locals() else 'No response object'}")
         return jsonify({'error': f'Error generating health info: {str(e)}'}), 500
 
 
