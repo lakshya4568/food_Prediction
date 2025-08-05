@@ -2,9 +2,32 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Navigation items for main app pages
+  const navItems = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/planner", label: "Planner" },
+    { href: "/grocery", label: "Grocery" },
+    { href: "/health-docs", label: "Health Docs" },
+    { href: "/settings", label: "Settings" },
+  ];
+
+  // Check if a link is active
+  const isActiveLink = (href) => pathname === href;
+
+  // Get link classes based on active state
+  const getLinkClasses = (href) => {
+    const baseClasses = "transition-colors duration-200";
+    if (isActiveLink(href)) {
+      return `${baseClasses} text-primary-600 font-semibold border-b-2 border-primary-600`;
+    }
+    return `${baseClasses} text-gray-700 hover:text-primary-500`;
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200/50">
@@ -22,39 +45,24 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link
-              href="/"
-              className="text-gray-700 hover:text-primary-500 transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              href="#features"
-              className="text-gray-700 hover:text-primary-500 transition-colors"
-            >
-              Features
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="text-gray-700 hover:text-primary-500 transition-colors"
-            >
-              How It Works
-            </Link>
-            <Link
-              href="/predict"
-              className="text-gray-700 hover:text-primary-500 transition-colors"
-            >
-              Try Now
-            </Link>
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={getLinkClasses(item.href)}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
-          {/* CTA Buttons */}
+          {/* User Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/auth" className="btn btn-outline">
-              Log In
+            <Link href="/predict" className="btn btn-outline">
+              Predict Food
             </Link>
-            <Link href="/auth?signup=true" className="btn btn-primary">
-              Sign Up
+            <Link href="/profile" className="btn btn-primary">
+              Profile
             </Link>
           </div>
 
@@ -72,38 +80,16 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <nav className="flex flex-col space-y-4">
-              <Link
-                href="/"
-                className="text-gray-700 hover:text-primary-500 transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                href="#features"
-                className="text-gray-700 hover:text-primary-500 transition-colors"
-              >
-                Features
-              </Link>
-              <Link
-                href="#how-it-works"
-                className="text-gray-700 hover:text-primary-500 transition-colors"
-              >
-                How It Works
-              </Link>
-              <Link
-                href="/predict"
-                className="text-gray-700 hover:text-primary-500 transition-colors"
-              >
-                Try Now
-              </Link>
-              <div className="flex flex-col space-y-2 pt-4">
-                <Link href="/auth" className="btn btn-outline">
-                  Log In
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={getLinkClasses(item.href)}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
                 </Link>
-                <Link href="/auth?signup=true" className="btn btn-primary">
-                  Sign Up
-                </Link>
-              </div>
+              ))}
             </nav>
           </div>
         )}

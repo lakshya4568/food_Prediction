@@ -27,8 +27,8 @@
             "dependencies": [
               "1.1"
             ],
-            "details": "Create a route group `(main)` in the `/app` directory. Move the existing `dashboard` page and the new page directories from subtask 1.1 into `/app/(main)/`. Create a `layout.tsx` in `/app/(main)/` that imports and renders the shared Header and Footer components, with the `{children}` prop rendered in a main content container styled with Tailwind CSS for consistent padding and max-width.",
-            "status": "in-progress",
+            "details": "Create a route group `(main)` in the `/app` directory. Move the existing `dashboard` page and the new page directories from subtask 1.1 into `/app/(main)/`. Create a `layout.tsx` in `/app/(main)/` that imports and renders the shared Header and Footer components, with the `{children}` prop rendered in a main content container styled with Tailwind CSS for consistent padding and max-width.\n<info added on 2025-08-05T07:45:04.870Z>\nA route group `(main)` was created in the `/app` directory, and all main pages (`dashboard`, `planner`, `grocery`, `health-docs`, `settings`) were moved into it. A new shared layout file, `/app/(main)/layout.jsx`, was implemented to provide a consistent structure for these pages. This layout renders the `<Header />`, a `<main className=\"min-h-screen pt-16\">{children}</main>` container, and the `<Footer />`. Consequently, all individual page components were refactored to remove their now-redundant Header and Footer imports.\n</info added on 2025-08-05T07:45:04.870Z>",
+            "status": "done",
             "testStrategy": "Navigate between `/dashboard`, `/planner`, and `/grocery`. Verify that the header, footer, and main content styling are identical on all pages."
           },
           {
@@ -38,8 +38,8 @@
             "dependencies": [
               "1.1"
             ],
-            "details": "In the Header component, use the Next.js `<Link>` component to add navigation items for Planner, Grocery, Health Docs, and Settings. Use the `usePathname` hook to conditionally apply a specific Tailwind CSS class (e.g., `font-bold`, `underline`) to the link corresponding to the current URL.",
-            "status": "pending",
+            "details": "In the Header component, use the Next.js `<Link>` component to add navigation items for Planner, Grocery, Health Docs, and Settings. Use the `usePathname` hook to conditionally apply a specific Tailwind CSS class (e.g., `font-bold`, `underline`) to the link corresponding to the current URL.\n<info added on 2025-08-05T07:52:50.986Z>\n**Implementation Notes:**\n- A `navItems` array was created to manage navigation links for: Dashboard, Planner, Grocery, Health Docs, and Settings.\n- Active link state is managed using the `usePathname` hook in conjunction with `isActiveLink()` and `getLinkClasses()` helper functions.\n- Specific Tailwind CSS classes were applied for link states:\n  - **Active:** `text-primary-600 font-semibold border-b-2 border-primary-600`\n  - **Inactive:** `text-gray-700 hover:text-primary-500`\n- The active state logic was implemented for both the desktop navigation bar and the mobile hamburger menu.\n- The mobile menu was enhanced with a click handler to automatically close after a navigation item is selected.\n- The user actions section of the header was updated with \"Predict Food\" and \"Profile\" buttons.\n</info added on 2025-08-05T07:52:50.986Z>",
+            "status": "done",
             "testStrategy": "Click each link in the header and confirm it navigates to the correct page without a full page reload. Verify that the style of the link for the active page is visually distinct from the others."
           },
           {
@@ -293,7 +293,7 @@
     ],
     "metadata": {
       "created": "2025-08-05T04:02:20.857Z",
-      "updated": "2025-08-05T06:09:04.725Z",
+      "updated": "2025-08-05T07:53:01.097Z",
       "description": "Tasks for master context"
     }
   }

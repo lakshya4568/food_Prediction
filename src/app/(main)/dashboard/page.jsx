@@ -11,8 +11,6 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
@@ -38,11 +36,8 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-
-      <main className="pt-20 pb-12">
-        <div className="container mx-auto px-4">
+    <div className="bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
@@ -291,9 +286,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
   );
 }
