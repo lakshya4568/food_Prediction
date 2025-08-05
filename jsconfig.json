@@ -1,21 +1,18 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["../src/*"]
+      "@/*": ["./src/*"]
     },
-    "typeRoots": ["./node_modules/@types"],
-    "types": [
-      "babel__core",
-      "babel__generator",
-      "babel__template",
-      "babel__traverse",
-      "react",
-      "react-dom"
-    ],
-    "jsx": "react",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["../src/**/*"],
-  "exclude": ["node_modules"]
+  "include": ["./src/**/*", "./next.config.mjs"],
+  "exclude": ["node_modules", ".next"]
 }
