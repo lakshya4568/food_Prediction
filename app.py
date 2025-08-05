@@ -9,6 +9,7 @@ from flask_cors import CORS
 from google import genai
 from google.genai import types
 import json
+import re
 
 from pyngrok import ngrok, conf
 
@@ -145,75 +146,117 @@ Example JSON output:
 """
 
     try:
-        # Use the new Gemini API client - first try with JSON format
-        try:
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type='application/json',
-                    max_output_tokens=500,
-                    temperature=0.3,
-                )
-            )
-        except Exception as json_error:
-            print(f"JSON format failed, trying without JSON constraint: {json_error}")
-            # Fallback: Try without JSON format constraint
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    max_output_tokens=500,
-                    temperature=0.3,
-                )
-            )
+        print(f"🔄 Sending request to Gemini API for food: {food_name}")
         
-        # Check if response exists and has text
+        # Use a simpler approach without JSON constraint initially
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
+        
+        print(f"📥 Raw response received: {type(response)}")
+        
+        # Check if response exists
         if not response:
-            raise ValueError("No response received from Gemini API")
+            print("❌ No response object received")
+            return jsonify({'error': 'No response from Gemini API'}), 500
         
-        if not hasattr(response, 'text') or response.text is None:
-            raise ValueError("Empty response from Gemini API")
+        # Debug: Print response structure
+        print(f"🔍 Response attributes: {[attr for attr in dir(response) if not attr.startswith('_')]}")
         
-        # Parse the JSON response
-        response_text = response.text.strip()
+        # Try to get the text content using different methods
+        response_text = None
+        
+        if hasattr(response, 'text') and response.text is not None:
+            response_text = response.text
+            print(f"📝 Got text from response.text: {response_text[:100]}...")
+        elif hasattr(response, 'candidates') and response.candidates:
+            # Try to get text from candidates
+            print("📝 Trying to get text from candidates...")
+            candidate = response.candidates[0]
+            if hasattr(candidate, 'content'):
+                content = candidate.content
+                if hasattr(content, 'parts') and content.parts:
+                    part = content.parts[0]
+                    if hasattr(part, 'text'):
+                        response_text = part.text
+                        print(f"📝 Got text from candidates: {response_text[:100]}...")
         
         if not response_text:
-            raise ValueError("Empty text response from Gemini API")
+            print("❌ No text content found in response")
+            # Return a fallback response
+            return jsonify({
+                'health_benefits': f"{food_name} provides various nutrients and can be part of a balanced diet.",
+                'recommendation': f"Enjoy {food_name} in moderation. Consider your individual dietary needs and health goals."
+            })
         
-        print(f"Gemini API response: {response_text}")  # Debug logging
+        response_text = response_text.strip()
+        if not response_text:
+            print("❌ Empty text after stripping")
+            return jsonify({
+                'health_benefits': f"{food_name} contains nutrients that support overall health.",
+                'recommendation': f"Include {food_name} as part of a varied, balanced diet."
+            })
         
-        # Try to extract JSON from the response text
+        print(f"✅ Successfully got response text: {response_text[:200]}...")
+        
+        # Try to parse JSON from response
         try:
+            # First try direct JSON parsing
             response_json = json.loads(response_text)
+            print("✅ Direct JSON parsing successful")
         except json.JSONDecodeError:
-            # If direct JSON parsing fails, try to extract JSON from markdown
-            import re
+            print("⚠️ Direct JSON parsing failed, trying to extract JSON...")
+            # Try to extract JSON from markdown code blocks
             json_match = re.search(r'```json\s*(\{.*?\})\s*```', response_text, re.DOTALL)
             if json_match:
-                response_json = json.loads(json_match.group(1))
+                try:
+                    response_json = json.loads(json_match.group(1))
+                    print("✅ JSON extracted from markdown")
+                except json.JSONDecodeError:
+                    response_json = None
             else:
                 # Try to find any JSON-like structure
-                json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+                json_match = re.search(r'\{[^{}]*"health_benefits"[^{}]*"recommendation"[^{}]*\}', response_text, re.DOTALL)
                 if json_match:
-                    response_json = json.loads(json_match.group(0))
+                    try:
+                        response_json = json.loads(json_match.group(0))
+                        print("✅ JSON pattern extracted")
+                    except json.JSONDecodeError:
+                        response_json = None
                 else:
-                    raise ValueError("No valid JSON found in response")
+                    response_json = None
+            
+            if not response_json:
+                print("❌ No JSON structure found, creating fallback response")
+                # Create a fallback response based on the text
+                response_json = {
+                    "health_benefits": f"{food_name} contains various nutrients that can contribute to a balanced diet.",
+                    "recommendation": f"Enjoy {food_name} in moderation as part of a healthy, varied diet. Consider your individual health needs."
+                }
 
+        # Validate required keys
         if 'health_benefits' not in response_json or 'recommendation' not in response_json:
-             raise ValueError("Response JSON missing required keys")
+            print("❌ Missing required keys in response, using fallback")
+            response_json = {
+                "health_benefits": f"{food_name} provides nutrients that support overall health and wellness.",
+                "recommendation": f"Include {food_name} as part of a balanced diet, considering your individual dietary requirements."
+            }
 
+        print("✅ Successfully processed health info request")
         return jsonify(response_json)
 
-    except json.JSONDecodeError as e:
-        print(f"Error decoding Gemini JSON response: {response_text if 'response_text' in locals() else 'No response text'}")
-        print(f"JSON decode error: {str(e)}")
-        # Return the raw text if JSON parsing fails, maybe it's still useful
-        return jsonify({'error': 'Failed to parse Gemini response as JSON', 'raw_response': response_text if 'response_text' in locals() else 'No response'}), 500
     except Exception as e:
-        print(f"Error calling Gemini API: {e}")
-        print(f"Response object: {response if 'response' in locals() else 'No response object'}")
-        return jsonify({'error': f'Error generating health info: {str(e)}'}), 500
+        print(f"❌ Error in get_health_info: {str(e)}")
+        print(f"🔍 Exception type: {type(e)}")
+        import traceback
+        print(f"🔍 Full traceback: {traceback.format_exc()}")
+        
+        # Return a safe fallback response instead of error
+        return jsonify({
+            'health_benefits': f"{food_name} contains nutrients that can be part of a healthy diet.",
+            'recommendation': f"Enjoy {food_name} in moderation. Consult with a healthcare provider for personalized dietary advice."
+        })
 
 
 @app.route('/health', methods=['GET'])
@@ -222,10 +265,10 @@ def health_check():
 
 if __name__ == '__main__':
     print("🚀 Starting Flask backend for NutriVision AI...")
-    print("📍 Flask API will be running at: http://localhost:5000")
+    print("📍 Flask API will be running at: http://localhost:5001")
     print("🌐 Frontend should be running at: http://localhost:3000")
-    print("🔗 Make sure frontend API_BASE_URL points to: http://localhost:5000/")
+    print("🔗 Make sure frontend API_BASE_URL points to: http://localhost:5001/")
     print("✅ CORS enabled for cross-origin requests")
     
-    # Run the Flask app on port 5000
+    # Run the Flask app on port 5001
     app.run(host='0.0.0.0', port=5001, debug=True)

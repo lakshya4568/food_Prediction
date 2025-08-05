@@ -13,7 +13,7 @@ import Image from "next/image";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
-const API_BASE_URL = "http://localhost:5001/";
+const API_BASE_URL = "http://localhost:5001";
 
 export default function PredictPage() {
   // Theme state ('light' or 'dark')
