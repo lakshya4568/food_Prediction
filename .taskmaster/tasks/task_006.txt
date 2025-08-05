@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Integrate Nutrition Lookup via USDA API
+# Status: pending
+# Dependencies: 2, 4
+# Priority: low
+# Description: Create a Node.js endpoint to fetch nutritional data from the free USDA API and display it in the UI after a food is identified by the Flask service.
+# Details:
+Implement a Node.js endpoint `/api/nutri` that takes a food name, queries the USDA API, and returns a normalized JSON object. In the frontend, after receiving a prediction from Flask, call this endpoint and display the nutrition data in a UI card.
+
+# Test Strategy:
+Manually call the `/api/nutri` endpoint with a food name like 'apple' and verify it returns structured nutritional data. In the UI, simulate a prediction and ensure the subsequent call to the nutrition endpoint populates the UI correctly.

@@ -1,0 +1,11 @@
+# Task ID: 9
+# Title: Create Grocery List Generator
+# Status: pending
+# Dependencies: 6
+# Priority: low
+# Description: Build a feature that aggregates ingredients from a user's saved meals and generates a consolidated grocery list.
+# Details:
+Create a Node.js endpoint `/api/grocery` that queries the `meals` table for a given user, aggregates all ingredients, and optimizes units. On the `grocery.js` page, add a button to trigger this generation and display the list, with an option to export as text.
+
+# Test Strategy:
+Add several meals for a user. Navigate to the grocery page and click the generate button. Verify the output list correctly aggregates ingredients from all the meals (e.g., '100g rice' + '150g rice' becomes '250g rice').

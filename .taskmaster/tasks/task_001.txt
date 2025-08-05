@@ -1,0 +1,121 @@
+# Task ID: 1
+# Title: Setup Next.js Frontend & Multi-Page Routing
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Initialize the Next.js project with Tailwind CSS and create the main page structure for the application as specified in the PRD.
+# Details:
+Create core pages in `/pages`: `dashboard.js`, `planner.js`, `grocery.js`, `health-docs.js`, and `settings.js`. Implement basic navigation between them. Use Next.js `dynamic` imports for components and add loading skeletons with Tailwind placeholders.
+
+# Test Strategy:
+Run `npm run dev` and verify that all created pages are accessible via browser navigation and that clicking links between them works correctly. Check for loading skeletons on slow component loads.
+
+# Subtasks:
+## 1. Create App Router Page Structures for New Pages [done]
+### Dependencies: None
+### Description: Create the folder and file structure for the missing pages (Planner, Grocery, Health Docs, Settings) using the Next.js App Router conventions.
+### Details:
+For each new section, create a directory inside `/app` (e.g., `/app/planner/`, `/app/grocery/`, etc.). Inside each directory, create a `page.tsx` file with a basic placeholder React component that renders a unique heading (e.g., `<h1>Planner Page</h1>`).
+<info added on 2025-08-05T06:05:38.655Z>
+---
+**USER UPDATE: Subtask 1.1 Completed**
+
+**Implementation Summary:**
+- Created four complete page structures in the `/app` directory: `/planner`, `/grocery`, `/health-docs`, and `/settings`.
+- Instead of basic placeholders, each page was built as a functional React component with a consistent layout (Header, main content, Footer), `use client` directives, and a comprehensive UI featuring mock data and interactive elements styled with TailwindCSS.
+
+**Testing:**
+- All new routes are accessible and render without errors on the development server.
+
+**Next Steps:**
+- Ready to proceed to subtask 1.2 (Implement Consistent Page Layout), noting that much of this work has already been done as part of this subtask's implementation.
+</info added on 2025-08-05T06:05:38.655Z>
+
+## 2. Implement Consistent Page Layout [done]
+### Dependencies: 1.1
+### Description: Create a shared layout component to wrap the main application pages, ensuring a consistent header, footer, and content area styling across all new and existing pages.
+### Details:
+Create a route group `(main)` in the `/app` directory. Move the existing `dashboard` page and the new page directories from subtask 1.1 into `/app/(main)/`. Create a `layout.tsx` in `/app/(main)/` that imports and renders the shared Header and Footer components, with the `{children}` prop rendered in a main content container styled with Tailwind CSS for consistent padding and max-width.
+<info added on 2025-08-05T07:45:04.870Z>
+A route group `(main)` was created in the `/app` directory, and all main pages (`dashboard`, `planner`, `grocery`, `health-docs`, `settings`) were moved into it. A new shared layout file, `/app/(main)/layout.jsx`, was implemented to provide a consistent structure for these pages. This layout renders the `<Header />`, a `<main className="min-h-screen pt-16">{children}</main>` container, and the `<Footer />`. Consequently, all individual page components were refactored to remove their now-redundant Header and Footer imports.
+</info added on 2025-08-05T07:45:04.870Z>
+
+## 3. Update Header with Active Navigation Links [done]
+### Dependencies: 1.1
+### Description: Modify the existing Header component to include navigation links to all main pages and visually indicate the currently active page.
+### Details:
+In the Header component, use the Next.js `<Link>` component to add navigation items for Planner, Grocery, Health Docs, and Settings. Use the `usePathname` hook to conditionally apply a specific Tailwind CSS class (e.g., `font-bold`, `underline`) to the link corresponding to the current URL.
+<info added on 2025-08-05T07:52:50.986Z>
+**Implementation Notes:**
+- A `navItems` array was created to manage navigation links for: Dashboard, Planner, Grocery, Health Docs, and Settings.
+- Active link state is managed using the `usePathname` hook in conjunction with `isActiveLink()` and `getLinkClasses()` helper functions.
+- Specific Tailwind CSS classes were applied for link states:
+  - **Active:** `text-primary-600 font-semibold border-b-2 border-primary-600`
+  - **Inactive:** `text-gray-700 hover:text-primary-500`
+- The active state logic was implemented for both the desktop navigation bar and the mobile hamburger menu.
+- The mobile menu was enhanced with a click handler to automatically close after a navigation item is selected.
+- The user actions section of the header was updated with "Predict Food" and "Profile" buttons.
+</info added on 2025-08-05T07:52:50.986Z>
+
+## 4. Implement Loading Skeletons and Error Boundaries [done]
+### Dependencies: 1.1
+### Description: Add loading and error handling UI for the new pages using Next.js App Router file conventions to improve user experience during navigation and on error.
+### Details:
+In each new page directory (e.g., `/app/planner/`), create a `loading.tsx` file containing a basic skeleton component styled with Tailwind's `animate-pulse` classes. Create a single `error.tsx` file in the `app/(main)/` directory to act as a centralized error boundary for all main pages, displaying a user-friendly error message and a 'Try Again' button.
+<info added on 2025-08-05T08:28:02.242Z>
+**Implementation Summary:**
+- Created comprehensive loading skeletons for all main pages, mirroring the structure of the actual page components and using Tailwind's `animate-pulse` for the animation.
+  - `src/app/(main)/dashboard/loading.tsx`
+  - `src/app/(main)/planner/loading.tsx`
+  - `src/app/(main)/grocery/loading.tsx`
+  - `src/app/(main)/health-docs/loading.tsx`
+  - `src/app/(main)/settings/loading.tsx`
+- Implemented a single, centralized error boundary at `src/app/(main)/error.tsx` as a client component (`"use client"`).
+- The error component includes the required 'Try Again' button, plus additional user-friendly features: a 'Go to Dashboard' fallback link, development-mode error details, and contact support information.
+- Used `react-icons/fa` for consistent iconography in the error component.
+</info added on 2025-08-05T08:28:02.242Z>
+
+## 5. Refactor Placeholders with Dynamically Imported Components [done]
+### Dependencies: 1.1, 1.4
+### Description: Replace the initial placeholder content on the new pages with actual UI components that are loaded dynamically to optimize initial page load.
+### Details:
+For each page, create its main UI component (e.g., `components/planner/PlannerView.tsx`). In the corresponding `page.tsx` file, import the component using `next/dynamic`. Configure the dynamic import to be client-side only (`ssr: false`) and to use the page-specific loading skeleton created in subtask 1.4.
+<info added on 2025-08-05T08:42:32.145Z>
+The following dedicated page components have been created and placed in `/src/components/`:
+- `DashboardContent.jsx`
+- `PlannerContent.jsx`
+- `GroceryContent.jsx`
+- `HealthDocsContent.jsx`
+- `SettingsContent.jsx`
+
+All corresponding `page.jsx` files within `/src/app/(main)/` have been updated to use `next/dynamic` to import these components. The dynamic imports are configured with `ssr: false` and integrate the appropriate loading skeletons, achieving per-page code splitting and lazy loading.
+
+The resulting file structure is:
+```
+src/
+├── app/(main)/
+│   ├── dashboard/
+│   │   ├── page.jsx (dynamic import)
+│   │   └── loading.tsx (skeleton)
+│   ├── planner/
+│   │   ├── page.jsx (dynamic import)
+│   │   └── loading.tsx (skeleton)
+│   ├── grocery/
+│   │   ├── page.jsx (dynamic import)
+│   │   └── loading.tsx (skeleton)
+│   ├── health-docs/
+│   │   ├── page.jsx (dynamic import)
+│   │   └── loading.tsx (skeleton)
+│   ├── settings/
+│   │   ├── page.jsx (dynamic import)
+│   │   └── loading.tsx (skeleton)
+│   └── error.tsx (centralized error boundary)
+└── components/
+    ├── DashboardContent.jsx
+    ├── PlannerContent.jsx
+    ├── GroceryContent.jsx
+    ├── HealthDocsContent.jsx
+    └── SettingsContent.jsx
+```
+</info added on 2025-08-05T08:42:32.145Z>
+

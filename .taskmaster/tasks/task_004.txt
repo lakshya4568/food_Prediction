@@ -1,0 +1,11 @@
+# Task ID: 4
+# Title: Implement JWT-based Authentication
+# Status: pending
+# Dependencies: 3
+# Priority: medium
+# Description: Create registration and login endpoints on the Node.js server that issue JSON Web Tokens (JWTs), and secure pages/APIs.
+# Details:
+Develop `/api/auth/register` and `/api/auth/login` endpoints. Upon successful login, return a JWT and store it in a secure-http-only cookie. Implement Express middleware to verify the JWT on protected routes. Use `getServerSideProps` in Next.js to check for the cookie and redirect if unauthorized.
+
+# Test Strategy:
+Use Postman or a similar tool to hit the register and login endpoints. Verify a JWT is returned. Attempt to access a protected API endpoint without the token (should fail) and with the token (should succeed).

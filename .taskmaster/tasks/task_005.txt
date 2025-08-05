@@ -1,0 +1,43 @@
+# Task ID: 5
+# Title: Manage User Health Profile
+# Status: pending
+# Dependencies: 1, 4
+# Priority: medium
+# Description: Build API endpoints and a UI on the settings page to allow authenticated users to store, fetch, and update their health profile data.
+# Details:
+Create a `/api/profile` endpoint (PUT/GET) to handle JSON data for age, gender, allergies, etc. Build a form on the `settings.js` page to submit this data. Use the Next.js Context API to make this profile data available globally on the client-side.
+
+# Test Strategy:
+Log in as a user, navigate to the settings page, fill out and submit the profile form. Refresh the page or navigate away and back to confirm the data has been saved and is displayed correctly.
+
+# Subtasks:
+## 1. Create Backend API Endpoints for Health Profile [pending]
+### Dependencies: None
+### Description: Develop the Node.js API routes at `/api/profile` to handle fetching (GET) and updating (PUT) a user's health profile data. This includes defining the database schema for the profile and implementing the logic to store/retrieve it.
+### Details:
+Implement two Express route handlers: `GET /api/profile` to retrieve the current user's profile and `PUT /api/profile` to create or update it. The PUT handler should validate the incoming JSON data (age, gender, allergies). Initially, this can be developed without authentication.
+
+## 2. Secure Profile API Endpoints with JWT Authentication [pending]
+### Dependencies: 5.1
+### Description: Integrate the JWT authentication middleware (from Task 4) to protect the `/api/profile` endpoints, ensuring only the authenticated user can access and modify their own data.
+### Details:
+Apply the JWT verification middleware to the profile route group. Modify the route handlers to extract the `userId` from the decoded JWT payload and use it in database queries, replacing any hardcoded user IDs.
+
+## 3. Build the Health Profile Form UI on Settings Page [pending]
+### Dependencies: None
+### Description: Develop the user interface for the health profile form within the `settings.js` Next.js page. The form should include input fields for age, gender, allergies, and other relevant health data.
+### Details:
+Using reusable components (from Task 2) and Tailwind CSS, build a responsive form. Include fields like a number input for age, a select dropdown for gender, and a text area for allergies. Add a submit button and elements for user feedback (e.g., success/error messages).
+
+## 4. Implement Client-Side Logic for Form Data Handling [pending]
+### Dependencies: 5.2, 5.3
+### Description: Write the client-side JavaScript in `settings.js` to connect the UI form to the backend API. This includes fetching existing data to populate the form and handling the submission of new data.
+### Details:
+Use a `useEffect` hook to call the `GET /api/profile` endpoint when the component mounts and use the response to set the form's initial state. Create an `onSubmit` handler that sends a `PUT` request with the form data to `/api/profile`.
+
+## 5. Create and Integrate a Global Profile Context [pending]
+### Dependencies: 5.2
+### Description: Implement a React Context using the Next.js Context API to store the user's health profile data globally, making it accessible to other components without re-fetching.
+### Details:
+Create a `ProfileContext.js` file with a `ProfileProvider` component. This provider will fetch data from `GET /api/profile` and make it available. Wrap the main `_app.js` layout with this provider. Create a `useProfile` custom hook for easy consumption.
+

@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Develop Health Rating System
+# Status: pending
+# Dependencies: 5, 6
+# Priority: low
+# Description: Implement a backend service to calculate a health rating (A-E) for meals based on their nutritional data and the user's health profile.
+# Details:
+Create a Node.js endpoint `/api/rating` that accepts nutritional data and a user ID. The logic should score the food against the user's goals (from their profile) and return a grade. Display this grade as a colored badge in the UI.
+
+# Test Strategy:
+Call the `/api/rating` endpoint with sample meal data for two different user profiles (e.g., one with a low-sodium goal). Verify the returned rating is different and appropriate for each profile.

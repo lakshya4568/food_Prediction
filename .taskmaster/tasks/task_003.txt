@@ -1,0 +1,11 @@
+# Task ID: 3
+# Title: Setup Node.js Backend & Postgres Database
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Initialize a new Node.js/Express server to handle non-ML backend logic and connect it to a local Postgres database with the required schema.
+# Details:
+Create a `server.js` file for the Express app. Establish a connection to a local Postgres instance (e.g., `postgresql://localhost/nutrivision`). Define and create the `users` and `meals` tables as specified in the PRD.
+
+# Test Strategy:
+Start the Node.js server and confirm it connects to the database without errors. Use a database client to verify that the `users` and `meals` tables have been created with the correct columns.
