@@ -1,0 +1,141 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Next.js Frontend & Multi-Page Routing",
+        "description": "Initialize the Next.js project with Tailwind CSS and create the main page structure for the application as specified in the PRD.",
+        "details": "Create core pages in `/pages`: `dashboard.js`, `planner.js`, `grocery.js`, `health-docs.js`, and `settings.js`. Implement basic navigation between them. Use Next.js `dynamic` imports for components and add loading skeletons with Tailwind placeholders.",
+        "testStrategy": "Run `npm run dev` and verify that all created pages are accessible via browser navigation and that clicking links between them works correctly. Check for loading skeletons on slow component loads.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Build Modern UI Components",
+        "description": "Develop reusable UI components like cards, buttons, and a file upload zone using Tailwind CSS to establish the application's visual style.",
+        "details": "Style components with Tailwind utility classes, including gradients (e.g., `bg-gradient-to-r`), shadows, and transitions. Implement a drag-and-drop file upload zone with visual feedback and a progress bar.",
+        "testStrategy": "Create a test page or use Storybook to render and visually inspect all components. Verify hover effects and that the file upload zone responds to drag events.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Setup Node.js Backend & Postgres Database",
+        "description": "Initialize a new Node.js/Express server to handle non-ML backend logic and connect it to a local Postgres database with the required schema.",
+        "details": "Create a `server.js` file for the Express app. Establish a connection to a local Postgres instance (e.g., `postgresql://localhost/nutrivision`). Define and create the `users` and `meals` tables as specified in the PRD.",
+        "testStrategy": "Start the Node.js server and confirm it connects to the database without errors. Use a database client to verify that the `users` and `meals` tables have been created with the correct columns.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Implement JWT-based Authentication",
+        "description": "Create registration and login endpoints on the Node.js server that issue JSON Web Tokens (JWTs), and secure pages/APIs.",
+        "details": "Develop `/api/auth/register` and `/api/auth/login` endpoints. Upon successful login, return a JWT and store it in a secure-http-only cookie. Implement Express middleware to verify the JWT on protected routes. Use `getServerSideProps` in Next.js to check for the cookie and redirect if unauthorized.",
+        "testStrategy": "Use Postman or a similar tool to hit the register and login endpoints. Verify a JWT is returned. Attempt to access a protected API endpoint without the token (should fail) and with the token (should succeed).",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Manage User Health Profile",
+        "description": "Build API endpoints and a UI on the settings page to allow authenticated users to store, fetch, and update their health profile data.",
+        "details": "Create a `/api/profile` endpoint (PUT/GET) to handle JSON data for age, gender, allergies, etc. Build a form on the `settings.js` page to submit this data. Use the Next.js Context API to make this profile data available globally on the client-side.",
+        "testStrategy": "Log in as a user, navigate to the settings page, fill out and submit the profile form. Refresh the page or navigate away and back to confirm the data has been saved and is displayed correctly.",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Integrate Nutrition Lookup via USDA API",
+        "description": "Create a Node.js endpoint to fetch nutritional data from the free USDA API and display it in the UI after a food is identified by the Flask service.",
+        "details": "Implement a Node.js endpoint `/api/nutri` that takes a food name, queries the USDA API, and returns a normalized JSON object. In the frontend, after receiving a prediction from Flask, call this endpoint and display the nutrition data in a UI card.",
+        "testStrategy": "Manually call the `/api/nutri` endpoint with a food name like 'apple' and verify it returns structured nutritional data. In the UI, simulate a prediction and ensure the subsequent call to the nutrition endpoint populates the UI correctly.",
+        "priority": "low",
+        "dependencies": [
+          2,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Develop Health Rating System",
+        "description": "Implement a backend service to calculate a health rating (A-E) for meals based on their nutritional data and the user's health profile.",
+        "details": "Create a Node.js endpoint `/api/rating` that accepts nutritional data and a user ID. The logic should score the food against the user's goals (from their profile) and return a grade. Display this grade as a colored badge in the UI.",
+        "testStrategy": "Call the `/api/rating` endpoint with sample meal data for two different user profiles (e.g., one with a low-sodium goal). Verify the returned rating is different and appropriate for each profile.",
+        "priority": "low",
+        "dependencies": [
+          5,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Medical Document Uploader and Parser",
+        "description": "Allow users to upload medical documents, perform client-side OCR, and use Gemini to extract structured data.",
+        "details": "On the `health-docs` page, use Tesseract.js for client-side OCR on uploaded PDF/PNG files. Send the extracted text to a Node.js endpoint `/api/upload-doc`, which then calls the Gemini API for parsing. Store the resulting JSON in the user's profile and display it.",
+        "testStrategy": "Upload a sample medical document (e.g., a lab result PDF). Verify that the OCR text is generated and that the `health-docs` page displays structured data (e.g., diagnoses, medications) returned from the backend.",
+        "priority": "low",
+        "dependencies": [
+          2,
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Create Grocery List Generator",
+        "description": "Build a feature that aggregates ingredients from a user's saved meals and generates a consolidated grocery list.",
+        "details": "Create a Node.js endpoint `/api/grocery` that queries the `meals` table for a given user, aggregates all ingredients, and optimizes units. On the `grocery.js` page, add a button to trigger this generation and display the list, with an option to export as text.",
+        "testStrategy": "Add several meals for a user. Navigate to the grocery page and click the generate button. Verify the output list correctly aggregates ingredients from all the meals (e.g., '100g rice' + '150g rice' becomes '250g rice').",
+        "priority": "low",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement Micro-Interactions & Accessibility",
+        "description": "Enhance user experience with animations for loading states and feedback, while ensuring basic accessibility standards are met.",
+        "details": "Use Tailwind's `animate-pulse` for loading skeletons during data fetches. Implement toast notifications for success/error messages. Add ARIA attributes to interactive elements like forms and buttons. Ensure logical tab navigation.",
+        "testStrategy": "Trigger a data fetch and verify a loading animation appears. Test that form submissions show a success/error toast. Use a keyboard to navigate through a page and ensure all interactive elements are focusable in a logical order.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-05T04:02:20.857Z",
+      "updated": "2025-08-05T04:02:20.857Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

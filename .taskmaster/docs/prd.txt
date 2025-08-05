@@ -1,0 +1,112 @@
+Project is now Next.js with Tailwind CSS for that modern, server-rendered vibe. We'll keep the backend split: Flask (app.py) strictly for food image prediction (your core ViT model), and a new lightweight Node.js/Express server for everything else (auth, DB ops, nutrition APIs). This hybrid setup is common for AI apps—Python for ML, JS for scalable web logic. Free APIs only (USDA for nutrition). Prioritizing **UI tasks first** for quick prototypes, then **local Postgres DB with auth**, and finally **core features**. Goal: Deliver at least **5 working features** (e.g., multi-page routing, nutrition lookup, health ratings, doc parsing, grocery generator) with simple, clean UI and seamless backend calls via Fetch.
+
+## Division 1: UI-Focused Tasks (Priority: High – Build Visible Wins First)
+Leverage Next.js pages/api for routing and SSR, Tailwind for styling (gradients, responsive grids). Focus on mobile-first with micro-interactions like hover effects.
+
+### Task 1.1: Set Up Multi-Page Routing (P0)
+- Create core pages in `/pages` directory.
+  - Add `dashboard.js` for user overview (show recent meals).
+  - Add `planner.js` for meal scheduling.
+  - Add `grocery.js` for lists.
+  - Add `health-docs.js` for uploads.
+  - Add `settings.js` for profile edits.
+- Enable dynamic loading.
+  - Use Next.js `dynamic` imports for lazy components.
+  - Add loading skeletons with Tailwind placeholders (e.g., gray shimmer divs).
+
+### Task 1.2: Design Modern UI Components (P0)
+- Build reusable elements.
+  - Style cards/buttons with Tailwind: gradients (e.g., `bg-gradient-to-r from-primary-500 to-success-500`) and shadows.
+  - Add simple animations via CSS (Tailwind `transition-all` for scale on hover).
+- Implement file upload UI.
+  - Drag-and-drop zone with Tailwind borders and fade-in feedback.
+  - Show progress with a linear bar (Tailwind `bg-success-500 w-[percentage]`).
+
+### Task 1.3: Add Micro-Interactions & Feedback (P1)
+- Animate interactions.
+  - Use Tailwind for loaders (e.g., `animate-pulse` on gray blocks during fetches).
+  - Add toasts as simple modals with `fade-in` transitions.
+- Ensure basic accessibility.
+  - Add ARIA attributes to forms/buttons.
+  - Test tab navigation on pages.
+
+## Division 2: Local Postgres DB & Authentication Tasks (Priority: Medium – Secure Data Next)
+Use Node.js/Express for these endpoints (run alongside Flask). Connect to local Postgres with `pg` npm package. Basic auth via JWT (no complex security).
+
+### Task 2.1: Set Up Node.js Backend & Postgres (P0)
+- Initialize Express server.
+  - Create `server.js` with routes for non-prediction tasks.
+  - Connect to local Postgres (e.g., `postgresql://localhost/nutrivision` via env vars).
+- Define DB schema.
+  - `users` table: id, email, password_hash, profile_json (for health data).
+  - `meals` table: user_id, food_data_json.
+
+### Task 2.2: Basic Authentication (P0)
+- Add auth endpoints.
+  - `/api/auth/register` and `/api/auth/login` returning JWT.
+  - Store token in cookies (Next.js `cookies` helper) for SSR safety.
+- Secure pages and APIs.
+  - Middleware in Express to verify JWT.
+  - In Next.js, use `getServerSideProps` to check auth and redirect.
+
+### Task 2.3: Store & Fetch User Health Context (P1)
+- Handle profile storage.
+  - Endpoint `/api/profile` to save/fetch age, gender, allergies as JSON.
+  - Update via form on `settings` page.
+- Share globally.
+  - Use Next.js Context API to provide profile data across pages.
+
+## Division 3: Core Feature Tasks (Priority: Low – Enhance with AI & Integrations Last)
+Chain Flask's prediction (/predict) to Node.js endpoints for nutrition/health logic. Use Fetch for frontend-backend calls. Ensure 5 working features: 1) Routed pages, 2) Nutrition data display, 3) Health ratings, 4) Doc upload/parse, 5) Grocery list gen.
+
+### Task 3.1: Nutrition API Integration (P0)
+- Fetch from free USDA API.
+  - Node endpoint `/api/nutri` queries USDA by food name, returns macros/micros JSON.
+  - Normalize: `{calories, protein, ...}`.
+- Chain with prediction.
+  - After calling Flask `/predict`, fetch `/api/nutri` in sequence.
+  - Display in UI as a card with Tailwind progress bars (color-coded green/red).
+
+### Task 3.2: Health Rating System (P1)
+- Simple logic in Node.
+  - Endpoint `/api/rating`: Score based on macros vs. user goals (A-E grade JSON).
+  - Factor in profile (e.g., low-sodium for hypertension).
+- UI integration.
+  - Show badges on meal views (Tailwind `rounded-full bg-[grade-color]`).
+  - Fetch in `getServerSideProps` for SSR.
+
+### Task 3.3: Medical Document Uploader & Parser (P0)
+- Upload handling.
+  - Node endpoint `/api/upload-doc` for PDF/PNG (limit 10MB).
+  - Use Tesseract.js (free WASM) on client for OCR.
+- Parse with Gemini.
+  - Send text to Gemini API via Node for structured JSON (e.g., `{diagnoses: [], meds: []}`).
+  - Save to user profile in DB.
+- Display results.
+  - List view on `health-docs` page with Tailwind icons and cards.
+
+### Task 3.4: Grocery List Generator (P1)
+- Aggregate in Node.
+  - Endpoint `/api/grocery`: Pull user meals from DB, group ingredients.
+  - Optimize units (e.g., "500g rice").
+- UI features.
+  - Generate button on `grocery` page.
+  - Export as plain text/JSON with a download link.
+
+### Task 3.5: Offline Support & Global Context (P2)
+- Basic caching.
+  - Use localStorage for recent profiles/meals.
+  - Queue failed fetches (simple JS array) for retry.
+- Apply health context.
+  - Inject profile into all Node API calls.
+  - Adapt ratings/suggestions based on parsed docs.
+
+## Next Steps for You (As a 2nd-Year Student)
+- **Start with UI**: Scaffold Next.js pages and style with Tailwind—run `npm run dev` to see changes live.
+- **Backend Setup**: Keep Flask for prediction; add Node server (`node server.js`) for new endpoints. Test with Postman.
+- **5 Working Features by End**: 1) Multi-page routing, 2) Nutrition display from USDA, 3) Health grade badges, 4) Doc upload + Gemini parse, 5) Grocery list export.
+- **Tools Tip**: Use VS Code extensions for Next.js/Tailwind. Git commit often. If stuck on hybrid backend, proxy Node to call Flask internally.
+
+This keeps it straightforward, modern, and focused—hit me up for code snippets!
+
+Sources
