@@ -10,10 +10,10 @@ import {
   FaAppleAlt,
 } from "react-icons/fa";
 import Image from "next/image";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 
-const API_BASE_URL = "https://0e25-122-162-150-93.ngrok-free.app/";
+const API_BASE_URL = "http://localhost:5001/";
 
 export default function PredictPage() {
   // Theme state ('light' or 'dark')

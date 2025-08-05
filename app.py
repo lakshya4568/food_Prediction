@@ -6,30 +6,31 @@ from torchvision import models
 from PIL import Image
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import google.generativeai as genai
-import json # Although not strictly needed for this change, good practice if handling complex JSON later
+from google import genai
+from google.genai import types
+import json
 
 from pyngrok import ngrok, conf
 
 conf.get_default().auth_token = "2vuIkaBHuxB8IsBgWa1DfgFvSsO_5ninjhmiKtmfsn4xWADxL"
 
-
 app = Flask(__name__)
 CORS(app)  # Enable CORS to allow cross-origin requests from React frontend
 
-# Configure Gemini API
-# IMPORTANT: Set the GEMINI_API_KEY environment variable before running the app
-# For development/testing, we can use the key provided, but env var is safer
-# os.environ['GEMINI_API_KEY'] = 'YOUR_API_KEY_HERE' # Replace if needed
+# Configure Gemini API using the latest SDK
 try:
-    # Use the key provided by the user directly for now
-    GEMINI_API_KEY = ""
-    genai.configure(api_key=GEMINI_API_KEY)
-    gemini_model = genai.GenerativeModel('gemini-2.0-flash')
-    print("Gemini API configured successfully.")
+    # Load API key from environment variable
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+    if not GEMINI_API_KEY:
+        # Fallback to hardcoded key for development
+        GEMINI_API_KEY = "AIzaSyAVW5TowZmCfSDoY5nygIB9iPiG-plnWXQ"
+    
+    # Initialize the new Gemini client using latest SDK
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    print("✅ Gemini API configured successfully with new SDK.")
 except Exception as e:
-    print(f"Error configuring Gemini API: {e}")
-    gemini_model = None
+    print(f"❌ Error configuring Gemini API: {e}")
+    client = None
 
 # Load the pretrained ViT model
 def load_model():
@@ -41,7 +42,7 @@ def load_model():
     model.heads = torch.nn.Linear(in_features=768, out_features=3)
     
     # Load saved model weights if they exist (replace with your saved model path)
-    model_path = 'models/pretrained.pth'
+    model_path = 'models/pretrained_vit_food_model.pth'
     if os.path.exists(model_path):
         try:
             model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
@@ -105,7 +106,7 @@ def predict():
 
 @app.route('/get_health_info', methods=['POST'])
 def get_health_info():
-    if not gemini_model:
+    if not client:
         return jsonify({'error': 'Gemini API not configured'}), 500
 
     data = request.get_json()
@@ -144,16 +145,19 @@ Example JSON output:
 """
 
     try:
-        response = gemini_model.generate_content(prompt)
+        # Use the new Gemini API client
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type='application/json',
+                max_output_tokens=500,
+                temperature=0.3,
+            )
+        )
         
-        # Attempt to parse the response text as JSON
-        # Gemini might sometimes add markdown backticks or other text
+        # Parse the JSON response
         response_text = response.text.strip()
-        if response_text.startswith("```json"):
-            response_text = response_text[7:]
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
-        
         response_json = json.loads(response_text)
 
         if 'health_benefits' not in response_json or 'recommendation' not in response_json:
@@ -175,18 +179,11 @@ def health_check():
     return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
-    # Set up ngrok tunnel to expose the Flask app to the internet
-    # This will generate a public URL that routes to your local Flask server
-    import subprocess
-    import platform
+    print("🚀 Starting Flask backend for NutriVision AI...")
+    print("📍 Flask API will be running at: http://localhost:5000")
+    print("🌐 Frontend should be running at: http://localhost:3000")
+    print("🔗 Make sure frontend API_BASE_URL points to: http://localhost:5000/")
+    print("✅ CORS enabled for cross-origin requests")
     
-    if platform.system() == "Windows":
-        subprocess.run(['taskkill', '/F', '/IM', 'ngrok.exe'], capture_output=True, shell=True)
-    else:
-        subprocess.run(['pkill', 'ngrok'], capture_output=True, shell=True)
-        
-    
-    public_url = ngrok.connect(5000)
-    print(f"* Flask API is publicly accessible at: {public_url}")
-    
-    app.run(host='0.0.0.0', port=5000, debug=True)  # Run the Flask app on port 5000
+    # Run the Flask app on port 5000
+    app.run(host='0.0.0.0', port=5001, debug=True)
