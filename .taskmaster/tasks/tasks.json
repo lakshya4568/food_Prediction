@@ -9,8 +9,63 @@
         "testStrategy": "Run `npm run dev` and verify that all created pages are accessible via browser navigation and that clicking links between them works correctly. Check for loading skeletons on slow component loads.",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
-        "subtasks": []
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create App Router Page Structures for New Pages",
+            "description": "Create the folder and file structure for the missing pages (Planner, Grocery, Health Docs, Settings) using the Next.js App Router conventions.",
+            "dependencies": [],
+            "details": "For each new section, create a directory inside `/app` (e.g., `/app/planner/`, `/app/grocery/`, etc.). Inside each directory, create a `page.tsx` file with a basic placeholder React component that renders a unique heading (e.g., `<h1>Planner Page</h1>`).\n<info added on 2025-08-05T06:05:38.655Z>\n---\n**USER UPDATE: Subtask 1.1 Completed**\n\n**Implementation Summary:**\n- Created four complete page structures in the `/app` directory: `/planner`, `/grocery`, `/health-docs`, and `/settings`.\n- Instead of basic placeholders, each page was built as a functional React component with a consistent layout (Header, main content, Footer), `use client` directives, and a comprehensive UI featuring mock data and interactive elements styled with TailwindCSS.\n\n**Testing:**\n- All new routes are accessible and render without errors on the development server.\n\n**Next Steps:**\n- Ready to proceed to subtask 1.2 (Implement Consistent Page Layout), noting that much of this work has already been done as part of this subtask's implementation.\n</info added on 2025-08-05T06:05:38.655Z>",
+            "status": "done",
+            "testStrategy": "Run `npm run dev` and manually navigate to `/planner`, `/grocery`, `/health-docs`, and `/settings` in the browser to verify that each route loads its corresponding placeholder page."
+          },
+          {
+            "id": 2,
+            "title": "Implement Consistent Page Layout",
+            "description": "Create a shared layout component to wrap the main application pages, ensuring a consistent header, footer, and content area styling across all new and existing pages.",
+            "dependencies": [
+              "1.1"
+            ],
+            "details": "Create a route group `(main)` in the `/app` directory. Move the existing `dashboard` page and the new page directories from subtask 1.1 into `/app/(main)/`. Create a `layout.tsx` in `/app/(main)/` that imports and renders the shared Header and Footer components, with the `{children}` prop rendered in a main content container styled with Tailwind CSS for consistent padding and max-width.",
+            "status": "in-progress",
+            "testStrategy": "Navigate between `/dashboard`, `/planner`, and `/grocery`. Verify that the header, footer, and main content styling are identical on all pages."
+          },
+          {
+            "id": 3,
+            "title": "Update Header with Active Navigation Links",
+            "description": "Modify the existing Header component to include navigation links to all main pages and visually indicate the currently active page.",
+            "dependencies": [
+              "1.1"
+            ],
+            "details": "In the Header component, use the Next.js `<Link>` component to add navigation items for Planner, Grocery, Health Docs, and Settings. Use the `usePathname` hook to conditionally apply a specific Tailwind CSS class (e.g., `font-bold`, `underline`) to the link corresponding to the current URL.",
+            "status": "pending",
+            "testStrategy": "Click each link in the header and confirm it navigates to the correct page without a full page reload. Verify that the style of the link for the active page is visually distinct from the others."
+          },
+          {
+            "id": 4,
+            "title": "Implement Loading Skeletons and Error Boundaries",
+            "description": "Add loading and error handling UI for the new pages using Next.js App Router file conventions to improve user experience during navigation and on error.",
+            "dependencies": [
+              "1.1"
+            ],
+            "details": "In each new page directory (e.g., `/app/planner/`), create a `loading.tsx` file containing a basic skeleton component styled with Tailwind's `animate-pulse` classes. Create a single `error.tsx` file in the `app/(main)/` directory to act as a centralized error boundary for all main pages, displaying a user-friendly error message and a 'Try Again' button.",
+            "status": "pending",
+            "testStrategy": "Simulate a delay in a page component to verify its loading skeleton appears. Intentionally throw an error from a page component to verify the shared error boundary UI is rendered correctly."
+          },
+          {
+            "id": 5,
+            "title": "Refactor Placeholders with Dynamically Imported Components",
+            "description": "Replace the initial placeholder content on the new pages with actual UI components that are loaded dynamically to optimize initial page load.",
+            "dependencies": [
+              "1.1",
+              "1.4"
+            ],
+            "details": "For each page, create its main UI component (e.g., `components/planner/PlannerView.tsx`). In the corresponding `page.tsx` file, import the component using `next/dynamic`. Configure the dynamic import to be client-side only (`ssr: false`) and to use the page-specific loading skeleton created in subtask 1.4.",
+            "status": "pending",
+            "testStrategy": "Using browser developer tools, check the Network tab to confirm that the JavaScript for a specific page's component is only fetched upon navigating to that page. The loading skeleton should be visible briefly before the main component appears."
+          }
+        ]
       },
       {
         "id": 2,
@@ -23,7 +78,58 @@
           1
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Reusable Button Component",
+            "description": "Develop a primary, reusable button component styled with Tailwind CSS, including all interactive states.",
+            "dependencies": [],
+            "details": "Implement the button using Tailwind utility classes. It must feature a gradient background (`bg-gradient-to-r`), a subtle shadow, and smooth transitions for `hover` and `active` states. Ensure a disabled state is also styled.",
+            "status": "pending",
+            "testStrategy": "Render the button in various states (default, hover, active, disabled) on a test page or in Storybook to visually verify the styles and transitions."
+          },
+          {
+            "id": 2,
+            "title": "Build a Versatile Card Component",
+            "description": "Construct a reusable card component for displaying content, styled with modern aesthetics using Tailwind CSS.",
+            "dependencies": [],
+            "details": "Design a flexible card layout with rounded corners, shadows, and appropriate padding. The structure should be generic enough to hold various content types, such as text, lists, or other components.",
+            "status": "pending",
+            "testStrategy": "Populate the card component with sample data on a test page/Storybook to ensure the layout is clean, responsive, and visually appealing."
+          },
+          {
+            "id": 3,
+            "title": "Implement Drag-and-Drop Zone UI and Event Handling",
+            "description": "Create the UI for the file upload zone and implement the client-side logic to handle drag-and-drop events with visual feedback.",
+            "dependencies": [],
+            "details": "Build the drop zone layout with instructive text. Use JavaScript to listen for `dragenter`, `dragleave`, and `drop` events. Apply conditional Tailwind classes to change the border style or background color when a file is dragged over the area.",
+            "status": "pending",
+            "testStrategy": "Drag a file over the component to verify the visual feedback appears. Drop a file and confirm the `drop` event is captured by logging the file details to the console."
+          },
+          {
+            "id": 4,
+            "title": "Develop File Upload Progress Bar",
+            "description": "Create a dynamic progress bar component to provide visual feedback during a file upload.",
+            "dependencies": [],
+            "details": "Style a progress bar component using Tailwind CSS. It should consist of an outer container and an inner bar whose width is controlled by a prop (e.g., a percentage value). This component will be placed within the file upload zone.",
+            "status": "pending",
+            "testStrategy": "Render the progress bar component independently and pass different percentage values (e.g., 0, 50, 100) to it, verifying its width updates correctly."
+          },
+          {
+            "id": 5,
+            "title": "Assemble and Test Components on a Showcase Page",
+            "description": "Integrate all created UI components onto a single showcase page or Storybook to verify their appearance and functionality together.",
+            "dependencies": [
+              "2.1",
+              "2.2",
+              "2.3",
+              "2.4"
+            ],
+            "details": "Create a new page/route to display the button, card, and the complete file upload zone (including the progress bar). This page will serve as the final visual review and testing ground for the components.",
+            "status": "pending",
+            "testStrategy": "Load the showcase page. Verify all components render correctly. Test button hover effects and the drag-and-drop functionality of the upload zone to ensure all parts work as intended."
+          }
+        ]
       },
       {
         "id": 3,
@@ -61,7 +167,60 @@
           4
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Backend API Endpoints for Health Profile",
+            "description": "Develop the Node.js API routes at `/api/profile` to handle fetching (GET) and updating (PUT) a user's health profile data. This includes defining the database schema for the profile and implementing the logic to store/retrieve it.",
+            "dependencies": [],
+            "details": "Implement two Express route handlers: `GET /api/profile` to retrieve the current user's profile and `PUT /api/profile` to create or update it. The PUT handler should validate the incoming JSON data (age, gender, allergies). Initially, this can be developed without authentication.",
+            "status": "pending",
+            "testStrategy": "Use Postman or a similar tool to send GET and PUT requests to the endpoints with a hardcoded user ID to verify that data is saved and retrieved correctly from the database."
+          },
+          {
+            "id": 2,
+            "title": "Secure Profile API Endpoints with JWT Authentication",
+            "description": "Integrate the JWT authentication middleware (from Task 4) to protect the `/api/profile` endpoints, ensuring only the authenticated user can access and modify their own data.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Apply the JWT verification middleware to the profile route group. Modify the route handlers to extract the `userId` from the decoded JWT payload and use it in database queries, replacing any hardcoded user IDs.",
+            "status": "pending",
+            "testStrategy": "Attempt to access the endpoints without a valid JWT (expect 401 Unauthorized). Then, use a valid JWT from the login endpoint to successfully GET and PUT data, verifying the action is tied to the correct user."
+          },
+          {
+            "id": 3,
+            "title": "Build the Health Profile Form UI on Settings Page",
+            "description": "Develop the user interface for the health profile form within the `settings.js` Next.js page. The form should include input fields for age, gender, allergies, and other relevant health data.",
+            "dependencies": [],
+            "details": "Using reusable components (from Task 2) and Tailwind CSS, build a responsive form. Include fields like a number input for age, a select dropdown for gender, and a text area for allergies. Add a submit button and elements for user feedback (e.g., success/error messages).",
+            "status": "pending",
+            "testStrategy": "Render the `settings.js` page and visually inspect the form on different screen sizes. Verify all form elements are present, styled correctly, and responsive."
+          },
+          {
+            "id": 4,
+            "title": "Implement Client-Side Logic for Form Data Handling",
+            "description": "Write the client-side JavaScript in `settings.js` to connect the UI form to the backend API. This includes fetching existing data to populate the form and handling the submission of new data.",
+            "dependencies": [
+              "5.2",
+              "5.3"
+            ],
+            "details": "Use a `useEffect` hook to call the `GET /api/profile` endpoint when the component mounts and use the response to set the form's initial state. Create an `onSubmit` handler that sends a `PUT` request with the form data to `/api/profile`.",
+            "status": "pending",
+            "testStrategy": "Log in and navigate to the settings page. Verify the form is pre-filled with the user's data. Update the data, submit the form, and refresh the page to confirm the new data persists."
+          },
+          {
+            "id": 5,
+            "title": "Create and Integrate a Global Profile Context",
+            "description": "Implement a React Context using the Next.js Context API to store the user's health profile data globally, making it accessible to other components without re-fetching.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Create a `ProfileContext.js` file with a `ProfileProvider` component. This provider will fetch data from `GET /api/profile` and make it available. Wrap the main `_app.js` layout with this provider. Create a `useProfile` custom hook for easy consumption.",
+            "status": "pending",
+            "testStrategy": "After logging in, verify that a separate component (e.g., the main dashboard) can access the profile data using the `useProfile` hook. Update the profile on the settings page and confirm the context value updates globally without a page refresh."
+          }
+        ]
       },
       {
         "id": 6,
@@ -134,7 +293,7 @@
     ],
     "metadata": {
       "created": "2025-08-05T04:02:20.857Z",
-      "updated": "2025-08-05T04:02:20.857Z",
+      "updated": "2025-08-05T06:09:04.725Z",
       "description": "Tasks for master context"
     }
   }
