@@ -118,6 +118,7 @@ const Button = forwardRef(
         type={type}
         className={buttonClasses}
         disabled={disabled || loading}
+        aria-disabled={disabled || loading}
         onClick={onClick}
         {...props}
       >
@@ -127,6 +128,7 @@ const Button = forwardRef(
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
+            aria-live="polite"
           >
             <circle
               className="opacity-25"

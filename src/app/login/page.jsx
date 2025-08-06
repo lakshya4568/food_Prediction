@@ -164,9 +164,10 @@ function LoginForm() {
                       errors.firstName ? "border-red-300" : "border-gray-300"
                     }`}
                     placeholder="John"
+                    aria-describedby={errors.firstName ? "firstName-error" : undefined}
                   />
                   {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-600" id="firstName-error">
                       {errors.firstName}
                     </p>
                   )}
@@ -188,9 +189,10 @@ function LoginForm() {
                       errors.lastName ? "border-red-300" : "border-gray-300"
                     }`}
                     placeholder="Doe"
+                    aria-describedby={errors.lastName ? "lastName-error" : undefined}
                   />
                   {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-600" id="lastName-error">
                       {errors.lastName}
                     </p>
                   )}
@@ -215,9 +217,12 @@ function LoginForm() {
                   errors.email ? "border-red-300" : "border-gray-300"
                 }`}
                 placeholder="your@email.com"
+                aria-describedby={errors.email ? "email-error" : undefined}
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className="mt-1 text-sm text-red-600" id="email-error">
+                  {errors.email}
+                </p>
               )}
             </div>
 
@@ -239,11 +244,13 @@ function LoginForm() {
                     errors.password ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter your password"
+                  aria-describedby={errors.password ? "password-error" : undefined}
                 />
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <FaEyeSlash className="h-4 w-4 text-gray-400" />
@@ -253,16 +260,25 @@ function LoginForm() {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className="mt-1 text-sm text-red-600" id="password-error">
+                  {errors.password}
+                </p>
               )}
 
               {isSignup && formData.password && (
-                <div className="mt-2">
+                <div className="mt-2" aria-live="polite">
                   <div className="flex justify-between text-xs text-gray-600 mb-1">
                     <span>Password strength:</span>
                     <span>{getPasswordStrengthText()}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="w-full bg-gray-200 rounded-full h-2"
+                    role="progressbar"
+                    aria-valuenow={passwordStrength}
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-label={`Password strength: ${getPasswordStrengthText()}`}
+                  >
                     <div
                       className={`h-2 rounded-full transition-all duration-300 ${getPasswordStrengthColor()}`}
                       style={{ width: `${passwordStrength}%` }}
@@ -293,11 +309,17 @@ function LoginForm() {
                         : "border-gray-300"
                     }`}
                     placeholder="Confirm your password"
+                    aria-describedby={
+                      errors.confirmPassword ? "confirmPassword-error" : undefined
+                    }
                   />
                   <button
                     type="button"
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showConfirmPassword ? (
                       <FaEyeSlash className="h-4 w-4 text-gray-400" />
@@ -307,7 +329,10 @@ function LoginForm() {
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p
+                    className="mt-1 text-sm text-red-600"
+                    id="confirmPassword-error"
+                  >
                     {errors.confirmPassword}
                   </p>
                 )}
@@ -323,6 +348,9 @@ function LoginForm() {
                   checked={formData.acceptTerms}
                   onChange={handleInputChange}
                   className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  aria-describedby={
+                    errors.acceptTerms ? "acceptTerms-error" : undefined
+                  }
                 />
                 <label
                   htmlFor="acceptTerms"
@@ -346,7 +374,9 @@ function LoginForm() {
               </div>
             )}
             {errors.acceptTerms && (
-              <p className="text-sm text-red-600">{errors.acceptTerms}</p>
+              <p className="text-sm text-red-600" id="acceptTerms-error">
+                {errors.acceptTerms}
+              </p>
             )}
 
             {errors.submit && (
@@ -377,13 +407,22 @@ function LoginForm() {
             </div>
 
             <div className="mt-6 grid grid-cols-3 gap-3">
-              <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <button
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                aria-label="Continue with Google"
+              >
                 <FaGoogle className="h-4 w-4 text-red-500" />
               </button>
-              <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <button
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                aria-label="Continue with Facebook"
+              >
                 <FaFacebook className="h-4 w-4 text-blue-600" />
               </button>
-              <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <button
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                aria-label="Continue with Apple"
+              >
                 <FaAppleAlt className="h-4 w-4 text-black" />
               </button>
             </div>

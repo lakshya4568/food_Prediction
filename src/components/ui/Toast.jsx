@@ -72,6 +72,8 @@ export const Toast = React.forwardRef(
     return (
       <div
         ref={ref}
+        role={variant === "error" ? "alert" : "status"}
+        aria-live="assertive"
         className={cn(
           "relative flex w-full max-w-sm items-start space-x-3 rounded-lg border p-4 shadow-lg",
           "animate-in slide-in-from-top-full data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-full",
@@ -159,6 +161,7 @@ export const ToastContainer = ({
 
   return (
     <div
+      aria-live="polite"
       className={cn(
         "fixed z-[100] flex flex-col space-y-2 pointer-events-none",
         positionClasses,

@@ -191,6 +191,17 @@ const FileUploadZone = ({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          handleClick();
+        }
+      }}
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-label={
+        props["aria-label"] || "File upload zone"
+      }
+      aria-describedby={error ? "file-upload-error" : undefined}
       {...props}
     >
       <input
@@ -262,7 +273,10 @@ const FileUploadZone = ({
 
           {/* Error Message */}
           {error && (
-            <div className="mt-4 p-3 bg-red-100 border border-red-300 rounded-md dark:bg-red-900/20 dark:border-red-700">
+            <div
+              id="file-upload-error"
+              className="mt-4 p-3 bg-red-100 border border-red-300 rounded-md dark:bg-red-900/20 dark:border-red-700"
+            >
               <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
