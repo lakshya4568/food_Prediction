@@ -108,6 +108,7 @@ NutriVision utilizes two primary AI components:
 ## 🛠 Tech Stack
 
 ### Backend
+
 - **Python**: Core programming language
 - **Flask**: Web framework
 - **PyTorch**: Deep learning framework
@@ -116,6 +117,7 @@ NutriVision utilizes two primary AI components:
 - **Google Generative AI**: Nutritional analysis
 
 ### Frontend
+
 - **HTML/CSS/JavaScript**: UI components
 - **React** (optional): For advanced UI interactions
 
@@ -124,6 +126,7 @@ NutriVision utilizes two primary AI components:
 ## 📥 Installation & Setup
 
 ### Prerequisites
+
 - Python 3.9+
 - PyTorch 2.0+
 - A Google Gemini API key
@@ -131,12 +134,14 @@ NutriVision utilizes two primary AI components:
 ### Step-by-Step Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/food_Prediction.git
    cd food_Prediction
    ```
 
 2. **Create and activate a virtual environment**
+
    ```bash
    python -m venv venv
    # On Windows
@@ -146,17 +151,20 @@ NutriVision utilizes two primary AI components:
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Configure Gemini API**
    - Set your Gemini API key in app.py
+
    ```python
    GEMINI_API_KEY = "your-api-key-here"
    ```
 
 5. **Run the application**
+
    ```bash
    python app.py
    ```
@@ -170,16 +178,19 @@ NutriVision utilizes two primary AI components:
 ## 🚀 Usage
 
 ### Food Recognition
+
 1. Take or upload a photo of food
 2. The system identifies the food item
 3. View confidence scores for the prediction
 
 ### Nutritional Analysis
+
 1. After food recognition, submit your health profile
 2. Receive personalized nutritional information
 3. Get recommendations based on your health metrics
 
 ### API Integration
+
 ```python
 # Example: Food Recognition API Call
 import requests
@@ -197,6 +208,7 @@ prediction = response.json()
 The NutriVision backend API can be integrated with various frontend frameworks. A sample HTML/CSS/JS implementation is provided in the nutri-vision-mainpage directory.
 
 For a complete user experience, the frontend should:
+
 1. Provide image upload/capture functionality
 2. Collect user health metrics
 3. Display food recognition results
@@ -216,7 +228,88 @@ For a complete user experience, the frontend should:
 
 ---
 
-## 📄 License
+## � Authentication (JWT)
+
+The project now includes a Node/Express authentication backend (see `server.js`) with secure password hashing (bcrypt) and stateless JWT session cookies.
+
+### Key Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create a user account (firstName, lastName, email, password) |
+| POST | `/api/auth/login` | Authenticate user (email, password); sets `auth_token` httpOnly cookie |
+| POST | `/api/auth/logout` | Clears auth cookie |
+| GET | `/api/me` | Returns current authenticated user |
+| GET/PUT | `/api/profile` | Get / update health profile for current user |
+
+### Environment Variables
+
+Add / update these in `.env` (do NOT commit real secrets):
+
+```
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=nutrivision
+POSTGRES_USER=youruser
+POSTGRES_PASSWORD=yourpassword
+JWT_SECRET=REPLACE_WITH_STRONG_RANDOM_64BYTE_HEX
+JWT_EXPIRES_IN=7d
+```
+
+Generate a strong secret:
+
+```bash
+openssl rand -hex 64
+```
+
+### Frontend Integration
+
+The Next.js app uses an `AuthProvider` (`src/components/AuthContext.jsx`) which:
+- Automatically calls `/api/me` on load
+- Exposes `login(email, password)`, `register(data)`, `logout()`
+- Stores user object in context
+
+Protected application pages under `src/app/(main)` are wrapped with `RequireAuth` which redirects unauthenticated users to `/login?redirect=...`.
+
+### Login / Registration UI
+
+`/login` page now submits to backend endpoints. After success it redirects to the `redirect` query param or `/dashboard`.
+
+### Logout
+
+Logout button in the header calls `/api/auth/logout` and clears context.
+
+### Testing Auth Flow
+
+Run a scripted end-to-end flow (server must be running on port 3001):
+
+```bash
+npm run test:auth
+```
+
+This script registers a random user, logs in, calls `/api/me`, logs out, and asserts that access is revoked.
+
+### Database
+
+Tables (`users`, `health_profiles`, `meals`) are created via:
+
+```bash
+npm run db:setup
+```
+
+Passwords are stored as bcrypt hashes (`password_hash`). Tokens use `auth_token` httpOnly cookie (7 day default lifespan).
+
+### Security Notes
+
+* Always use a long random `JWT_SECRET` in production.
+- Set `NODE_ENV=production` to enforce `secure` cookies behind HTTPS.
+- Consider adding rate limiting and email verification for production deployments.
+
+---
+
+---
+
+## �📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 

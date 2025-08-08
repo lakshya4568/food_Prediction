@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import RequireAuth from "../../../components/RequireAuth";
 
 // Dynamically import the health docs content with loading skeleton
 const HealthDocsContent = dynamic(
@@ -12,5 +13,9 @@ const HealthDocsContent = dynamic(
 );
 
 export default function HealthDocsPage() {
-  return <HealthDocsContent />;
+  return (
+    <RequireAuth>
+      <HealthDocsContent />
+    </RequireAuth>
+  );
 }

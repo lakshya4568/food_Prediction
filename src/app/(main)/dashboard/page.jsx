@@ -1,16 +1,18 @@
 "use client";
-
 import dynamic from "next/dynamic";
+import RequireAuth from "../../../components/RequireAuth";
 
-// Dynamically import the dashboard content with loading skeleton
 const DashboardContent = dynamic(
   () => import("../../../components/DashboardContent"),
   {
-    ssr: false,
-    loading: () => import("./loading").then((mod) => mod.default()),
+    loading: () => null,
   }
 );
 
 export default function DashboardPage() {
-  return <DashboardContent />;
+  return (
+    <RequireAuth>
+      <DashboardContent />
+    </RequireAuth>
+  );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import RequireAuth from "../../../components/RequireAuth";
 
 // Dynamically import the settings content with loading skeleton
 const SettingsContent = dynamic(
@@ -12,5 +13,9 @@ const SettingsContent = dynamic(
 );
 
 export default function SettingsPage() {
-  return <SettingsContent />;
+  return (
+    <RequireAuth>
+      <SettingsContent />
+    </RequireAuth>
+  );
 }

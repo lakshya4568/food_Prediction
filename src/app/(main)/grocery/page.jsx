@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import RequireAuth from "../../../components/RequireAuth";
 
 // Dynamically import the grocery content with loading skeleton
 const GroceryContent = dynamic(
@@ -12,5 +13,9 @@ const GroceryContent = dynamic(
 );
 
 export default function GroceryPage() {
-  return <GroceryContent />;
+  return (
+    <RequireAuth>
+      <GroceryContent />
+    </RequireAuth>
+  );
 }

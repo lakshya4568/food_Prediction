@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import RequireAuth from "../../../components/RequireAuth";
 
-// Dynamically import the planner content with loading skeleton
 const PlannerContent = dynamic(
   () => import("../../../components/PlannerContent"),
   {
@@ -12,5 +12,9 @@ const PlannerContent = dynamic(
 );
 
 export default function PlannerPage() {
-  return <PlannerContent />;
+  return (
+    <RequireAuth>
+      <PlannerContent />
+    </RequireAuth>
+  );
 }

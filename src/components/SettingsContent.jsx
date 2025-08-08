@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaCog,
   FaUser,
@@ -9,9 +9,13 @@ import {
   FaPalette,
   FaLanguage,
   FaSave,
+  FaHeartbeat,
 } from "react-icons/fa";
 
 export default function SettingsContent() {
+  const API_NODE_BASE =
+    process.env.NEXT_PUBLIC_NODE_API_URL || "http://localhost:3001";
+
   const [settings, setSettings] = useState({
     // Profile Settings
     name: "John Doe",
@@ -20,6 +24,8 @@ export default function SettingsContent() {
     height: 175, // cm
     weight: 70, // kg
     activityLevel: "moderate",
+    gender: "unspecified",
+    allergies: "",
 
     // Notification Settings
     emailNotifications: true,
@@ -43,10 +49,111 @@ export default function SettingsContent() {
     }));
   };
 
+  const [healthProfileStatus, setHealthProfileStatus] = useState(null); // {type:'success'|'error', message:string}
+  const [healthProfileLoading, setHealthProfileLoading] = useState(false);
+  const [healthProfileError, setHealthProfileError] = useState(null);
+
+  // Fetch existing profile on mount
+  useEffect(() => {
+    let cancelled = false;
+    async function loadProfile() {
+      setHealthProfileLoading(true);
+      setHealthProfileError(null);
+      try {
+        const res = await fetch(`${API_NODE_BASE}/api/profile`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (res.status === 401) {
+          if (!cancelled) {
+            setHealthProfileError("Please log in to view your health profile.");
+          }
+          return;
+        }
+        if (!res.ok) throw new Error(`Failed (${res.status})`);
+        const data = await res.json();
+        if (!cancelled && data.profile) {
+          setSettings((prev) => ({
+            ...prev,
+            age: data.profile.age ?? prev.age ?? "",
+            gender: data.profile.gender ?? prev.gender ?? "unspecified",
+            allergies: data.profile.allergies ?? prev.allergies ?? "",
+          }));
+        }
+      } catch (e) {
+        if (!cancelled) setHealthProfileError("Error loading profile");
+        console.error("Load profile error", e);
+      } finally {
+        if (!cancelled) setHealthProfileLoading(false);
+      }
+    }
+    loadProfile();
+    return () => {
+      cancelled = true;
+    };
+  }, [API_NODE_BASE]);
+
   const handleSave = () => {
-    // In a real app, this would save to a backend
+    // Generic settings save (placeholder)
     console.log("Settings saved:", settings);
     alert("Settings saved successfully!");
+  };
+
+  const handleHealthProfileSave = async () => {
+    setHealthProfileStatus(null);
+    setHealthProfileError(null);
+    if (!settings.age || settings.age <= 0) {
+      setHealthProfileStatus({
+        type: "error",
+        message: "Please enter a valid age.",
+      });
+      return;
+    }
+    try {
+      setHealthProfileLoading(true);
+      const res = await fetch(`${API_NODE_BASE}/api/profile`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          age: settings.age || null,
+          gender: settings.gender || null,
+          allergies: settings.allergies || null,
+        }),
+      });
+      if (res.status === 401) {
+        setHealthProfileStatus({
+          type: "error",
+          message: "Not authorized. Please log in.",
+        });
+        return;
+      }
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || `Request failed (${res.status})`);
+      }
+      const data = await res.json();
+      setHealthProfileStatus({
+        type: "success",
+        message: "Health profile saved.",
+      });
+      if (data?.profile) {
+        setSettings((prev) => ({
+          ...prev,
+          age: data.profile.age ?? prev.age,
+          gender: data.profile.gender ?? prev.gender,
+          allergies: data.profile.allergies ?? prev.allergies,
+        }));
+      }
+    } catch (e) {
+      console.error("Save profile error", e);
+      setHealthProfileStatus({
+        type: "error",
+        message: e.message || "Failed to save profile.",
+      });
+    } finally {
+      setHealthProfileLoading(false);
+    }
   };
 
   return (
@@ -74,6 +181,13 @@ export default function SettingsContent() {
                 >
                   <FaUser className="mr-3 text-blue-500" />
                   Profile
+                </a>
+                <a
+                  href="#health-profile"
+                  className="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <FaHeartbeat className="mr-3 text-pink-500" />
+                  Health Profile
                 </a>
                 <a
                   href="#notifications"
@@ -170,6 +284,127 @@ export default function SettingsContent() {
                     </select>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Health Profile (Dietary / Medical) */}
+            <div id="health-profile" className="bg-white rounded-lg shadow">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <FaHeartbeat className="mr-2 text-pink-500" />
+                  Health Profile
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  Provide health information to personalize nutrition insights.
+                </p>
+              </div>
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Age <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={settings.age}
+                      onChange={(e) =>
+                        handleSettingChange(
+                          "age",
+                          parseInt(e.target.value) || ""
+                        )
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. 29"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Gender
+                    </label>
+                    <select
+                      value={settings.gender}
+                      onChange={(e) =>
+                        handleSettingChange("gender", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="unspecified">Prefer not to say</option>
+                      <option value="female">Female</option>
+                      <option value="male">Male</option>
+                      <option value="non-binary">Non-binary</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Activity Level
+                    </label>
+                    <select
+                      value={settings.activityLevel}
+                      onChange={(e) =>
+                        handleSettingChange("activityLevel", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="sedentary">Sedentary</option>
+                      <option value="light">Light</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="active">Active</option>
+                      <option value="very-active">Very Active</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Allergies & Dietary Restrictions
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={settings.allergies}
+                    onChange={(e) =>
+                      handleSettingChange("allergies", e.target.value)
+                    }
+                    placeholder="e.g. Peanuts, lactose intolerance, gluten-free..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 resize-y"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Separate items with commas. This information will help
+                    tailor recommendations (stored securely).
+                  </p>
+                </div>
+                {healthProfileStatus && (
+                  <div
+                    className={`text-sm rounded-md px-3 py-2 border ${
+                      healthProfileStatus.type === "error"
+                        ? "bg-red-50 text-red-700 border-red-200"
+                        : "bg-green-50 text-green-700 border-green-200"
+                    }`}
+                  >
+                    {healthProfileStatus.message}
+                  </div>
+                )}
+                {healthProfileLoading && (
+                  <div className="text-xs text-gray-500">Saving...</div>
+                )}
+                {healthProfileError && (
+                  <div className="text-xs text-red-600">
+                    {healthProfileError}
+                  </div>
+                )}
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleHealthProfileSave}
+                    disabled={healthProfileLoading}
+                    className="inline-flex items-center bg-pink-500 hover:bg-pink-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
+                  >
+                    <FaSave className="mr-2" /> Save Health Profile
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400">
+                  Data is stored securely and used to tailor recommendations.
+                </p>
               </div>
             </div>
 

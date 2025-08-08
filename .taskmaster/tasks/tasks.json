@@ -135,12 +135,49 @@
         "id": 3,
         "title": "Setup Node.js Backend & Postgres Database",
         "description": "Initialize a new Node.js/Express server to handle non-ML backend logic and connect it to a local Postgres database with the required schema.",
-        "details": "Create a `server.js` file for the Express app. Establish a connection to a local Postgres instance (e.g., `postgresql://localhost/nutrivision`). Define and create the `users` and `meals` tables as specified in the PRD.",
-        "testStrategy": "Start the Node.js server and confirm it connects to the database without errors. Use a database client to verify that the `users` and `meals` tables have been created with the correct columns.",
-        "priority": "medium",
+        "status": "done",
         "dependencies": [],
-        "status": "in-progress",
-        "subtasks": []
+        "priority": "medium",
+        "details": "The `server.js` file has been created and the database connection is configured via environment variables. A `db-setup.js` script is ready to create the `users` and `meals` tables. The next step is to run this script.",
+        "testStrategy": "Start the Node.js server and confirm it connects to the database without errors. Use a database client to verify that the `users` and `meals` tables have been created with the correct columns.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "",
+            "description": "Create server.js file and initialize Express app.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "",
+            "description": "Configure Postgres database connection via environment variables.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "",
+            "description": "Create db-setup.js script with schema for users and meals tables.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "",
+            "description": "Run the db-setup.js script to create the tables in the database.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 4,
@@ -152,8 +189,86 @@
         "dependencies": [
           3
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Password Hashing and Update User Model",
+            "description": "Integrate `bcrypt` for password hashing and modify the `users` database schema/model to securely store hashed passwords instead of plaintext.",
+            "dependencies": [],
+            "details": "Install the `bcryptjs` package. Alter the `users` table (created in Task 3) to include a `password_hash` column of type `VARCHAR(255)`. Ensure any ORM or data access layer code is updated to reflect this change.",
+            "status": "done",
+            "testStrategy": "Run the database migration script. Use a database client to verify the `users` table schema is updated correctly. Manually insert a test user with a hashed password to confirm functionality."
+          },
+          {
+            "id": 2,
+            "title": "Develop JWT Signing and Verification Utility",
+            "description": "Create a centralized, reusable module with functions to sign new JSON Web Tokens and verify incoming tokens from requests.",
+            "dependencies": [],
+            "details": "Install the `jsonwebtoken` package. Create a new file, e.g., `server/utils/jwt.js`. Implement `signToken(payload)` and `verifyToken(token)` functions. Store the JWT secret key in an environment variable (`JWT_SECRET`) and load it using `dotenv`.",
+            "status": "done",
+            "testStrategy": "Write a small standalone script to test the utility functions: sign a sample payload, log the token, then verify the token and log the decoded payload."
+          },
+          {
+            "id": 3,
+            "title": "Build the `/api/auth/register` Endpoint",
+            "description": "Create the user registration endpoint that validates input, hashes the password using the new utility, and saves the new user to the database.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "In the Node.js/Express server, create a POST route for `/api/auth/register`. Implement input validation for email and password (e.g., check for valid email format, minimum password length). On valid input, use `bcrypt.hash()` to hash the password before inserting the new user record into the Postgres `users` table.",
+            "status": "done",
+            "testStrategy": "Use Postman to send a POST request with valid user data. Verify a 201 Created response and check the database to confirm the new user exists with a properly hashed password. Test with invalid data (e.g., duplicate email, short password) to ensure it returns a 400-level error."
+          },
+          {
+            "id": 4,
+            "title": "Build the `/api/auth/login` Endpoint with Cookie Issuance",
+            "description": "Create the user login endpoint that validates credentials against the database, issues a JWT upon success, and sets it in a secure, http-only cookie.",
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.3"
+            ],
+            "details": "Create a POST route for `/api/auth/login`. The handler should find the user by email, then use `bcrypt.compare()` to validate the password. If credentials are correct, use the JWT utility to sign a token containing the user ID. Install and use `cookie-parser` middleware, then set the token in a cookie using `res.cookie()` with `httpOnly: true` and `secure: true` (in production) flags.",
+            "status": "done",
+            "testStrategy": "Using Postman, attempt to log in with the user created in the previous step. Verify a 200 OK response and inspect the response cookies to confirm the http-only auth cookie is set. Test with incorrect credentials to ensure a 401 Unauthorized response is returned."
+          },
+          {
+            "id": 5,
+            "title": "Implement JWT Verification Middleware for Express",
+            "description": "Develop a reusable Express middleware function that protects routes by extracting and verifying the JWT from the request's cookie.",
+            "dependencies": [
+              "4.2",
+              "4.4"
+            ],
+            "details": "Create a middleware function, e.g., `authMiddleware.js`. It should use `cookie-parser` to access the auth cookie. If the cookie exists, use the JWT utility's `verifyToken` function. On successful verification, attach the decoded payload (e.g., user ID) to the request object (`req.user`) and call `next()`. If the token is missing or invalid, respond with a 401 Unauthorized status.",
+            "status": "done",
+            "testStrategy": "Unit testing is not required for this subtask; it will be functionally tested in the next step by applying it to a live route."
+          },
+          {
+            "id": 6,
+            "title": "Apply Authentication Middleware to a Protected API Route",
+            "description": "Create a sample protected API endpoint (e.g., `/api/me`) and secure it using the JWT authentication middleware created in the previous step.",
+            "dependencies": [
+              "4.5"
+            ],
+            "details": "Create a new GET route, for example `/api/me`. Apply the `authMiddleware` to this route. The route handler should be simple, returning user-specific data that it retrieves from the `req.user` object attached by the middleware.",
+            "status": "done",
+            "testStrategy": "In Postman, first hit the `/api/auth/login` endpoint to receive the auth cookie. Then, make a GET request to the new `/api/me` endpoint and verify it returns a 200 OK with user data. Finally, clear cookies and make the same request to `/api/me` to verify it returns a 401 Unauthorized error."
+          },
+          {
+            "id": 7,
+            "title": "Implement Frontend Route Protection in Next.js",
+            "description": "Use `getServerSideProps` on a protected Next.js page to check for the authentication cookie and redirect unauthenticated users to the login page.",
+            "dependencies": [
+              "4.4",
+              "4.6"
+            ],
+            "details": "Create a protected page in the Next.js app (e.g., `/dashboard`). In its `getServerSideProps` function, read the auth cookie from the incoming request (`context.req.headers.cookie`). For robust validation, make a server-side `fetch` call to the protected `/api/me` endpoint, forwarding the cookie. If the fetch returns a non-200 status, return a redirect object pointing to the `/login` page.",
+            "status": "done",
+            "testStrategy": "In a browser, attempt to navigate directly to the `/dashboard` URL while not logged in; verify it redirects to `/login`. After logging in successfully, navigate to `/dashboard` again and verify the page loads correctly."
+          }
+        ]
       },
       {
         "id": 5,
@@ -166,7 +281,7 @@
           1,
           4
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -174,7 +289,7 @@
             "description": "Develop the Node.js API routes at `/api/profile` to handle fetching (GET) and updating (PUT) a user's health profile data. This includes defining the database schema for the profile and implementing the logic to store/retrieve it.",
             "dependencies": [],
             "details": "Implement two Express route handlers: `GET /api/profile` to retrieve the current user's profile and `PUT /api/profile` to create or update it. The PUT handler should validate the incoming JSON data (age, gender, allergies). Initially, this can be developed without authentication.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Use Postman or a similar tool to send GET and PUT requests to the endpoints with a hardcoded user ID to verify that data is saved and retrieved correctly from the database."
           },
           {
@@ -185,7 +300,7 @@
               "5.1"
             ],
             "details": "Apply the JWT verification middleware to the profile route group. Modify the route handlers to extract the `userId` from the decoded JWT payload and use it in database queries, replacing any hardcoded user IDs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Attempt to access the endpoints without a valid JWT (expect 401 Unauthorized). Then, use a valid JWT from the login endpoint to successfully GET and PUT data, verifying the action is tied to the correct user."
           },
           {
@@ -194,7 +309,7 @@
             "description": "Develop the user interface for the health profile form within the `settings.js` Next.js page. The form should include input fields for age, gender, allergies, and other relevant health data.",
             "dependencies": [],
             "details": "Using reusable components (from Task 2) and Tailwind CSS, build a responsive form. Include fields like a number input for age, a select dropdown for gender, and a text area for allergies. Add a submit button and elements for user feedback (e.g., success/error messages).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Render the `settings.js` page and visually inspect the form on different screen sizes. Verify all form elements are present, styled correctly, and responsive."
           },
           {
@@ -206,7 +321,7 @@
               "5.3"
             ],
             "details": "Use a `useEffect` hook to call the `GET /api/profile` endpoint when the component mounts and use the response to set the form's initial state. Create an `onSubmit` handler that sends a `PUT` request with the form data to `/api/profile`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Log in and navigate to the settings page. Verify the form is pre-filled with the user's data. Update the data, submit the form, and refresh the page to confirm the new data persists."
           },
           {
@@ -217,7 +332,7 @@
               "5.2"
             ],
             "details": "Create a `ProfileContext.js` file with a `ProfileProvider` component. This provider will fetch data from `GET /api/profile` and make it available. Wrap the main `_app.js` layout with this provider. Create a `useProfile` custom hook for easy consumption.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "After logging in, verify that a separate component (e.g., the main dashboard) can access the profile data using the `useProfile` hook. Update the profile on the settings page and confirm the context value updates globally without a page refresh."
           }
         ]
@@ -330,7 +445,7 @@
     ],
     "metadata": {
       "created": "2025-08-05T04:02:20.857Z",
-      "updated": "2025-08-05T16:15:31.084Z",
+      "updated": "2025-08-08T06:58:22.318Z",
       "description": "Tasks for master context"
     }
   }

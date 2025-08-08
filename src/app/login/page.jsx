@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "../../components/AuthContext"; // added
 
 function LoginForm() {
   const [isSignup, setIsSignup] = useState(false);
@@ -28,6 +29,7 @@ function LoginForm() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login, register, user } = useAuth(); // added
 
   useEffect(() => {
     // Check if signup parameter is present
@@ -96,21 +98,25 @@ function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     try {
-      // Mock authentication - in real app this would be API call
-      console.log("Form submitted:", formData);
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Redirect to dashboard
-      router.push("/dashboard");
+      if (isSignup) {
+        await register({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+        });
+      } else {
+        await login(formData.email, formData.password);
+      }
+      const redirect = searchParams.get("redirect") || "/dashboard";
+      router.push(redirect);
     } catch (error) {
       console.error("Authentication error:", error);
-      setErrors({ submit: "Authentication failed. Please try again." });
+      setErrors({
+        submit: error.message || "Authentication failed. Please try again.",
+      });
     }
   };
 
@@ -164,10 +170,15 @@ function LoginForm() {
                       errors.firstName ? "border-red-300" : "border-gray-300"
                     }`}
                     placeholder="John"
-                    aria-describedby={errors.firstName ? "firstName-error" : undefined}
+                    aria-describedby={
+                      errors.firstName ? "firstName-error" : undefined
+                    }
                   />
                   {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-600" id="firstName-error">
+                    <p
+                      className="mt-1 text-sm text-red-600"
+                      id="firstName-error"
+                    >
                       {errors.firstName}
                     </p>
                   )}
@@ -189,10 +200,15 @@ function LoginForm() {
                       errors.lastName ? "border-red-300" : "border-gray-300"
                     }`}
                     placeholder="Doe"
-                    aria-describedby={errors.lastName ? "lastName-error" : undefined}
+                    aria-describedby={
+                      errors.lastName ? "lastName-error" : undefined
+                    }
                   />
                   {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-600" id="lastName-error">
+                    <p
+                      className="mt-1 text-sm text-red-600"
+                      id="lastName-error"
+                    >
                       {errors.lastName}
                     </p>
                   )}
@@ -244,7 +260,9 @@ function LoginForm() {
                     errors.password ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter your password"
-                  aria-describedby={errors.password ? "password-error" : undefined}
+                  aria-describedby={
+                    errors.password ? "password-error" : undefined
+                  }
                 />
                 <button
                   type="button"
@@ -310,7 +328,9 @@ function LoginForm() {
                     }`}
                     placeholder="Confirm your password"
                     aria-describedby={
-                      errors.confirmPassword ? "confirmPassword-error" : undefined
+                      errors.confirmPassword
+                        ? "confirmPassword-error"
+                        : undefined
                     }
                   />
                   <button

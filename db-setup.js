@@ -1,5 +1,5 @@
-require('dotenv').config();
-const { Pool } = require('pg');
+require("dotenv").config();
+const { Pool } = require("pg");
 
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
@@ -35,9 +35,21 @@ const createTables = async () => {
         consumed_at TIMESTAMPTZ DEFAULT NOW()
       );
     `);
-    console.log('Tables created successfully!');
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS health_profiles (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        age INTEGER CHECK (age >= 0 AND age <= 130),
+        gender VARCHAR(50),
+        allergies TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+    console.log("Tables created successfully!");
   } catch (err) {
-    console.error('Error creating tables:', err);
+    console.error("Error creating tables:", err);
   } finally {
     client.release();
   }
