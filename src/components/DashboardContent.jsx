@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
 import {
   FaCamera,
   FaChartLine,
@@ -12,26 +13,47 @@ import {
 import Link from "next/link";
 
 export default function DashboardContent() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     todayCalories: 0,
     mealsTracked: 0,
     streak: 0,
   });
+  const [recent, setRecent] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Mock user data - in real app this would come from authentication
-    setUser({
-      name: "John Doe",
-      email: "john@example.com",
-    });
-
-    // Mock stats - in real app this would come from API
-    setStats({
-      todayCalories: 1250,
-      mealsTracked: 3,
-      streak: 7,
-    });
+    let active = true;
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const base = process.env.NEXT_PUBLIC_BACKEND_URL || ""; // same-origin by default
+        const [statsRes, mealsRes] = await Promise.all([
+          fetch(`${base}/api/dashboard/stats`, { credentials: "include" }),
+          fetch(`${base}/api/meals/recent?limit=5`, { credentials: "include" }),
+        ]);
+        if (statsRes.status === 401 || mealsRes.status === 401) return; // RequireAuth will handle
+        const s = statsRes.ok
+          ? await statsRes.json()
+          : { todayCalories: 0, mealsTracked: 0, streak: 0 };
+        const m = mealsRes.ok ? await mealsRes.json() : { meals: [] };
+        if (!active) return;
+        setStats(s);
+        setRecent(Array.isArray(m.meals) ? m.meals : []);
+      } catch (e) {
+        if (!active) return;
+        console.error("dashboard load error", e);
+        setError(e.message || "Failed to load dashboard");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
@@ -40,7 +62,9 @@ export default function DashboardContent() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Welcome back{user ? `, ${user.name.split(" ")[0]}` : ""}! 👋
+            Welcome back
+            {user ? `, ${user.first_name || user.firstName || user.email}` : ""}
+            ! 👋
           </h1>
           <p className="text-gray-600 text-lg">
             Start tracking your nutrition by taking a photo of your food.
@@ -106,7 +130,9 @@ export default function DashboardContent() {
                 <p className="text-green-100 text-sm font-medium">
                   Today&apos;s Calories
                 </p>
-                <p className="text-2xl font-bold">{stats.todayCalories} kcal</p>
+                <p className="text-2xl font-bold">
+                  {stats.todayCalories ?? 0} kcal
+                </p>
                 <p className="text-green-100 text-xs mt-1">Goal: 2000 kcal</p>
               </div>
               <div className="w-12 h-12 bg-green-400 bg-opacity-30 rounded-lg flex items-center justify-center">
@@ -134,7 +160,7 @@ export default function DashboardContent() {
                 <p className="text-blue-100 text-sm font-medium">
                   Meals Tracked
                 </p>
-                <p className="text-2xl font-bold">{stats.mealsTracked}</p>
+                <p className="text-2xl font-bold">{stats.mealsTracked ?? 0}</p>
                 <p className="text-blue-100 text-xs mt-1">Today</p>
               </div>
               <div className="w-12 h-12 bg-blue-400 bg-opacity-30 rounded-lg flex items-center justify-center">
@@ -149,7 +175,7 @@ export default function DashboardContent() {
                 <p className="text-purple-100 text-sm font-medium">
                   Current Streak
                 </p>
-                <p className="text-2xl font-bold">{stats.streak} days</p>
+                <p className="text-2xl font-bold">{stats.streak ?? 0} days</p>
                 <p className="text-purple-100 text-xs mt-1">Keep it up!</p>
               </div>
               <div className="w-12 h-12 bg-purple-400 bg-opacity-30 rounded-lg flex items-center justify-center">
@@ -165,28 +191,18 @@ export default function DashboardContent() {
             Recent Activity
           </h2>
           <div className="space-y-4">
-            {[
-              {
-                food: "Pizza",
-                time: "2 hours ago",
-                calories: 450,
-                confidence: "95%",
-              },
-              {
-                food: "Steak",
-                time: "5 hours ago",
-                calories: 350,
-                confidence: "92%",
-              },
-              {
-                food: "Sushi",
-                time: "1 day ago",
-                calories: 250,
-                confidence: "98%",
-              },
-            ].map((item, index) => (
+            {loading && <div className="text-gray-500">Loading…</div>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded">
+                {error}
+              </div>
+            )}
+            {!loading && !error && recent.length === 0 && (
+              <div className="text-gray-500">No recent meals yet.</div>
+            )}
+            {recent.map((item) => (
               <div
-                key={index}
+                key={item.id}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
               >
                 <div className="flex items-center space-x-4">
@@ -194,16 +210,19 @@ export default function DashboardContent() {
                     <FaAppleAlt className="text-green-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{item.food}</p>
-                    <p className="text-sm text-gray-500">{item.time}</p>
+                    <p className="font-medium text-gray-900">
+                      {item.description || item.food || "Meal"}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {new Date(
+                        item.logged_at || item.created_at
+                      ).toLocaleString()}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-gray-900">
-                    {item.calories} kcal
-                  </p>
-                  <p className="text-sm text-green-600">
-                    {item.confidence} confidence
+                    {item.calories ?? 0} kcal
                   </p>
                 </div>
               </div>

@@ -802,6 +802,271 @@ app.post("/api/rating", authMiddleware, async (req, res) => {
   }
 });
 
+// Meals endpoints: store simple meal logs with calories and metadata
+// POST /api/meals { description, calories, logged_at? }
+// GET /api/meals/recent?limit=10
+app.post("/api/meals", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { description, calories, protein, carbs, fats, logged_at } =
+      req.body || {};
+    if (!description || typeof description !== "string") {
+      return res.status(400).json({ error: "description is required" });
+    }
+    const cal = Number(calories);
+    const kcal = Number.isFinite(cal) ? cal : null;
+    const ts = logged_at ? new Date(logged_at) : new Date();
+    if (logged_at && isNaN(ts.getTime())) {
+      return res.status(400).json({ error: "invalid logged_at" });
+    }
+    // Try inserting using explicit columns that likely exist in current schema
+    // Fall back to JSON-only if named columns are missing
+    try {
+      const { rows } = await pool.query(
+        `INSERT INTO meals (user_id, name, calories, protein, carbs, fats, food_data_json, consumed_at, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, COALESCE($8, NOW()))
+         RETURNING id, name, calories, consumed_at, created_at`,
+        [
+          userId,
+          description,
+          Number.isFinite(Number(kcal)) ? Number(kcal) : 0,
+          Number.isFinite(Number(protein)) ? Number(protein) : 0,
+          Number.isFinite(Number(carbs)) ? Number(carbs) : 0,
+          Number.isFinite(Number(fats)) ? Number(fats) : 0,
+          JSON.stringify({
+            description,
+            calories: kcal,
+            logged_at: ts.toISOString(),
+          }),
+          ts.toISOString(),
+        ]
+      );
+      return res.status(201).json({
+        id: rows[0]?.id,
+        created_at: rows[0]?.consumed_at || rows[0]?.created_at,
+      });
+    } catch (e) {
+      const code = e && e.code;
+      if (code !== "42703") throw e; // not undefined_column -> rethrow
+      // Fallback: minimal insert to JSON + created_at
+      const { rows } = await pool.query(
+        `INSERT INTO meals (user_id, food_data_json, created_at)
+         VALUES ($1, $2, $3)
+         RETURNING id, created_at`,
+        [
+          userId,
+          JSON.stringify({
+            description,
+            calories: kcal,
+            logged_at: ts.toISOString(),
+          }),
+          ts,
+        ]
+      );
+      return res
+        .status(201)
+        .json({ id: rows[0]?.id, created_at: rows[0]?.created_at });
+    }
+  } catch (err) {
+    const code = err && err.code;
+    if (code === "42P01") {
+      return res
+        .status(409)
+        .json({ error: "meals table missing, run db:setup" });
+    }
+    console.error("/api/meals POST error", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/meals/recent", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
+    const { rows } = await pool.query(
+      `SELECT id, name, calories, food_data_json, COALESCE(consumed_at, created_at) as at
+       FROM meals WHERE user_id=$1
+       ORDER BY COALESCE(consumed_at, created_at) DESC
+       LIMIT $2`,
+      [userId, limit]
+    );
+    return res.json({
+      meals: rows.map((r) => ({
+        id: r.id,
+        description: r.name || r.food_data_json?.description || null,
+        calories: r.calories ?? r.food_data_json?.calories ?? null,
+        created_at: r.at,
+      })),
+    });
+  } catch (err) {
+    const code = err && err.code;
+    if (code === "42P01") return res.json({ meals: [] });
+    console.error("/api/meals/recent error", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Dashboard stats: today's calories, meals tracked today, simple streak
+app.get("/api/dashboard/stats", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    // Today boundaries in UTC
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setUTCHours(23, 59, 59, 999);
+
+    // Sum calories from explicit column if present, else JSON
+    const { rows } = await pool.query(
+      `SELECT calories, food_data_json
+       FROM meals
+       WHERE user_id=$1 AND COALESCE(consumed_at, created_at) >= $2 AND COALESCE(consumed_at, created_at) <= $3`,
+      [userId, todayStart.toISOString(), todayEnd.toISOString()]
+    );
+    let todayCalories = 0;
+    for (const r of rows) {
+      const cal = Number.isFinite(Number(r.calories))
+        ? Number(r.calories)
+        : Number(r.food_data_json?.calories);
+      if (Number.isFinite(cal)) todayCalories += cal;
+    }
+    const mealsTracked = rows.length;
+
+    // Naive streak: count consecutive days with at least one meal including today
+    let streak = 0;
+    for (let d = 0; d < 30; d++) {
+      const start = new Date();
+      start.setUTCHours(0, 0, 0, 0);
+      start.setUTCDate(start.getUTCDate() - d);
+      const end = new Date(start);
+      end.setUTCHours(23, 59, 59, 999);
+      const { rows: day } = await pool.query(
+        `SELECT 1 FROM meals WHERE user_id=$1 AND COALESCE(consumed_at, created_at) >= $2 AND COALESCE(consumed_at, created_at) <= $3 LIMIT 1`,
+        [userId, start.toISOString(), end.toISOString()]
+      );
+      if (day.length) streak += 1;
+      else break;
+    }
+
+    return res.json({ todayCalories, mealsTracked, streak });
+  } catch (err) {
+    const code = err && err.code;
+    if (code === "42P01")
+      return res.json({ todayCalories: 0, mealsTracked: 0, streak: 0 });
+    console.error("/api/dashboard/stats error", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Grocery CRUD
+// GET /api/grocery/items
+app.get("/api/grocery/items", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { rows } = await pool.query(
+      `SELECT id, name, category, quantity, unit, price, completed, created_at, updated_at
+       FROM grocery_items WHERE user_id=$1 ORDER BY created_at DESC`,
+      [userId]
+    );
+    return res.json({ items: rows });
+  } catch (err) {
+    const code = err && err.code;
+    if (code === "42P01") return res.json({ items: [] });
+    console.error("/api/grocery/items GET error", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// POST /api/grocery/items
+app.post("/api/grocery/items", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { name, category, quantity, unit, price, completed } = req.body || {};
+    if (!name || typeof name !== "string")
+      return res.status(400).json({ error: "name is required" });
+    const qty = quantity != null ? Number(quantity) : null;
+    const pr = price != null ? Number(price) : null;
+    const { rows } = await pool.query(
+      `INSERT INTO grocery_items (id, user_id, name, category, quantity, unit, price, completed)
+       VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, name, category, quantity, unit, price, completed, created_at, updated_at`,
+      [userId, name, category ?? null, qty, unit ?? null, pr, !!completed]
+    );
+    return res.status(201).json({ item: rows[0] });
+  } catch (err) {
+    const code = err && err.code;
+    if (code === "42P01")
+      return res
+        .status(409)
+        .json({ error: "grocery_items table missing, run db:setup" });
+    console.error("/api/grocery/items POST error", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// PUT /api/grocery/items/:id
+app.put("/api/grocery/items/:id", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { id } = req.params;
+    const { name, category, quantity, unit, price, completed } = req.body || {};
+
+    const fields = [];
+    const vals = [];
+    let idx = 1;
+    const push = (col, val) => {
+      fields.push(`${col}=$${idx++}`);
+      vals.push(val);
+    };
+    if (name !== undefined) push("name", name || null);
+    if (category !== undefined) push("category", category || null);
+    if (quantity !== undefined)
+      push("quantity", quantity != null ? Number(quantity) : null);
+    if (unit !== undefined) push("unit", unit || null);
+    if (price !== undefined)
+      push("price", price != null ? Number(price) : null);
+    if (completed !== undefined) push("completed", !!completed);
+    if (!fields.length)
+      return res.status(400).json({ error: "No fields to update" });
+    fields.push("updated_at=NOW()");
+
+    vals.push(userId);
+    vals.push(id);
+
+    const { rowCount, rows } = await pool.query(
+      `UPDATE grocery_items SET ${fields.join(
+        ", "
+      )} WHERE user_id=$${idx++} AND id=$${idx}
+       RETURNING id, name, category, quantity, unit, price, completed, created_at, updated_at`,
+      vals
+    );
+    if (rowCount === 0)
+      return res.status(404).json({ error: "Item not found" });
+    return res.json({ item: rows[0] });
+  } catch (err) {
+    console.error("/api/grocery/items PUT error", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// DELETE /api/grocery/items/:id
+app.delete("/api/grocery/items/:id", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { id } = req.params;
+    const { rowCount } = await pool.query(
+      `DELETE FROM grocery_items WHERE user_id=$1 AND id=$2`,
+      [userId, id]
+    );
+    if (rowCount === 0)
+      return res.status(404).json({ error: "Item not found" });
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("/api/grocery/items DELETE error", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });

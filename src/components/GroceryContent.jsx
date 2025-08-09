@@ -1,46 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaShoppingCart, FaPlus, FaCheck, FaTrash } from "react-icons/fa";
+import { useAuth } from "./AuthContext";
 
 export default function GroceryContent() {
-  const [groceryItems, setGroceryItems] = useState([
-    {
-      id: 1,
-      name: "Organic Oats",
-      category: "Grains",
-      quantity: "1 lb",
-      completed: false,
-      price: 4.99,
-    },
-    {
-      id: 2,
-      name: "Fresh Blueberries",
-      category: "Fruits",
-      quantity: "1 cup",
-      completed: true,
-      price: 3.49,
-    },
-    {
-      id: 3,
-      name: "Chicken Breast",
-      category: "Protein",
-      quantity: "2 lbs",
-      completed: false,
-      price: 8.99,
-    },
-  ]);
+  const { initialized } = useAuth();
+  const [groceryItems, setGroceryItems] = useState([]);
 
   const [aggregated, setAggregated] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [genError, setGenError] = useState(null);
 
-  const toggleCompleted = (id) => {
-    setGroceryItems(
-      groceryItems.map((item) =>
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
-    );
+  const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || ""; // same-origin
+
+  const loadItems = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/grocery/items`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      setGroceryItems(Array.isArray(data.items) ? data.items : []);
+    } catch (e) {
+      console.error("load grocery items error", e);
+    }
+  };
+
+  useEffect(() => {
+    if (initialized) loadItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialized]);
+
+  const toggleCompleted = async (id, current) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/grocery/items/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ completed: !current }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const { item } = await res.json();
+      setGroceryItems((prev) => prev.map((i) => (i.id === id ? item : i)));
+    } catch (e) {
+      console.error("toggle completed error", e);
+    }
   };
 
   const totalCost = groceryItems.reduce((sum, item) => sum + item.price, 0);
@@ -49,12 +54,16 @@ export default function GroceryContent() {
   const toAggregatePayload = () => {
     // Naive parse: split quantity into number + unit when possible, else treat as piece count
     return groceryItems.map((i) => {
-      const m = String(i.quantity || "1").match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+      const q =
+        typeof i.quantity === "number"
+          ? String(i.quantity)
+          : String(i.quantity || "1");
+      const m = q.match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
       return {
         name: i.name,
         category: i.category,
         quantity: m ? parseFloat(m[1]) : 1,
-        unit: m ? m[2].trim() : "pc",
+        unit: m ? m[2].trim() : i.unit || "pc",
       };
     });
   };
@@ -64,9 +73,7 @@ export default function GroceryContent() {
       setIsGenerating(true);
       setGenError(null);
       setAggregated([]);
-      const nodeBase =
-        process.env.NEXT_PUBLIC_NODE_API_BASE || "http://localhost:3001";
-      const resp = await fetch(`${nodeBase}/api/grocery/aggregate`, {
+      const resp = await fetch(`${API_BASE}/api/grocery/aggregate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -96,6 +103,43 @@ export default function GroceryContent() {
       alert("Grocery list copied to clipboard");
     } catch (e) {
       console.error("Clipboard error", e);
+    }
+  };
+
+  const handleAdd = async () => {
+    const name = prompt("Item name?");
+    if (!name) return;
+    const qtyStr = prompt("Quantity (number)?", "1");
+    const qty = qtyStr ? Number(qtyStr) : 1;
+    const unit = prompt("Unit (e.g., g, ml, pc)?", "pc");
+    const category = prompt("Category?", "");
+    const priceStr = prompt("Price?", "0");
+    const price = priceStr ? Number(priceStr) : 0;
+    try {
+      const res = await fetch(`${API_BASE}/api/grocery/items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name, category, quantity: qty, unit, price }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const { item } = await res.json();
+      setGroceryItems((prev) => [item, ...prev]);
+    } catch (e) {
+      console.error("add item error", e);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/grocery/items/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setGroceryItems((prev) => prev.filter((i) => i.id !== id));
+    } catch (e) {
+      console.error("delete item error", e);
     }
   };
 
@@ -157,7 +201,10 @@ export default function GroceryContent() {
                 Shopping List
               </h2>
               <div className="flex gap-2">
-                <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center">
+                <button
+                  onClick={handleAdd}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center"
+                >
                   <FaPlus className="mr-2" />
                   Add Item
                 </button>
@@ -196,7 +243,7 @@ export default function GroceryContent() {
                 >
                   <div className="flex items-center space-x-4">
                     <button
-                      onClick={() => toggleCompleted(item.id)}
+                      onClick={() => toggleCompleted(item.id, item.completed)}
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                         item.completed
                           ? "bg-green-500 border-green-500 text-white"
@@ -216,15 +263,21 @@ export default function GroceryContent() {
                         {item.name}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {item.category} • {item.quantity}
+                        {item.category || ""} • {item.quantity}
+                        {item.unit ? ` ${item.unit}` : ""}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <span className="font-medium text-gray-900">
-                      ${item.price.toFixed(2)}
-                    </span>
-                    <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                    {typeof item.price === "number" && (
+                      <span className="font-medium text-gray-900">
+                        ${item.price.toFixed(2)}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                    >
                       <FaTrash />
                     </button>
                   </div>
