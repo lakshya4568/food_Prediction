@@ -31,6 +31,10 @@ export default function GroceryContent() {
     },
   ]);
 
+  const [aggregated, setAggregated] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [genError, setGenError] = useState(null);
+
   const toggleCompleted = (id) => {
     setGroceryItems(
       groceryItems.map((item) =>
@@ -41,6 +45,59 @@ export default function GroceryContent() {
 
   const totalCost = groceryItems.reduce((sum, item) => sum + item.price, 0);
   const completedItems = groceryItems.filter((item) => item.completed).length;
+
+  const toAggregatePayload = () => {
+    // Naive parse: split quantity into number + unit when possible, else treat as piece count
+    return groceryItems.map((i) => {
+      const m = String(i.quantity || "1").match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+      return {
+        name: i.name,
+        category: i.category,
+        quantity: m ? parseFloat(m[1]) : 1,
+        unit: m ? m[2].trim() : "pc",
+      };
+    });
+  };
+
+  const handleGenerate = async () => {
+    try {
+      setIsGenerating(true);
+      setGenError(null);
+      setAggregated([]);
+      const nodeBase =
+        process.env.NEXT_PUBLIC_NODE_API_BASE || "http://localhost:3001";
+      const resp = await fetch(`${nodeBase}/api/grocery/aggregate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ items: toAggregatePayload() }),
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(text || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      setAggregated(Array.isArray(data.items) ? data.items : []);
+    } catch (e) {
+      console.error("Generate grocery error", e);
+      setGenError(e.message || "Failed to generate grocery list");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleExport = async () => {
+    const lines = (aggregated.length ? aggregated : toAggregatePayload()).map(
+      (i) => `- ${i.name} — ${i.quantity}${i.unit ? " " + i.unit : ""}`
+    );
+    const text = `Grocery List\n\n${lines.join("\n")}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("Grocery list copied to clipboard");
+    } catch (e) {
+      console.error("Clipboard error", e);
+    }
+  };
 
   return (
     <div className="bg-gray-50">
@@ -99,14 +156,34 @@ export default function GroceryContent() {
               <h2 className="text-xl font-semibold text-gray-800">
                 Shopping List
               </h2>
-              <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center">
-                <FaPlus className="mr-2" />
-                Add Item
-              </button>
+              <div className="flex gap-2">
+                <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center">
+                  <FaPlus className="mr-2" />
+                  Add Item
+                </button>
+                <button
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {isGenerating ? "Generating…" : "Generate Consolidated"}
+                </button>
+                <button
+                  onClick={handleExport}
+                  className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors"
+                >
+                  Export
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="p-6">
+            {genError && (
+              <div className="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded">
+                {genError}
+              </div>
+            )}
             <div className="space-y-3">
               {groceryItems.map((item) => (
                 <div
@@ -154,6 +231,34 @@ export default function GroceryContent() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Aggregated Result */}
+        <div className="bg-white rounded-lg shadow-lg mt-6">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Consolidated List
+            </h2>
+          </div>
+          <div className="p-6">
+            {isGenerating ? (
+              <div className="text-gray-600">Generating...</div>
+            ) : aggregated.length ? (
+              <ul className="list-disc pl-6 space-y-1">
+                {aggregated.map((i, idx) => (
+                  <li
+                    key={`${i.name}-${i.unit}-${idx}`}
+                    className="text-gray-800"
+                  >
+                    {i.name} — {i.quantity}
+                    {i.unit ? ` ${i.unit}` : ""}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-gray-500">No consolidated items yet.</div>
+            )}
           </div>
         </div>
       </div>

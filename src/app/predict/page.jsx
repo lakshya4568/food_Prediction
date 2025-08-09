@@ -68,6 +68,11 @@ export default function PredictPage() {
     allergies: false,
   });
 
+  // Nutrition lookup state from Node backend
+  const [nutrition, setNutrition] = useState(null);
+  const [isNutriLoading, setIsNutriLoading] = useState(false);
+  const [nutriError, setNutriError] = useState(null);
+
   // Calculate BMI automatically
   useEffect(() => {
     if (height > 0 && weight > 0) {
@@ -126,6 +131,9 @@ export default function PredictPage() {
 
       const data = await response.json();
       setPrediction(data);
+      // Reset nutrition state until we fetch fresh data
+      setNutrition(null);
+      setNutriError(null);
     } catch (err) {
       console.error("Error:", err);
       setError("Failed to get prediction. Please try again.");
@@ -135,6 +143,33 @@ export default function PredictPage() {
       setIsLoading(false);
     }
   };
+
+  // Fetch nutrition from Node backend USDA proxy
+  const fetchNutrition = useCallback(async (foodName) => {
+    if (!foodName) return;
+    try {
+      setIsNutriLoading(true);
+      setNutriError(null);
+      setNutrition(null);
+      // Nutrition endpoint is served by Node/Express (server.js). Adjust base as needed.
+      const nodeBase =
+        process.env.NEXT_PUBLIC_NODE_API_BASE || "http://localhost:3001";
+      const resp = await fetch(
+        `${nodeBase}/api/nutri?q=${encodeURIComponent(foodName)}`
+      );
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(text || `Nutrition API error ${resp.status}`);
+      }
+      const nutri = await resp.json();
+      setNutrition(nutri);
+    } catch (e) {
+      console.error("Nutrition fetch error", e);
+      setNutriError(e.message || "Failed to fetch nutrition data");
+    } finally {
+      setIsNutriLoading(false);
+    }
+  }, []);
 
   const fetchHealthInfo = useCallback(async () => {
     if (!prediction || !prediction.class || !height || !weight || !bmi) {
@@ -181,14 +216,20 @@ export default function PredictPage() {
   }, [prediction, height, weight, bmi, conditions]);
 
   useEffect(() => {
+    // Kick off nutrition fetch as soon as we have a prediction
+    if (prediction?.class) {
+      fetchNutrition(prediction.class);
+    }
     if (prediction && prediction.class && height && weight && bmi) {
       fetchHealthInfo();
     }
     if (!prediction) {
       setHealthInfo(null);
       setHealthError(null);
+      setNutrition(null);
+      setNutriError(null);
     }
-  }, [prediction, height, weight, bmi, fetchHealthInfo]);
+  }, [prediction, height, weight, bmi, fetchHealthInfo, fetchNutrition]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
@@ -699,6 +740,119 @@ export default function PredictPage() {
                       </div>
                     </div>
                   ) : null}
+
+                  {/* Nutrition Card */}
+                  <div className="border-t mt-6 pt-6">
+                    <h3
+                      className={`text-lg font-semibold ${
+                        theme === "dark" ? "text-white" : "text-gray-900"
+                      } mb-4`}
+                    >
+                      Nutrition Facts
+                    </h3>
+                    {isNutriLoading ? (
+                      <div className="text-center py-4">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto mb-2"></div>
+                        <p
+                          className={`${
+                            theme === "dark" ? "text-gray-300" : "text-gray-600"
+                          }`}
+                        >
+                          Fetching nutrition data...
+                        </p>
+                      </div>
+                    ) : nutriError ? (
+                      <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded">
+                        {nutriError}
+                      </div>
+                    ) : nutrition ? (
+                      <div
+                        className={`grid grid-cols-2 gap-4 ${
+                          theme === "dark" ? "text-gray-300" : "text-gray-700"
+                        }`}
+                      >
+                        <div>
+                          <div className="text-sm uppercase tracking-wide opacity-70">
+                            Food
+                          </div>
+                          <div className="font-medium">
+                            {nutrition.food?.description || prediction?.class}
+                          </div>
+                          {nutrition.food?.brandName && (
+                            <div className="text-sm opacity-70">
+                              {nutrition.food.brandName}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-sm uppercase tracking-wide opacity-70">
+                            Serving
+                          </div>
+                          <div className="font-medium">
+                            {nutrition.food?.servingSize
+                              ? `${nutrition.food.servingSize} ${
+                                  nutrition.food?.servingSizeUnit || "g"
+                                }`
+                              : "—"}
+                          </div>
+                        </div>
+                        <div className="col-span-2 border-t pt-4">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <div className="text-sm opacity-70">Calories</div>
+                              <div className="text-xl font-semibold">
+                                {nutrition.nutrients?.calories ?? "—"}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm opacity-70">Protein</div>
+                              <div className="text-xl font-semibold">
+                                {nutrition.nutrients?.protein_g ?? "—"} g
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm opacity-70">Fat</div>
+                              <div className="text-xl font-semibold">
+                                {nutrition.nutrients?.fat_g ?? "—"} g
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm opacity-70">Carbs</div>
+                              <div className="text-xl font-semibold">
+                                {nutrition.nutrients?.carbs_g ?? "—"} g
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm opacity-70">Fiber</div>
+                              <div className="text-xl font-semibold">
+                                {nutrition.nutrients?.fiber_g ?? "—"} g
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm opacity-70">Sugar</div>
+                              <div className="text-xl font-semibold">
+                                {nutrition.nutrients?.sugar_g ?? "—"} g
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm opacity-70">Sodium</div>
+                              <div className="text-xl font-semibold">
+                                {nutrition.nutrients?.sodium_mg ?? "—"} mg
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className={`${
+                          theme === "dark" ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        No nutrition data yet.
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-12">

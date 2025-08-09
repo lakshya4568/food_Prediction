@@ -63,6 +63,8 @@ async function run() {
 
   console.log("Logging out...");
   res = await fetch(base + "/api/auth/logout", opts("POST"));
+  // Clear cookie jar to simulate browser removing cookie per Set-Cookie
+  jar.cookie = undefined;
   console.log("Logout status", res.status);
 
   console.log("Fetching /api/me after logout (should 401)...");

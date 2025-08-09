@@ -8,8 +8,9 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-// You may adjust this base URL to point to Express server; default assumes same origin proxy or relative path.
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+// Prefer same-origin relative paths so Next.js rewrites proxy to backend in dev.
+// If explicitly provided, NEXT_PUBLIC_BACKEND_URL can point to a full URL.
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || ""; // '' means same-origin
 
 const AuthContext = createContext(null);
 
