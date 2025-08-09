@@ -90,6 +90,13 @@ const pool = new Pool({
       "updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()"
     );
 
+    // Store parsed medical documents on profile
+    await ensureColumn(
+      "health_profiles",
+      "medical_docs_json",
+      "medical_docs_json JSONB"
+    );
+
     await client.query("COMMIT");
     console.log("Database setup complete.");
   } catch (e) {

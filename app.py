@@ -10,8 +10,23 @@ from google import genai
 from google.genai import types
 import json
 import re
+from dotenv import load_dotenv
+
+# OCR libraries
+try:
+    from pypdf import PdfReader
+except Exception:
+    PdfReader = None
+
+try:
+    import pytesseract
+except Exception:
+    pytesseract = None
 
 from pyngrok import ngrok, conf
+
+# Load environment from .env (for local dev)
+load_dotenv()
 
 conf.get_default().auth_token = "2vuIkaBHuxB8IsBgWa1DfgFvSsO_5ninjhmiKtmfsn4xWADxL"
 
@@ -19,16 +34,15 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS to allow cross-origin requests from React frontend
 
 # Configure Gemini API using the latest SDK
+client = None
 try:
-    # Load API key from environment variable
-    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-    if not GEMINI_API_KEY:
-        # Fallback to hardcoded key for development
-        GEMINI_API_KEY = "AIzaSyAVW5TowZmCfSDoY5nygIB9iPiG-plnWXQ"
-    
-    # Initialize the new Gemini client using latest SDK
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    print("✅ Gemini API configured successfully with new SDK.")
+    # Prefer GEMINI_API_KEY, fallback to GOOGLE_API_KEY for compatibility
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if GEMINI_API_KEY:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        print("✅ Gemini API configured successfully with new SDK.")
+    else:
+        print("⚠️ GEMINI_API_KEY not set; /get_health_info will use fallback responses.")
 except Exception as e:
     print(f"❌ Error configuring Gemini API: {e}")
     client = None
@@ -258,6 +272,62 @@ Example JSON output:
             'recommendation': f"Enjoy {food_name} in moderation. Consult with a healthcare provider for personalized dietary advice."
         })
 
+
+@app.route('/ocr-extract', methods=['POST'])
+def ocr_extract():
+    try:
+        if 'file' not in request.files:
+            return jsonify({ 'error': 'No file provided. Use form-data with key "file"' }), 400
+        file = request.files['file']
+        filename = getattr(file, 'filename', '') or ''
+        ctype = file.mimetype or ''
+
+        # PDF handling with pypdf
+        if ('pdf' in ctype.lower()) or filename.lower().endswith('.pdf'):
+            if PdfReader is None:
+                return jsonify({ 'error': 'pypdf not installed on server' }), 500
+            try:
+                # Read bytes in-memory
+                data = file.read()
+                reader = PdfReader(io.BytesIO(data))
+                parts = []
+                # Extract text from first 3 pages max for speed
+                for i, page in enumerate(reader.pages[:3]):
+                    try:
+                        txt = page.extract_text(extraction_mode="layout") or ''
+                        parts.append(txt)
+                    except Exception:
+                        # fallback without layout
+                        try:
+                            txt = page.extract_text() or ''
+                            parts.append(txt)
+                        except Exception:
+                            continue
+                text = "\n".join([p.strip() for p in parts if p and p.strip()])
+                return jsonify({ 'text': text.strip(), 'pages': min(len(reader.pages), 3) })
+            except Exception as e:
+                return jsonify({ 'error': 'Failed to parse PDF', 'details': str(e) }), 500
+
+        # Image handling with pytesseract
+        else:
+            if pytesseract is None:
+                return jsonify({ 'error': 'pytesseract not installed on server' }), 500
+            try:
+                img = Image.open(file.stream).convert('RGB')
+                # Optional: light pre-processing
+                # Resize very large images to speed up OCR
+                max_side = 2000
+                if max(img.size) > max_side:
+                    ratio = max_side / float(max(img.size))
+                    new_size = (int(img.size[0]*ratio), int(img.size[1]*ratio))
+                    img = img.resize(new_size)
+                custom_cfg = r'--oem 3 --psm 6'
+                text = pytesseract.image_to_string(img, lang='eng', config=custom_cfg)
+                return jsonify({ 'text': (text or '').strip() })
+            except Exception as e:
+                return jsonify({ 'error': 'Failed to OCR image', 'details': str(e) }), 500
+    except Exception as e:
+        return jsonify({ 'error': 'Unexpected error', 'details': str(e) }), 500
 
 @app.route('/health', methods=['GET'])
 def health_check():

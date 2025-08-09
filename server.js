@@ -207,13 +207,13 @@ app.put("/api/profile", authMiddleware, async (req, res) => {
     );
     if (existing.rows[0]) {
       const update = await pool.query(
-        "UPDATE health_profiles SET age=$1, gender=$2, allergies=$3, updated_at=NOW() WHERE user_id=$4 RETURNING age, gender, allergies",
+        "UPDATE health_profiles SET age=$1, gender=$2, allergies=$3, updated_at=NOW() WHERE user_id=$4 RETURNING age, gender, allergies, medical_docs_json",
         [age ?? null, gender ?? null, allergies ?? null, userId]
       );
       return res.json({ profile: update.rows[0] });
     } else {
       const insert = await pool.query(
-        "INSERT INTO health_profiles (user_id, age, gender, allergies) VALUES ($1,$2,$3,$4) RETURNING age, gender, allergies",
+        "INSERT INTO health_profiles (user_id, age, gender, allergies) VALUES ($1,$2,$3,$4) RETURNING age, gender, allergies, medical_docs_json",
         [userId, age ?? null, gender ?? null, allergies ?? null]
       );
       return res.status(201).json({ profile: insert.rows[0] });
@@ -221,6 +221,190 @@ app.put("/api/profile", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Put profile error", err);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Return parsed medical documents stored in profile
+app.get("/api/docs", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { rows } = await pool.query(
+      "SELECT medical_docs_json FROM health_profiles WHERE user_id = $1",
+      [userId]
+    );
+    const docs = Array.isArray(rows[0]?.medical_docs_json)
+      ? rows[0].medical_docs_json
+      : [];
+    return res.json({ docs });
+  } catch (err) {
+    // Gracefully handle missing table/column: return empty docs instead of 500
+    const pgCode = err && err.code; // e.g., 42P01: relation does not exist, 42703: undefined column
+    if (pgCode === "42P01" || pgCode === "42703") {
+      console.warn(
+        "/api/docs fallback due to schema issue:",
+        pgCode,
+        err.message
+      );
+      return res.json({ docs: [] });
+    }
+    console.error("/api/docs error", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Upload document text (after client-side OCR) and parse with Gemini
+// Body: { text: string, filename?: string }
+// Returns: { data: parsedJson, raw: modelResponse }
+app.post("/api/upload-doc", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { text, filename } = req.body || {};
+    if (!text || typeof text !== "string" || text.trim().length < 10) {
+      return res
+        .status(400)
+        .json({ error: "Missing or insufficient OCR text" });
+    }
+
+    const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({
+        error: "Gemini API key not configured",
+        hint: "Set GOOGLE_API_KEY or GEMINI_API_KEY in .env",
+      });
+    }
+
+    // Lightweight model call via fetch to Gemini REST (text-only)
+    const endpoint =
+      process.env.GEMINI_API_ENDPOINT ||
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+
+    if (!httpFetch) {
+      return res.status(500).json({
+        error: "fetch is not available on this Node runtime",
+        hint: "Use Node.js >= 18 or ensure node-fetch is installed/available",
+      });
+    }
+
+    const prompt =
+      `You are a medical data parser. Extract key structured fields from the following OCR text of a medical/lab document. Return STRICT JSON adhering to this TypeScript type and no other text:\n\n` +
+      `type ParsedMedicalDoc = {\n  source: string;\n  date?: string;\n  patient?: { name?: string; id?: string; dob?: string };\n  diagnoses?: string[];\n  medications?: { name: string; dosage?: string; frequency?: string }[];\n  labs?: { name: string; value?: string; unit?: string; reference?: string }[];\n  notes?: string;\n};\n` +
+      `\nOCR_TEXT:\n` +
+      text +
+      `\n\nRespond with valid JSON only.`;
+
+    const resp = await httpFetch(
+      `${endpoint}?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          safetySettings: [],
+          generationConfig: { temperature: 0.2, maxOutputTokens: 1024 },
+        }),
+      }
+    );
+    if (!resp.ok) {
+      const txt = await resp.text();
+      return res
+        .status(502)
+        .json({ error: "Gemini call failed", details: txt });
+    }
+    const out = await resp.json();
+    const rawText = out?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+
+    // Helper: robustly extract first JSON object from model text
+    const extractFirstJson = (text) => {
+      if (!text || typeof text !== "string") return null;
+      // Prefer fenced code blocks
+      const fence = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+      const cand = fence ? fence[1] : text;
+      // Try quick parse
+      try {
+        return JSON.parse(cand.trim());
+      } catch {}
+      // Find first top-level JSON object by brace counting
+      const s = cand;
+      const start = s.indexOf("{");
+      if (start === -1) return null;
+      let depth = 0;
+      for (let i = start; i < s.length; i++) {
+        const ch = s[i];
+        if (ch === "{") depth++;
+        if (ch === "}") {
+          depth--;
+          if (depth === 0) {
+            const slice = s.slice(start, i + 1);
+            try {
+              return JSON.parse(slice);
+            } catch {}
+          }
+        }
+      }
+      return null;
+    };
+
+    let parsed = extractFirstJson(rawText);
+    if (!parsed || typeof parsed !== "object") {
+      // Last-resort: return a helpful error with raw text
+      return res.status(502).json({
+        error: "Model returned invalid JSON",
+        raw: rawText,
+      });
+    }
+
+    // Ensure required keys exist; if missing, create a minimal object
+    if (!("health_benefits" in parsed) && !("recommendation" in parsed)) {
+      parsed = {
+        source: (filename || "ocr") + " (model-minimal)",
+        notes: (typeof parsed === "object" ? JSON.stringify(parsed) : "").slice(
+          0,
+          800
+        ),
+      };
+    }
+
+    // Persist in profile.medical_docs_json (append)
+    const { rows } = await pool.query(
+      "SELECT medical_docs_json FROM health_profiles WHERE user_id=$1",
+      [userId]
+    );
+    const existing = Array.isArray(rows[0]?.medical_docs_json)
+      ? rows[0].medical_docs_json
+      : [];
+    const item = {
+      id: Date.now().toString(),
+      filename: filename || null,
+      parsed: parsed,
+      created_at: new Date().toISOString(),
+    };
+    const updated = [...existing, item];
+    const upd = await pool.query(
+      "UPDATE health_profiles SET medical_docs_json=$1, updated_at=NOW() WHERE user_id=$2",
+      [JSON.stringify(updated), userId]
+    );
+    if (upd.rowCount === 0) {
+      // Create profile row if it doesn't exist yet
+      await pool.query(
+        "INSERT INTO health_profiles (user_id, medical_docs_json) VALUES ($1, $2)",
+        [userId, JSON.stringify(updated)]
+      );
+    }
+
+    return res.json({ data: parsed, raw: rawText });
+  } catch (err) {
+    const code = err && err.code;
+    if (code === "42P01" || code === "42703") {
+      // Missing table/column
+      console.warn("/api/upload-doc schema issue:", code, err.message);
+      return res.status(409).json({
+        error: "Database schema missing",
+        hint: "Run: npm run db:setup and retry",
+        code,
+      });
+    }
+    console.error("/api/upload-doc error", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
