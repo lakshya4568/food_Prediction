@@ -3,14 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node server.js & BACKEND_URL=http://localhost:3001 next dev --turbopack",
+    "dev": "NODE_OPTIONS=--no-deprecation node server.js & NODE_OPTIONS=--no-deprecation BACKEND_URL=http://localhost:3001 next dev --turbopack",
     "dev:full": "BACKEND_URL=http://localhost:3001 next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "db:setup": "node db-setup.js",
     "test:db": "node scripts/test-db-connection.js",
-    "test:auth": "node scripts/test-auth-flow.js"
+    "test:auth": "node scripts/test-auth-flow.js",
+    "test:rating": "node scripts/test-rating.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

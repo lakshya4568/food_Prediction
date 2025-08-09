@@ -72,6 +72,10 @@ export default function PredictPage() {
   const [nutrition, setNutrition] = useState(null);
   const [isNutriLoading, setIsNutriLoading] = useState(false);
   const [nutriError, setNutriError] = useState(null);
+  // Health rating state (from Node backend)
+  const [rating, setRating] = useState(null);
+  const [isRatingLoading, setIsRatingLoading] = useState(false);
+  const [ratingError, setRatingError] = useState(null);
 
   // Calculate BMI automatically
   useEffect(() => {
@@ -171,6 +175,43 @@ export default function PredictPage() {
     }
   }, []);
 
+  // Fetch personalized health rating from Node backend
+  const fetchRating = useCallback(async (nutri) => {
+    if (!nutri) return;
+    try {
+      setIsRatingLoading(true);
+      setRatingError(null);
+      setRating(null);
+      const nodeBase =
+        process.env.NEXT_PUBLIC_NODE_API_BASE || "http://localhost:3001";
+      const res = await fetch(`${nodeBase}/api/rating`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // include auth cookie
+        body: JSON.stringify({
+          food: nutri.food,
+          nutrients: nutri.nutrients,
+        }),
+      });
+      if (res.status === 401) {
+        // Not logged in; show anonymous rating attempt? For now, surface message
+        const txt = await res.text();
+        throw new Error("Please log in to see personalized rating");
+      }
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `Rating API error ${res.status}`);
+      }
+      const data = await res.json();
+      setRating(data);
+    } catch (e) {
+      console.error("Rating fetch error", e);
+      setRatingError(e.message || "Failed to fetch rating");
+    } finally {
+      setIsRatingLoading(false);
+    }
+  }, []);
+
   const fetchHealthInfo = useCallback(async () => {
     if (!prediction || !prediction.class || !height || !weight || !bmi) {
       setHealthError(
@@ -228,8 +269,17 @@ export default function PredictPage() {
       setHealthError(null);
       setNutrition(null);
       setNutriError(null);
+      setRating(null);
+      setRatingError(null);
     }
   }, [prediction, height, weight, bmi, fetchHealthInfo, fetchNutrition]);
+
+  // When nutrition arrives, request rating
+  useEffect(() => {
+    if (nutrition?.nutrients) {
+      fetchRating(nutrition);
+    }
+  }, [nutrition, fetchRating]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
@@ -750,6 +800,51 @@ export default function PredictPage() {
                     >
                       Nutrition Facts
                     </h3>
+                    {/* Rating badge */}
+                    <div className="mb-4 flex items-center justify-between">
+                      <div
+                        className={`${
+                          theme === "dark" ? "text-gray-300" : "text-gray-700"
+                        } text-sm`}
+                      >
+                        Health Rating
+                      </div>
+                      {isRatingLoading ? (
+                        <div className="text-xs opacity-70">Scoring...</div>
+                      ) : ratingError ? (
+                        <div className="text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-1 rounded">
+                          {ratingError}
+                        </div>
+                      ) : rating ? (
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-white font-bold ${
+                              rating.grade === "A"
+                                ? "bg-green-600"
+                                : rating.grade === "B"
+                                ? "bg-green-500"
+                                : rating.grade === "C"
+                                ? "bg-yellow-500"
+                                : rating.grade === "D"
+                                ? "bg-orange-500"
+                                : "bg-red-600"
+                            }`}
+                            title={`Score ${rating.score}`}
+                          >
+                            {rating.grade}
+                          </span>
+                          <span
+                            className={`${
+                              theme === "dark"
+                                ? "text-gray-300"
+                                : "text-gray-700"
+                            } text-sm`}
+                          >
+                            Score {rating.score}
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
                     {isNutriLoading ? (
                       <div className="text-center py-4">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto mb-2"></div>

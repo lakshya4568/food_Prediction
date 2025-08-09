@@ -396,6 +396,228 @@ app.post("/api/grocery/aggregate", authMiddleware, async (req, res) => {
   }
 });
 
+// Health Rating System
+// POST /api/rating
+// Body: {
+//   food?: { description?: string },
+//   nutrients: { calories?: number, protein_g?: number, fat_g?: number, carbs_g?: number, fiber_g?: number, sugar_g?: number, sodium_mg?: number },
+//   goals?: { lowSodium?: boolean }
+// }
+// Returns: { grade: 'A'|'B'|'C'|'D'|'E', score: number(0-100), reasons: string[], suggestions: string[] }
+app.post("/api/rating", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const payload = req.body || {};
+    const nutrients = payload.nutrients || {};
+    const food = payload.food || {};
+    const goals = payload.goals || {};
+
+    // Validate minimal input
+    if (
+      !nutrients ||
+      (nutrients.calories == null &&
+        nutrients.protein_g == null &&
+        nutrients.fat_g == null &&
+        nutrients.carbs_g == null &&
+        nutrients.fiber_g == null &&
+        nutrients.sugar_g == null &&
+        nutrients.sodium_mg == null)
+    ) {
+      return res.status(400).json({
+        error:
+          "Missing nutrients. Provide at least one of calories, protein_g, fat_g, carbs_g, fiber_g, sugar_g, sodium_mg.",
+      });
+    }
+
+    // Fetch user health profile
+    const { rows } = await pool.query(
+      "SELECT age, gender, allergies FROM health_profiles WHERE user_id = $1",
+      [userId]
+    );
+    const profile = rows[0] || null;
+
+    // Derive goal flags from profile if not explicitly provided
+    const allergyText = (profile?.allergies || "").toLowerCase();
+    const descriptionText = (food?.description || "").toLowerCase();
+    const profileImpliesLowSodium =
+      /hypertension|blood\s*pressure|low\s*sodium/.test(allergyText);
+    const isLowSodiumGoal = !!(goals?.lowSodium || profileImpliesLowSodium);
+
+    // Simple scoring engine
+    const reasons = [];
+    const suggestions = [];
+    let score = 50; // start neutral
+
+    // Helper to add/subtract with reason
+    const add = (pts, reason, suggestion) => {
+      score += pts;
+      if (reason) reasons.push(`${pts >= 0 ? "+" : ""}${pts}: ${reason}`);
+      if (suggestion) suggestions.push(suggestion);
+    };
+
+    const cal = Number.isFinite(nutrients.calories) ? nutrients.calories : null;
+    const protein = Number.isFinite(nutrients.protein_g)
+      ? nutrients.protein_g
+      : null;
+    const fat = Number.isFinite(nutrients.fat_g) ? nutrients.fat_g : null;
+    const carbs = Number.isFinite(nutrients.carbs_g) ? nutrients.carbs_g : null;
+    const fiber = Number.isFinite(nutrients.fiber_g) ? nutrients.fiber_g : null;
+    const sugar = Number.isFinite(nutrients.sugar_g) ? nutrients.sugar_g : null;
+    const sodium = Number.isFinite(nutrients.sodium_mg)
+      ? nutrients.sodium_mg
+      : null;
+
+    // Protein bonus
+    if (protein != null) {
+      const protBonus = Math.min(20, Math.max(0, protein * 1));
+      if (protBonus > 0) add(protBonus, `Good protein (${protein}g)`);
+    }
+
+    // Fiber bonus
+    if (fiber != null) {
+      const fibBonus = Math.min(15, Math.max(0, fiber * 1.5));
+      if (fibBonus > 0) add(fibBonus, `Dietary fiber (${fiber}g)`);
+    }
+
+    // Calorie ranges (per serving)
+    if (cal != null) {
+      if (cal < 300) add(5, `Moderate calories (${cal} kcal)`);
+      else if (cal >= 300 && cal < 500)
+        add(
+          -5,
+          `Calories on the higher side (${cal} kcal)`,
+          "Consider a smaller portion or a lighter side."
+        );
+      else if (cal >= 500 && cal < 700)
+        add(
+          -10,
+          `High calories (${cal} kcal)`,
+          "Balance with lower-calorie meals later in the day."
+        );
+      else if (cal >= 700)
+        add(
+          -15,
+          `Very high calories (${cal} kcal)`,
+          "Opt for lean protein and vegetables to reduce calorie density."
+        );
+    }
+
+    // Sugar ranges
+    if (sugar != null) {
+      if (sugar < 5) add(5, `Low sugar (${sugar}g)`);
+      else if (sugar >= 5 && sugar < 15)
+        add(
+          -5,
+          `Moderate sugar (${sugar}g)`,
+          "Limit sweetened sauces or drinks."
+        );
+      else if (sugar >= 15 && sugar < 30)
+        add(
+          -10,
+          `High sugar (${sugar}g)`,
+          "Choose unsweetened alternatives where possible."
+        );
+      else if (sugar >= 30)
+        add(
+          -20,
+          `Very high sugar (${sugar}g)`,
+          "Avoid added sugars and desserts with this meal."
+        );
+    }
+
+    // Fat ranges (total fat)
+    if (fat != null) {
+      if (fat < 15) add(5, `Lower total fat (${fat}g)`);
+      else if (fat >= 15 && fat < 30)
+        add(
+          -5,
+          `Moderate total fat (${fat}g)`,
+          "Prefer grilling/baking over frying."
+        );
+      else if (fat >= 30)
+        add(
+          -10,
+          `High total fat (${fat}g)`,
+          "Reduce cheese, oils, or creamy dressings."
+        );
+    }
+
+    // Sodium ranges (mg)
+    if (sodium != null) {
+      const mult = isLowSodiumGoal ? 2 : 1; // emphasize if low sodium goal
+      if (sodium < 400) add(5 * mult, `Low sodium (${sodium} mg)`);
+      else if (sodium >= 400 && sodium < 800)
+        add(
+          -5 * mult,
+          `Moderate sodium (${sodium} mg)`,
+          "Ask for sauces on the side and use less salt."
+        );
+      else if (sodium >= 800 && sodium < 1500)
+        add(
+          -15 * mult,
+          `High sodium (${sodium} mg)`,
+          "Choose low-sodium options and avoid processed meats."
+        );
+      else if (sodium >= 1500)
+        add(
+          -25 * mult,
+          `Very high sodium (${sodium} mg)`,
+          "Strongly consider a low-salt alternative."
+        );
+      if (isLowSodiumGoal)
+        reasons.push("Low-sodium goal emphasized in scoring");
+    }
+
+    // Simple allergy-based red flags (very naive string contains)
+    if (allergyText) {
+      const flags = [];
+      const allergyList = allergyText
+        .split(/[,;\n]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      for (const a of allergyList) {
+        if (a && descriptionText && descriptionText.includes(a)) flags.push(a);
+      }
+      if (flags.length) {
+        add(
+          -20,
+          `Potential allergen(s): ${flags.join(", ")}`,
+          "Avoid ingredients that trigger your allergies."
+        );
+      }
+    }
+
+    // Carbs consideration (optional, gentle)
+    if (carbs != null && carbs > 70) {
+      add(
+        -5,
+        `High carbohydrates (${carbs}g)`,
+        "Pair with protein and fiber to moderate glycemic impact."
+      );
+    }
+
+    // Clamp score and map to grade
+    score = Math.max(0, Math.min(100, Math.round(score)));
+    let grade = "E";
+    if (score >= 90) grade = "A";
+    else if (score >= 75) grade = "B";
+    else if (score >= 60) grade = "C";
+    else if (score >= 45) grade = "D";
+
+    return res.json({
+      grade,
+      score,
+      reasons,
+      suggestions,
+      profileUsed: !!profile,
+      goals: { lowSodium: isLowSodiumGoal },
+    });
+  } catch (err) {
+    console.error("/api/rating error", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
