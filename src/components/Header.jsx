@@ -70,7 +70,9 @@ export default function Header() {
                   Predict Food
                 </Link>
                 <button
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  onClick={() =>
+                    setTheme(resolvedTheme === "dark" ? "light" : "dark")
+                  }
                   className="btn btn-secondary"
                   title={`Toggle theme (current: ${resolvedTheme})`}
                 >
@@ -121,7 +123,9 @@ export default function Header() {
                 Logout
               </button>
               <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                onClick={() =>
+                  setTheme(resolvedTheme === "dark" ? "light" : "dark")
+                }
                 className="text-left"
               >
                 Toggle {resolvedTheme === "dark" ? "Light" : "Dark"} Mode
