@@ -200,14 +200,14 @@ export default function HealthDocsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Health Documents
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             View and download your health reports, nutrition analyses, and
             progress tracking documents
           </p>
@@ -215,45 +215,53 @@ export default function HealthDocsContent() {
 
         {/* Quick Health Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
             <div className="flex items-center">
               <FaChartLine className="text-blue-500 text-xl mr-3" />
               <div>
-                <p className="text-sm text-gray-600">Current BMI</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Current BMI
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {healthMetrics.currentBMI}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
             <div className="flex items-center">
               <span className="text-green-500 text-xl mr-3">🔥</span>
               <div>
-                <p className="text-sm text-gray-600">Avg Calories/Week</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Avg Calories/Week
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {healthMetrics.weeklyCalorieAvg}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
             <div className="flex items-center">
               <span className="text-purple-500 text-xl mr-3">💪</span>
               <div>
-                <p className="text-sm text-gray-600">Exercise (hrs/week)</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Exercise (hrs/week)
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {healthMetrics.exerciseHours}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
             <div className="flex items-center">
               <span className="text-cyan-500 text-xl mr-3">💧</span>
               <div>
-                <p className="text-sm text-gray-600">Water (L/day)</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Water (L/day)
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {healthMetrics.waterIntake}
                 </p>
               </div>
@@ -262,12 +270,12 @@ export default function HealthDocsContent() {
         </div>
 
         {/* Upload & Parse */}
-        <div className="bg-white rounded-lg shadow-lg mb-8">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg mb-8">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
               Upload medical document
             </h2>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
               Supported: PDF (first page text) or images (PNG/JPG). Your text is
               parsed by Gemini on the server.
             </p>
@@ -278,7 +286,7 @@ export default function HealthDocsContent() {
               type="file"
               accept="application/pdf,image/*"
               onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700"
+              className="block w-full text-sm text-gray-700 dark:text-gray-200"
             />
             <div className="flex gap-2">
               <button
@@ -286,7 +294,7 @@ export default function HealthDocsContent() {
                 disabled={isOcrLoading || !file}
                 className={`px-4 py-2 rounded-lg text-white ${
                   isOcrLoading || !file
-                    ? "bg-gray-300"
+                    ? "bg-gray-300 dark:bg-gray-700"
                     : "bg-blue-600 hover:bg-blue-700"
                 }`}
               >
@@ -297,7 +305,7 @@ export default function HealthDocsContent() {
                 disabled={isUploading || !ocrText}
                 className={`px-4 py-2 rounded-lg text-white ${
                   isUploading || !ocrText
-                    ? "bg-gray-300"
+                    ? "bg-gray-300 dark:bg-gray-700"
                     : "bg-green-600 hover:bg-green-700"
                 }`}
               >
@@ -305,20 +313,20 @@ export default function HealthDocsContent() {
               </button>
             </div>
             {(ocrError || uploadError) && (
-              <div className="text-red-600 text-sm">
+              <div className="text-red-600 dark:text-red-400 text-sm">
                 {ocrError || uploadError}
               </div>
             )}
             {ocrText && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   OCR Text (editable)
                 </label>
                 <textarea
                   value={ocrText}
                   onChange={(e) => setOcrText(e.target.value)}
                   rows={6}
-                  className="w-full border rounded p-2 text-sm"
+                  className="w-full border rounded p-2 text-sm bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200"
                 />
               </div>
             )}
@@ -326,10 +334,10 @@ export default function HealthDocsContent() {
         </div>
 
         {/* Documents List */}
-        <div className="bg-white rounded-lg shadow-lg">
-          <div className="p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center">
                 <FaFileAlt className="mr-2 text-blue-500" />
                 Your Health Documents
               </h2>
@@ -347,21 +355,21 @@ export default function HealthDocsContent() {
               {documents.map((doc) => (
                 <div
                   key={doc.id || doc.created_at}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                       <FaFileAlt className="text-blue-500 text-xl" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
                         {doc.filename ||
                           doc.parsed?.patient?.name ||
                           "Medical Document"}
                       </h3>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
                         {doc.parsed?.date && (
-                          <div className="flex items-center text-xs text-gray-500">
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
                             <FaCalendarAlt className="mr-1" />
                             {doc.parsed.date}
                           </div>
