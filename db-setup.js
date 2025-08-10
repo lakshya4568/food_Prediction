@@ -105,6 +105,31 @@ const pool = new Pool({
       "created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()"
     );
 
+    // Per-user settings table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_settings (
+        user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        theme TEXT CHECK (theme IN ('light','dark','system')) DEFAULT 'system',
+        language TEXT DEFAULT 'en',
+        email_notifications BOOLEAN DEFAULT TRUE,
+        push_notifications BOOLEAN DEFAULT FALSE,
+        weekly_reports BOOLEAN DEFAULT TRUE,
+        meal_reminders BOOLEAN DEFAULT TRUE,
+        data_sharing BOOLEAN DEFAULT FALSE,
+        analytics_opt_in BOOLEAN DEFAULT TRUE,
+        units TEXT CHECK (units IN ('metric','imperial')) DEFAULT 'metric',
+        dietary_preferences TEXT,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await client.query(
+      `CREATE INDEX IF NOT EXISTS idx_user_settings_theme ON user_settings(theme)`
+    );
+    await client.query(
+      `CREATE INDEX IF NOT EXISTS idx_user_settings_language ON user_settings(language)`
+    );
+
     // Grocery items table (per-user persistent shopping list)
     // Determine users.id type to ensure FK type matches (uuid vs integer, etc.)
     const { rows: userIdTypeRows } = await client.query(

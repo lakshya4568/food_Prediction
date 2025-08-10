@@ -178,6 +178,122 @@ app.get("/api/me", authMiddleware, async (req, res) => {
   }
 });
 
+// User settings endpoints (secured)
+// GET current user's settings (creates defaults on first access if missing)
+app.get("/api/settings", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { rows } = await pool.query(
+      "SELECT user_id, theme, language, email_notifications, push_notifications, weekly_reports, meal_reminders, data_sharing, analytics_opt_in, units, dietary_preferences FROM user_settings WHERE user_id = $1",
+      [userId]
+    );
+    if (!rows[0]) {
+      // lazily create with defaults
+      const ins = await pool.query(
+        "INSERT INTO user_settings (user_id) VALUES ($1) RETURNING user_id, theme, language, email_notifications, push_notifications, weekly_reports, meal_reminders, data_sharing, analytics_opt_in, units, dietary_preferences",
+        [userId]
+      );
+      return res.status(201).json({ settings: ins.rows[0], created: true });
+    }
+    res.json({ settings: rows[0] });
+  } catch (err) {
+    console.error("GET /api/settings error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// PUT update settings (partial allowed)
+app.put("/api/settings", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const {
+      theme,
+      language,
+      emailNotifications,
+      pushNotifications,
+      weeklyReports,
+      mealReminders,
+      dataSharing,
+      analyticsOptIn,
+      units,
+      dietaryPreferences,
+    } = req.body || {};
+
+    // Validate enums where applicable
+    const themeVal = theme ?? null;
+    if (themeVal && !["light", "dark", "system"].includes(themeVal)) {
+      return res.status(400).json({ error: "Invalid theme" });
+    }
+    const unitsVal = units ?? null;
+    if (unitsVal && !["metric", "imperial"].includes(unitsVal)) {
+      return res.status(400).json({ error: "Invalid units" });
+    }
+
+    // Upsert style: update if exists, else insert
+    const existing = await pool.query(
+      "SELECT 1 FROM user_settings WHERE user_id = $1",
+      [userId]
+    );
+    if (existing.rows[0]) {
+      const upd = await pool.query(
+        `UPDATE user_settings SET
+          theme = COALESCE($1, theme),
+          language = COALESCE($2, language),
+          email_notifications = COALESCE($3, email_notifications),
+          push_notifications = COALESCE($4, push_notifications),
+          weekly_reports = COALESCE($5, weekly_reports),
+          meal_reminders = COALESCE($6, meal_reminders),
+          data_sharing = COALESCE($7, data_sharing),
+          analytics_opt_in = COALESCE($8, analytics_opt_in),
+          units = COALESCE($9, units),
+          dietary_preferences = COALESCE($10, dietary_preferences),
+          updated_at = NOW()
+        WHERE user_id = $11
+        RETURNING user_id, theme, language, email_notifications, push_notifications, weekly_reports, meal_reminders, data_sharing, analytics_opt_in, units, dietary_preferences`,
+        [
+          themeVal,
+          language ?? null,
+          emailNotifications ?? null,
+          pushNotifications ?? null,
+          weeklyReports ?? null,
+          mealReminders ?? null,
+          dataSharing ?? null,
+          analyticsOptIn ?? null,
+          unitsVal,
+          dietaryPreferences ?? null,
+          userId,
+        ]
+      );
+      return res.json({ settings: upd.rows[0] });
+    } else {
+      const ins = await pool.query(
+        `INSERT INTO user_settings (
+          user_id, theme, language, email_notifications, push_notifications, weekly_reports, meal_reminders, data_sharing, analytics_opt_in, units, dietary_preferences
+        ) VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
+        ) RETURNING user_id, theme, language, email_notifications, push_notifications, weekly_reports, meal_reminders, data_sharing, analytics_opt_in, units, dietary_preferences`,
+        [
+          userId,
+          themeVal || "system",
+          language || "en",
+          emailNotifications ?? true,
+          pushNotifications ?? false,
+          weeklyReports ?? true,
+          mealReminders ?? true,
+          dataSharing ?? false,
+          analyticsOptIn ?? true,
+          unitsVal || "metric",
+          dietaryPreferences ?? null,
+        ]
+      );
+      return res.status(201).json({ settings: ins.rows[0] });
+    }
+  } catch (err) {
+    console.error("PUT /api/settings error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Health profile endpoints (secured)
 app.get("/api/profile", authMiddleware, async (req, res) => {
   try {

@@ -11,10 +11,12 @@ import {
   FaSave,
   FaHeartbeat,
 } from "react-icons/fa";
+import { useTheme } from "./ThemeContext";
 
 export default function SettingsContent() {
   const API_NODE_BASE =
     process.env.NEXT_PUBLIC_NODE_API_URL || "http://localhost:3001";
+  const { setTheme } = useTheme();
 
   const [settings, setSettings] = useState({
     // Profile Settings
@@ -40,6 +42,7 @@ export default function SettingsContent() {
     // Appearance Settings
     theme: "light",
     language: "en",
+    units: "metric",
   });
 
   const handleSettingChange = (key, value) => {
@@ -93,10 +96,71 @@ export default function SettingsContent() {
     };
   }, [API_NODE_BASE]);
 
-  const handleSave = () => {
-    // Generic settings save (placeholder)
-    console.log("Settings saved:", settings);
-    alert("Settings saved successfully!");
+  // Load app settings
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/settings`, { credentials: "include" });
+        if (!res.ok) return; // likely not logged in
+        const data = await res.json();
+        const s = data.settings || {};
+        if (!cancelled) {
+          setSettings((prev) => ({
+            ...prev,
+            theme: s.theme || prev.theme,
+            language: s.language || prev.language,
+            emailNotifications:
+              s.email_notifications ?? prev.emailNotifications,
+            pushNotifications: s.push_notifications ?? prev.pushNotifications,
+            weeklyReports: s.weekly_reports ?? prev.weeklyReports,
+            mealReminders: s.meal_reminders ?? prev.mealReminders,
+            dataSharing: s.data_sharing ?? prev.dataSharing,
+            analyticsOptIn: s.analytics_opt_in ?? prev.analyticsOptIn,
+            units: s.units || prev.units || "metric",
+            allergies: s.dietary_preferences || prev.allergies,
+          }));
+          if (s.theme) setTheme(s.theme);
+        }
+      } catch (e) {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [setTheme]);
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`/api/settings`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          theme: settings.theme,
+          language: settings.language,
+          emailNotifications: settings.emailNotifications,
+          pushNotifications: settings.pushNotifications,
+          weeklyReports: settings.weeklyReports,
+          mealReminders: settings.mealReminders,
+          dataSharing: settings.dataSharing,
+          analyticsOptIn: settings.analyticsOptIn,
+          units: settings.units || "metric",
+          dietaryPreferences: settings.allergies || null,
+        }),
+      });
+      if (res.status === 401) throw new Error("Not authorized");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Failed (${res.status})`);
+      }
+      await res.json();
+      if (settings.theme) setTheme(settings.theme);
+      alert("Settings saved successfully!");
+    } catch (e) {
+      alert(e.message || "Failed to save settings");
+    }
   };
 
   const handleHealthProfileSave = async () => {
@@ -157,12 +221,14 @@ export default function SettingsContent() {
   };
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Settings
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
             Manage your account preferences and application settings
           </p>
         </div>
@@ -170,7 +236,7 @@ export default function SettingsContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Settings Navigation */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Settings Categories
               </h2>
@@ -217,9 +283,12 @@ export default function SettingsContent() {
           {/* Settings Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Profile Settings */}
-            <div id="profile" className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <div
+              id="profile"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow"
+            >
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                   <FaUser className="mr-2 text-blue-500" />
                   Profile Settings
                 </h3>
@@ -283,14 +352,32 @@ export default function SettingsContent() {
                       <option value="very-active">Very Active</option>
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Units
+                    </label>
+                    <select
+                      value={settings.units || "metric"}
+                      onChange={(e) =>
+                        handleSettingChange("units", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="metric">Metric (kg, cm)</option>
+                      <option value="imperial">Imperial (lb, in)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Health Profile (Dietary / Medical) */}
-            <div id="health-profile" className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <div
+              id="health-profile"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow"
+            >
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                   <FaHeartbeat className="mr-2 text-pink-500" />
                   Health Profile
                 </h3>
@@ -373,6 +460,20 @@ export default function SettingsContent() {
                     tailor recommendations (stored securely).
                   </p>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Dietary Preferences (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.dietaryPreferences || ""}
+                    onChange={(e) =>
+                      handleSettingChange("dietaryPreferences", e.target.value)
+                    }
+                    placeholder="e.g. vegetarian, keto, paleo"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
                 {healthProfileStatus && (
                   <div
                     className={`text-sm rounded-md px-3 py-2 border ${
@@ -409,9 +510,12 @@ export default function SettingsContent() {
             </div>
 
             {/* Notification Settings */}
-            <div id="notifications" className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <div
+              id="notifications"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow"
+            >
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                   <FaBell className="mr-2 text-green-500" />
                   Notification Preferences
                 </h3>
@@ -469,9 +573,12 @@ export default function SettingsContent() {
             </div>
 
             {/* Privacy Settings */}
-            <div id="privacy" className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <div
+              id="privacy"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow"
+            >
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                   <FaShieldAlt className="mr-2 text-red-500" />
                   Privacy & Security
                 </h3>
@@ -500,9 +607,12 @@ export default function SettingsContent() {
             </div>
 
             {/* Appearance Settings */}
-            <div id="appearance" className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <div
+              id="appearance"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow"
+            >
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                   <FaPalette className="mr-2 text-purple-500" />
                   Appearance
                 </h3>
@@ -545,7 +655,7 @@ export default function SettingsContent() {
             </div>
 
             {/* Save Button */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <button
                 onClick={handleSave}
                 className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center"
