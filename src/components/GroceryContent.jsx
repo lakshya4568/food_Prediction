@@ -12,6 +12,17 @@ export default function GroceryContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [genError, setGenError] = useState(null);
 
+  // Add Item modal state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addError, setAddError] = useState(0);
+  const [form, setForm] = useState({
+    name: "",
+    quantity: "1",
+    unit: "pc",
+    category: "",
+    price: "0",
+  });
+
   const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || ""; // same-origin
 
   const loadItems = async () => {
@@ -48,7 +59,14 @@ export default function GroceryContent() {
     }
   };
 
-  const totalCost = groceryItems.reduce((sum, item) => sum + item.price, 0);
+  // Ensure numeric coercion for prices when summing
+  const totalCost = groceryItems.reduce((sum, item) => {
+    const priceNum =
+      typeof item.price === "number"
+        ? item.price
+        : parseFloat(item.price ?? "0");
+    return sum + (Number.isFinite(priceNum) ? priceNum : 0);
+  }, 0);
   const completedItems = groceryItems.filter((item) => item.completed).length;
 
   const toAggregatePayload = () => {
@@ -106,15 +124,38 @@ export default function GroceryContent() {
     }
   };
 
-  const handleAdd = async () => {
-    const name = prompt("Item name?");
-    if (!name) return;
-    const qtyStr = prompt("Quantity (number)?", "1");
-    const qty = qtyStr ? Number(qtyStr) : 1;
-    const unit = prompt("Unit (e.g., g, ml, pc)?", "pc");
-    const category = prompt("Category?", "");
-    const priceStr = prompt("Price?", "0");
-    const price = priceStr ? Number(priceStr) : 0;
+  const openAddModal = () => {
+    setAddError("");
+    setForm({ name: "", quantity: "1", unit: "pc", category: "", price: "0" });
+    setShowAddModal(true);
+  };
+
+  const closeAddModal = () => {
+    setShowAddModal(false);
+  };
+
+  const handleSubmitAdd = async (e) => {
+    e?.preventDefault?.();
+    setAddError("");
+    const name = String(form.name || "").trim();
+    const qty = parseFloat(String(form.quantity || "").trim());
+    const unit = String(form.unit || "").trim() || "pc";
+    const category = String(form.category || "").trim();
+    const price = parseFloat(String(form.price || "").trim());
+
+    if (!name) {
+      setAddError("Name is required");
+      return;
+    }
+    if (!Number.isFinite(qty) || qty <= 0) {
+      setAddError("Quantity must be a positive number");
+      return;
+    }
+    if (!Number.isFinite(price) || price < 0) {
+      setAddError("Price must be a valid number (>= 0)");
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/api/grocery/items`, {
         method: "POST",
@@ -125,8 +166,17 @@ export default function GroceryContent() {
       if (!res.ok) throw new Error(await res.text());
       const { item } = await res.json();
       setGroceryItems((prev) => [item, ...prev]);
+      setShowAddModal(false);
+      setForm({
+        name: "",
+        quantity: "1",
+        unit: "pc",
+        category: "",
+        price: "0",
+      });
     } catch (e) {
       console.error("add item error", e);
+      setAddError(e.message || "Failed to add item");
     }
   };
 
@@ -202,7 +252,7 @@ export default function GroceryContent() {
               </h2>
               <div className="flex gap-2">
                 <button
-                  onClick={handleAdd}
+                  onClick={openAddModal}
                   className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center"
                 >
                   <FaPlus className="mr-2" />
@@ -314,6 +364,122 @@ export default function GroceryContent() {
             )}
           </div>
         </div>
+
+        {/* Add Item Modal */}
+        {showAddModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={closeAddModal}
+              aria-hidden="true"
+            />
+            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Add Grocery Item
+                </h3>
+              </div>
+              <form onSubmit={handleSubmitAdd} className="px-6 py-4 space-y-4">
+                {addError ? (
+                  <div className="bg-red-50 border border-red-200 text-red-700 p-2 rounded text-sm">
+                    {addError}
+                  </div>
+                ) : null}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    value={form.name}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, name: e.target.value }))
+                    }
+                    className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                    placeholder="e.g., Chicken Breast"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.quantity}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, quantity: e.target.value }))
+                      }
+                      className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Unit
+                    </label>
+                    <input
+                      type="text"
+                      value={form.unit}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, unit: e.target.value }))
+                      }
+                      className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                      placeholder="pc, g, ml, kg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Price ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.price}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, price: e.target.value }))
+                      }
+                      className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    value={form.category}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, category: e.target.value }))
+                    }
+                    className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                    placeholder="e.g., Produce, Meat, Dairy"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={closeAddModal}
+                    className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
+                  >
+                    Save Item
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
