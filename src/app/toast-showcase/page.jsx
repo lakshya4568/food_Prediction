@@ -1,16 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Toast,
-  ToastContainer,
-  ToastAction,
-} from "../../components/ui/Toast";
-import {
-  ToastProvider,
-  useToast,
-} from "../../components/ui/ToastProvider";
+import { Toast, ToastContainer, ToastAction } from "../../components/ui/Toast";
+import { ToastProvider, useToast } from "../../components/ui/ToastProvider";
 import { Button } from "../../components/ui";
+import { useTheme } from "../../components/ThemeContext";
 
 // Demo content component that uses toast
 function ToastDemo() {
@@ -18,6 +12,7 @@ function ToastDemo() {
     useToast();
   const [position, setPosition] = useState("top-right");
   const [counter, setCounter] = useState(1);
+  const { resolvedTheme, setTheme } = useTheme();
 
   // Basic toast examples
   const showBasicToasts = () => {
@@ -393,11 +388,11 @@ function ToastDemo() {
           <div className="mt-4">
             <Button
               onClick={() => {
-                document.documentElement.classList.toggle("dark");
+                setTheme(resolvedTheme === "dark" ? "light" : "dark");
               }}
               className="btn-outline"
             >
-              Toggle Dark Mode
+              Toggle {resolvedTheme === "dark" ? "Light" : "Dark"} Mode
             </Button>
           </div>
         </div>

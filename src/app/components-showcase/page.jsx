@@ -12,11 +12,13 @@ import FileUploadZone from "../../components/ui/FileUploadZone";
 import ProgressBar, {
   FileUploadProgress,
 } from "../../components/ui/ProgressBar";
+import { useTheme } from "../../components/ThemeContext";
 
 export default function ComponentsShowcase() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
 
   const handleFileSelect = (file) => {
     setSelectedFile(file);
@@ -372,10 +374,10 @@ export default function ComponentsShowcase() {
               variant="outline"
               size="sm"
               onClick={() => {
-                document.documentElement.classList.toggle("dark");
+                setTheme(resolvedTheme === "dark" ? "light" : "dark");
               }}
             >
-              Toggle Dark Mode
+              Toggle {resolvedTheme === "dark" ? "Light" : "Dark"} Mode
             </Button>
             <Button
               variant="secondary"

@@ -12,38 +12,12 @@ import {
 import Image from "next/image";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import { useTheme } from "../../components/ThemeContext";
 
 const API_BASE_URL = "http://localhost:5001";
 
 export default function PredictPage() {
-  // Theme state ('light' or 'dark')
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme) {
-        return savedTheme;
-      }
-      if (
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches
-      ) {
-        return "dark";
-      }
-    }
-    return "light";
-  });
-
-  // Apply theme to document body
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (theme === "dark") {
-        document.body.classList.add("dark");
-      } else {
-        document.body.classList.remove("dark");
-      }
-      localStorage.setItem("theme", theme);
-    }
-  }, [theme]);
+  const { resolvedTheme, setTheme } = useTheme();
 
   // Existing state
   const [selectedImage, setSelectedImage] = useState(null);
@@ -276,7 +250,7 @@ export default function PredictPage() {
   }, [nutrition, fetchRating]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
   };
 
   const resetForm = () => {
@@ -328,7 +302,7 @@ export default function PredictPage() {
   return (
     <div
       className={`min-h-screen ${
-        theme === "dark" ? "dark bg-gray-900" : "bg-gray-50"
+        resolvedTheme === "dark" ? "dark bg-gray-900" : "bg-gray-50"
       }`}
     >
       <Header />
@@ -339,14 +313,14 @@ export default function PredictPage() {
           <div className="text-center mb-12">
             <h1
               className={`text-4xl md:text-5xl font-bold ${
-                theme === "dark" ? "text-white" : "text-gray-900"
+                resolvedTheme === "dark" ? "text-white" : "text-gray-900"
               } mb-4`}
             >
               Nutri <span className="text-green-500">VISION</span>
             </h1>
             <p
               className={`text-xl ${
-                theme === "dark" ? "text-gray-300" : "text-gray-600"
+                resolvedTheme === "dark" ? "text-gray-300" : "text-gray-600"
               } mb-6 font-serif`}
             >
               Classification of Food & Drug with Health Advisory
@@ -357,7 +331,7 @@ export default function PredictPage() {
               onClick={toggleTheme}
               className="fixed top-24 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
             >
-              {theme === "light" ? <FaMoon /> : <FaSun />}
+              {resolvedTheme === "light" ? <FaMoon /> : <FaSun />}
             </button>
           </div>
 
@@ -366,20 +340,20 @@ export default function PredictPage() {
             {/* Upload Section */}
             <div
               className={`${
-                theme === "dark" ? "bg-gray-800" : "bg-white"
+                resolvedTheme === "dark" ? "bg-gray-800" : "bg-white"
               } rounded-xl shadow-lg p-6 relative`}
             >
               <FaPizzaSlice className="absolute top-4 right-4 text-green-500 text-2xl animate-pulse" />
               <h2
                 className={`text-2xl font-bold ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
+                  resolvedTheme === "dark" ? "text-white" : "text-gray-900"
                 } mb-4`}
               >
                 Upload Image
               </h2>
               <p
                 className={`${
-                  theme === "dark" ? "text-gray-300" : "text-gray-600"
+                  resolvedTheme === "dark" ? "text-gray-300" : "text-gray-600"
                 } mb-6`}
               >
                 Select an image of pizza, steak, or sushi
@@ -403,7 +377,9 @@ export default function PredictPage() {
                   </div>
                   <span
                     className={`${
-                      theme === "dark" ? "text-gray-300" : "text-gray-600"
+                      resolvedTheme === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-600"
                     }`}
                   >
                     {selectedImage
@@ -441,13 +417,13 @@ export default function PredictPage() {
             {/* Image Preview Section */}
             <div
               className={`${
-                theme === "dark" ? "bg-gray-800" : "bg-white"
+                resolvedTheme === "dark" ? "bg-gray-800" : "bg-white"
               } rounded-xl shadow-lg p-6 relative`}
             >
               <FaHamburger className="absolute top-4 right-4 text-green-500 text-2xl animate-pulse" />
               <h2
                 className={`text-2xl font-bold ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
+                  resolvedTheme === "dark" ? "text-white" : "text-gray-900"
                 } mb-4`}
               >
                 Image Preview
@@ -467,12 +443,14 @@ export default function PredictPage() {
               ) : (
                 <div
                   className={`h-64 flex items-center justify-center ${
-                    theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+                    resolvedTheme === "dark" ? "bg-gray-700" : "bg-gray-100"
                   } rounded-lg`}
                 >
                   <p
                     className={`${
-                      theme === "dark" ? "text-gray-400" : "text-gray-500"
+                      resolvedTheme === "dark"
+                        ? "text-gray-400"
+                        : "text-gray-500"
                     }`}
                   >
                     Your image will appear here
@@ -487,20 +465,20 @@ export default function PredictPage() {
             {/* Health Input Section */}
             <div
               className={`${
-                theme === "dark" ? "bg-gray-800" : "bg-white"
+                resolvedTheme === "dark" ? "bg-gray-800" : "bg-white"
               } rounded-xl shadow-lg p-6 relative`}
             >
               <FaAppleAlt className="absolute top-4 right-4 text-green-500 text-2xl animate-pulse" />
               <h2
                 className={`text-2xl font-bold ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
+                  resolvedTheme === "dark" ? "text-white" : "text-gray-900"
                 } mb-4`}
               >
                 Your Health Profile
               </h2>
               <p
                 className={`${
-                  theme === "dark" ? "text-gray-300" : "text-gray-600"
+                  resolvedTheme === "dark" ? "text-gray-300" : "text-gray-600"
                 } mb-6`}
               >
                 Enter your details for personalized recommendations.
@@ -510,7 +488,9 @@ export default function PredictPage() {
                 <div>
                   <label
                     className={`block ${
-                      theme === "dark" ? "text-gray-300" : "text-gray-700"
+                      resolvedTheme === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     } font-medium mb-2`}
                   >
                     Height (cm):
@@ -522,7 +502,7 @@ export default function PredictPage() {
                     placeholder="e.g., 175"
                     disabled={isLoading || isHealthLoading}
                     className={`w-full p-3 rounded-lg border ${
-                      theme === "dark"
+                      resolvedTheme === "dark"
                         ? "bg-gray-700 border-gray-600 text-white"
                         : "bg-white border-gray-300"
                     } focus:ring-2 focus:ring-green-500 focus:border-transparent`}
@@ -532,7 +512,9 @@ export default function PredictPage() {
                 <div>
                   <label
                     className={`block ${
-                      theme === "dark" ? "text-gray-300" : "text-gray-700"
+                      resolvedTheme === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     } font-medium mb-2`}
                   >
                     Weight (kg):
@@ -544,7 +526,7 @@ export default function PredictPage() {
                     placeholder="e.g., 70"
                     disabled={isLoading || isHealthLoading}
                     className={`w-full p-3 rounded-lg border ${
-                      theme === "dark"
+                      resolvedTheme === "dark"
                         ? "bg-gray-700 border-gray-600 text-white"
                         : "bg-white border-gray-300"
                     } focus:ring-2 focus:ring-green-500 focus:border-transparent`}
@@ -554,14 +536,16 @@ export default function PredictPage() {
                 <div>
                   <label
                     className={`block ${
-                      theme === "dark" ? "text-gray-300" : "text-gray-700"
+                      resolvedTheme === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     } font-medium mb-2`}
                   >
                     Calculated BMI:
                   </label>
                   <div
                     className={`p-3 rounded-lg ${
-                      theme === "dark"
+                      resolvedTheme === "dark"
                         ? "bg-gray-700 text-white"
                         : "bg-gray-100 text-gray-900"
                     }`}
@@ -573,7 +557,9 @@ export default function PredictPage() {
                 <div>
                   <label
                     className={`block ${
-                      theme === "dark" ? "text-gray-300" : "text-gray-700"
+                      resolvedTheme === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     } font-medium mb-2`}
                   >
                     Common Health Conditions:
@@ -587,7 +573,7 @@ export default function PredictPage() {
                           className={`p-2 rounded-lg border transition-colors ${
                             isActive
                               ? "bg-green-500 text-white border-green-500"
-                              : theme === "dark"
+                              : resolvedTheme === "dark"
                               ? "bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600"
                               : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                           }`}
@@ -605,7 +591,9 @@ export default function PredictPage() {
                 <div>
                   <label
                     className={`block ${
-                      theme === "dark" ? "text-gray-300" : "text-gray-700"
+                      resolvedTheme === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     } font-medium mb-2`}
                   >
                     Other Conditions:
@@ -617,7 +605,7 @@ export default function PredictPage() {
                     rows="3"
                     disabled={isLoading || isHealthLoading}
                     className={`w-full p-3 rounded-lg border ${
-                      theme === "dark"
+                      resolvedTheme === "dark"
                         ? "bg-gray-700 border-gray-600 text-white"
                         : "bg-white border-gray-300"
                     } focus:ring-2 focus:ring-green-500 focus:border-transparent`}
@@ -644,7 +632,7 @@ export default function PredictPage() {
             {/* Results Section */}
             <div
               className={`${
-                theme === "dark" ? "bg-gray-800" : "bg-white"
+                resolvedTheme === "dark" ? "bg-gray-800" : "bg-white"
               } rounded-xl shadow-lg p-6 relative`}
             >
               <FaCheck className="absolute top-4 right-4 text-green-500 text-2xl animate-pulse" />
@@ -653,7 +641,7 @@ export default function PredictPage() {
                 <div>
                   <h2
                     className={`text-2xl font-bold ${
-                      theme === "dark" ? "text-white" : "text-gray-900"
+                      resolvedTheme === "dark" ? "text-white" : "text-gray-900"
                     } mb-6`}
                   >
                     Prediction Results
@@ -663,7 +651,9 @@ export default function PredictPage() {
                     <div className="flex items-center justify-between mb-4">
                       <span
                         className={`text-lg ${
-                          theme === "dark" ? "text-gray-300" : "text-gray-600"
+                          resolvedTheme === "dark"
+                            ? "text-gray-300"
+                            : "text-gray-600"
                         }`}
                       >
                         Predicted Food:
@@ -676,7 +666,9 @@ export default function PredictPage() {
                     <div>
                       <h3
                         className={`text-lg font-semibold ${
-                          theme === "dark" ? "text-white" : "text-gray-900"
+                          resolvedTheme === "dark"
+                            ? "text-white"
+                            : "text-gray-900"
                         } mb-3`}
                       >
                         Confidence Scores
@@ -687,7 +679,7 @@ export default function PredictPage() {
                             <div className="flex justify-between items-center mb-1">
                               <span
                                 className={`${
-                                  theme === "dark"
+                                  resolvedTheme === "dark"
                                     ? "text-gray-300"
                                     : "text-gray-700"
                                 }`}
@@ -696,7 +688,7 @@ export default function PredictPage() {
                               </span>
                               <span
                                 className={`font-semibold ${
-                                  theme === "dark"
+                                  resolvedTheme === "dark"
                                     ? "text-white"
                                     : "text-gray-900"
                                 }`}
@@ -706,7 +698,9 @@ export default function PredictPage() {
                             </div>
                             <div
                               className={`w-full ${
-                                theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                                resolvedTheme === "dark"
+                                  ? "bg-gray-700"
+                                  : "bg-gray-200"
                               } rounded-full h-2`}
                             >
                               <div
@@ -725,7 +719,9 @@ export default function PredictPage() {
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-4"></div>
                       <p
                         className={`${
-                          theme === "dark" ? "text-gray-300" : "text-gray-600"
+                          resolvedTheme === "dark"
+                            ? "text-gray-300"
+                            : "text-gray-600"
                         }`}
                       >
                         Fetching health recommendations...
@@ -735,7 +731,9 @@ export default function PredictPage() {
                     <div className="border-t pt-6">
                       <h3
                         className={`text-lg font-semibold ${
-                          theme === "dark" ? "text-white" : "text-gray-900"
+                          resolvedTheme === "dark"
+                            ? "text-white"
+                            : "text-gray-900"
                         } mb-4`}
                       >
                         Health Information for {prediction?.class}
@@ -744,7 +742,7 @@ export default function PredictPage() {
                         <div>
                           <h4
                             className={`font-medium ${
-                              theme === "dark"
+                              resolvedTheme === "dark"
                                 ? "text-green-400"
                                 : "text-green-600"
                             } mb-2`}
@@ -753,7 +751,7 @@ export default function PredictPage() {
                           </h4>
                           <p
                             className={`${
-                              theme === "dark"
+                              resolvedTheme === "dark"
                                 ? "text-gray-300"
                                 : "text-gray-700"
                             }`}
@@ -764,7 +762,7 @@ export default function PredictPage() {
                         <div>
                           <h4
                             className={`font-medium ${
-                              theme === "dark"
+                              resolvedTheme === "dark"
                                 ? "text-green-400"
                                 : "text-green-600"
                             } mb-2`}
@@ -773,7 +771,7 @@ export default function PredictPage() {
                           </h4>
                           <p
                             className={`${
-                              theme === "dark"
+                              resolvedTheme === "dark"
                                 ? "text-gray-300"
                                 : "text-gray-700"
                             }`}
@@ -789,7 +787,9 @@ export default function PredictPage() {
                   <div className="border-t mt-6 pt-6">
                     <h3
                       className={`text-lg font-semibold ${
-                        theme === "dark" ? "text-white" : "text-gray-900"
+                        resolvedTheme === "dark"
+                          ? "text-white"
+                          : "text-gray-900"
                       } mb-4`}
                     >
                       Nutrition Facts
@@ -798,7 +798,9 @@ export default function PredictPage() {
                     <div className="mb-4 flex items-center justify-between">
                       <div
                         className={`${
-                          theme === "dark" ? "text-gray-300" : "text-gray-700"
+                          resolvedTheme === "dark"
+                            ? "text-gray-300"
+                            : "text-gray-700"
                         } text-sm`}
                       >
                         Health Rating
@@ -829,7 +831,7 @@ export default function PredictPage() {
                           </span>
                           <span
                             className={`${
-                              theme === "dark"
+                              resolvedTheme === "dark"
                                 ? "text-gray-300"
                                 : "text-gray-700"
                             } text-sm`}
@@ -844,7 +846,9 @@ export default function PredictPage() {
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto mb-2"></div>
                         <p
                           className={`${
-                            theme === "dark" ? "text-gray-300" : "text-gray-600"
+                            resolvedTheme === "dark"
+                              ? "text-gray-300"
+                              : "text-gray-600"
                           }`}
                         >
                           Fetching nutrition data...
@@ -857,7 +861,9 @@ export default function PredictPage() {
                     ) : nutrition ? (
                       <div
                         className={`grid grid-cols-2 gap-4 ${
-                          theme === "dark" ? "text-gray-300" : "text-gray-700"
+                          resolvedTheme === "dark"
+                            ? "text-gray-300"
+                            : "text-gray-700"
                         }`}
                       >
                         <div>

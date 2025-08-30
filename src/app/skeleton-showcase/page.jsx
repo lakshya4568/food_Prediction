@@ -23,8 +23,10 @@ import {
   SettingsPageSkeleton,
   GenericPageSkeleton,
 } from "../../components/ui/SkeletonLayouts";
+import { useTheme } from "../../components/ThemeContext";
 
 export default function SkeletonShowcase() {
+  const { resolvedTheme, setTheme } = useTheme();
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -234,10 +236,10 @@ export default function SkeletonShowcase() {
             <button
               className="btn-outline"
               onClick={() => {
-                document.documentElement.classList.toggle("dark");
+                setTheme(resolvedTheme === "dark" ? "light" : "dark");
               }}
             >
-              Toggle Dark Mode
+              Toggle {resolvedTheme === "dark" ? "Light" : "Dark"} Mode
             </button>
             <button
               className="btn-secondary"
