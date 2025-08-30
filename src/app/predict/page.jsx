@@ -155,12 +155,8 @@ export default function PredictPage() {
       setIsNutriLoading(true);
       setNutriError(null);
       setNutrition(null);
-      // Nutrition endpoint is served by Node/Express (server.js). Adjust base as needed.
-      const nodeBase =
-        process.env.NEXT_PUBLIC_NODE_API_BASE || "http://localhost:3001";
-      const resp = await fetch(
-        `${nodeBase}/api/nutri?q=${encodeURIComponent(foodName)}`
-      );
+      // Use the proxied API route since Next.js rewrites /api/* to the backend
+      const resp = await fetch(`/api/nutri?q=${encodeURIComponent(foodName)}`);
       if (!resp.ok) {
         const text = await resp.text();
         throw new Error(text || `Nutrition API error ${resp.status}`);
@@ -182,9 +178,7 @@ export default function PredictPage() {
       setIsRatingLoading(true);
       setRatingError(null);
       setRating(null);
-      const nodeBase =
-        process.env.NEXT_PUBLIC_NODE_API_BASE || "http://localhost:3001";
-      const res = await fetch(`${nodeBase}/api/rating`, {
+      const res = await fetch(`/api/rating`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // include auth cookie

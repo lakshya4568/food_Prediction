@@ -10,11 +10,6 @@ import {
 } from "react-icons/fa";
 
 export default function HealthDocsContent() {
-  // Server base for Node/Express API
-  const NODE_BASE = useMemo(
-    () => process.env.NEXT_PUBLIC_NODE_API_BASE || "http://localhost:3001",
-    []
-  );
   // Flask OCR base (defaults to 5001 like predict page)
   const FLASK_BASE = useMemo(
     () => process.env.NEXT_PUBLIC_FLASK_API_BASE || "http://localhost:5001",
@@ -22,18 +17,6 @@ export default function HealthDocsContent() {
   );
 
   // Defensive: ensure absolute base URLs and no trailing slashes
-  const nodeBaseSanitized = useMemo(() => {
-    const deflt = "http://localhost:3001";
-    const val = NODE_BASE || deflt;
-    try {
-      const u = new URL(val);
-      return u.origin.replace(/\/$/, "");
-    } catch {
-      // relative like '/' -> fallback
-      return deflt;
-    }
-  }, [NODE_BASE]);
-
   const flaskBaseSanitized = useMemo(() => {
     const deflt = "http://localhost:5001";
     const val = FLASK_BASE || deflt;
@@ -67,7 +50,7 @@ export default function HealthDocsContent() {
   // Fetch stored docs from backend
   const fetchDocs = async () => {
     try {
-      const res = await fetch(`${nodeBaseSanitized}/api/docs`, {
+      const res = await fetch(`/api/docs`, {
         credentials: "include",
       });
       if (res.status === 401) {
@@ -174,7 +157,7 @@ export default function HealthDocsContent() {
     try {
       setIsUploading(true);
       setUploadError(null);
-      const res = await fetch(`${nodeBaseSanitized}/api/upload-doc`, {
+      const res = await fetch(`/api/upload-doc`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
