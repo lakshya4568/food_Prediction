@@ -23,12 +23,10 @@ try:
 except Exception:
     pytesseract = None
 
-from pyngrok import ngrok, conf
 
 # Load environment from .env (for local dev)
 load_dotenv()
 
-conf.get_default().auth_token = "2vuIkaBHuxB8IsBgWa1DfgFvSsO_5ninjhmiKtmfsn4xWADxL"
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS to allow cross-origin requests from React frontend
@@ -54,7 +52,7 @@ def load_model():
     model = models.vit_b_16(weights='IMAGENET1K_V1')
     
     # Modify the classifier to predict 3 classes (pizza, steak, sushi)
-    model.heads = torch.nn.Linear(in_features=768, out_features=3)
+    model.heads = torch.nn.Linear(in_features=768, out_features=3) #type: ignore
     
     # Load saved model weights if they exist (replace with your saved model path)
     model_path = 'models/pretrained_vit_food_model.pth'
@@ -94,7 +92,8 @@ def predict():
     img = Image.open(image_file.stream).convert('RGB')
     
     # Apply transformations to the image
-    img_tensor = transform(img).unsqueeze(0)  # Add batch dimension
+    # Add batch dimension
+    img_tensor = transform(img).unsqueeze(0)  # type: ignore
     
     # Make prediction
     with torch.no_grad():
@@ -190,11 +189,11 @@ Example JSON output:
             candidate = response.candidates[0]
             if hasattr(candidate, 'content'):
                 content = candidate.content
-                if hasattr(content, 'parts') and content.parts:
-                    part = content.parts[0]
+                if hasattr(content, 'parts') and content.parts: #type: ignore
+                    part = content.parts[0] #type: ignore
                     if hasattr(part, 'text'):
                         response_text = part.text
-                        print(f"📝 Got text from candidates: {response_text[:100]}...")
+                        print(f"📝 Got text from candidates: {response_text[:100]}...") #type: ignore
         
         if not response_text:
             print("❌ No text content found in response")
