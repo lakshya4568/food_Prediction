@@ -941,7 +941,9 @@ export default function PredictPage() {
                     ) : (
                       <div
                         className={`${
-                          theme === "dark" ? "text-gray-400" : "text-gray-500"
+                          resolvedTheme === "dark"
+                            ? "text-gray-400"
+                            : "text-gray-500"
                         }`}
                       >
                         No nutrition data yet.
@@ -953,19 +955,21 @@ export default function PredictPage() {
                 <div className="text-center py-12">
                   <h2
                     className={`text-2xl font-bold ${
-                      theme === "dark" ? "text-white" : "text-gray-900"
+                      resolvedTheme === "dark" ? "text-white" : "text-gray-900"
                     } mb-4`}
                   >
                     Prediction Results
                   </h2>
                   <div
                     className={`h-32 flex items-center justify-center ${
-                      theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+                      resolvedTheme === "dark" ? "bg-gray-700" : "bg-gray-100"
                     } rounded-lg`}
                   >
                     <p
                       className={`${
-                        theme === "dark" ? "text-gray-400" : "text-gray-500"
+                        resolvedTheme === "dark"
+                          ? "text-gray-400"
+                          : "text-gray-500"
                       }`}
                     >
                       {isLoading ? (

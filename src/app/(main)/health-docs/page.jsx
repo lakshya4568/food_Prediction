@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
 import RequireAuth from "../../../components/RequireAuth";
 import HealthDocsLoading from "./loading";
 
@@ -8,15 +9,18 @@ import HealthDocsLoading from "./loading";
 const HealthDocsContent = dynamic(
   () => import("../../../components/HealthDocsContent"),
   {
+    // Use Suspense-compatible dynamic import to prevent uncached promise errors
     ssr: false,
-    loading: () => <HealthDocsLoading />,
+    suspense: true,
   }
 );
 
 export default function HealthDocsPage() {
   return (
     <RequireAuth>
-      <HealthDocsContent />
+      <Suspense fallback={<HealthDocsLoading />}>
+        <HealthDocsContent />
+      </Suspense>
     </RequireAuth>
   );
 }
